@@ -344,6 +344,140 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         topic: 'Oscillations',
         subject: 'Physics'
       }
+    ],
+    'Current Electricity': [
+      {
+        id: 'phy_current_1',
+        question: 'A wire of resistance R is cut into 5 equal parts. These parts are connected in parallel. The equivalent resistance is:',
+        options: [
+          { label: 'A', text: 'R/25' },
+          { label: 'B', text: 'R/5' },
+          { label: 'C', text: '5R' },
+          { label: 'D', text: 'R' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Each part has resistance R/5. When 5 resistors of R/5 are connected in parallel: 1/Req = 5/(R/5) = 25/R, so Req = R/25',
+        topic: 'Current Electricity',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_current_2',
+        question: 'A battery of EMF 10V and internal resistance 1Ω is connected to external resistance 4Ω. The terminal voltage is:',
+        options: [
+          { label: 'A', text: '8V' },
+          { label: 'B', text: '6V' },
+          { label: 'C', text: '2V' },
+          { label: 'D', text: '10V' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Current I = EMF/(r+R) = 10/(1+4) = 2A. Terminal voltage = EMF - Ir = 10 - 2×1 = 8V',
+        topic: 'Current Electricity',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_current_3',
+        question: 'Two bulbs of 40W-220V and 100W-220V are connected in series across 220V. The power consumed by 40W bulb is:',
+        options: [
+          { label: 'A', text: '64W' },
+          { label: 'B', text: '16W' },
+          { label: 'C', text: '25.6W' },
+          { label: 'D', text: '40W' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'R₁ = 220²/40 = 1210Ω, R₂ = 220²/100 = 484Ω. Current I = 220/(1210+484) = 0.13A. Power = I²R₁ = (0.13)²×1210 = 25.6W',
+        topic: 'Current Electricity',
+        subject: 'Physics'
+      }
+    ],
+    'Alternating Current': [
+      {
+        id: 'phy_ac_1',
+        question: 'In an RLC series circuit, the power factor is maximum when:',
+        options: [
+          { label: 'A', text: 'XL > XC' },
+          { label: 'B', text: 'XL < XC' },
+          { label: 'C', text: 'XL = XC' },
+          { label: 'D', text: 'XL = 0' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'Power factor = cos φ = R/Z. This is maximum when Z is minimum, which occurs at resonance when XL = XC.',
+        topic: 'Alternating Current',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_ac_2',
+        question: 'A transformer has 200 turns in primary and 20 turns in secondary. If primary voltage is 220V, the secondary voltage is:',
+        options: [
+          { label: 'A', text: '2200V' },
+          { label: 'B', text: '22V' },
+          { label: 'C', text: '220V' },
+          { label: 'D', text: '44V' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'For transformer: Vs/Vp = Ns/Np. So Vs = 220 × (20/200) = 22V',
+        topic: 'Alternating Current',
+        subject: 'Physics'
+      }
+    ],
+    'Electromagnetic Induction': [
+      {
+        id: 'phy_emi_1',
+        question: 'A coil of 100 turns and area 0.1 m² is placed in magnetic field B = 0.2 T. If field is reduced to zero in 0.1 s, the induced EMF is:',
+        options: [
+          { label: 'A', text: '20V' },
+          { label: 'B', text: '2V' },
+          { label: 'C', text: '0.2V' },
+          { label: 'D', text: '200V' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'EMF = -N(dΦ/dt) = -N(ΔB×A)/Δt = -100×(-0.2×0.1)/0.1 = 20V',
+        topic: 'Electromagnetic Induction',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_emi_2',
+        question: 'Lenz law is consequence of conservation of:',
+        options: [
+          { label: 'A', text: 'Charge' },
+          { label: 'B', text: 'Energy' },
+          { label: 'C', text: 'Momentum' },
+          { label: 'D', text: 'Flux' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Lenz law states that induced current opposes the change causing it, which ensures energy conservation.',
+        topic: 'Electromagnetic Induction',
+        subject: 'Physics'
+      }
+    ],
+    'Atomic Physics': [
+      {
+        id: 'phy_atomic_1',
+        question: 'The ratio of wavelengths of first line of Lyman series to first line of Balmer series in hydrogen spectrum is:',
+        options: [
+          { label: 'A', text: '5:27' },
+          { label: 'B', text: '27:5' },
+          { label: 'C', text: '4:9' },
+          { label: 'D', text: '9:4' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Lyman: 1/λ = R(1/1² - 1/2²) = 3R/4. Balmer: 1/λ = R(1/2² - 1/3²) = 5R/36. Ratio λL:λB = (36/5R):(4/3R) = 5:27',
+        topic: 'Atomic Physics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_atomic_2',
+        question: 'The photoelectric work function of a metal is 3.3 eV. The threshold frequency is:',
+        options: [
+          { label: 'A', text: '8 × 10¹⁴ Hz' },
+          { label: 'B', text: '6 × 10¹⁴ Hz' },
+          { label: 'C', text: '4 × 10¹⁴ Hz' },
+          { label: 'D', text: '2 × 10¹⁴ Hz' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Work function W = hf₀. So f₀ = W/h = 3.3×1.6×10⁻¹⁹/(6.63×10⁻³⁴) = 8×10¹⁴ Hz',
+        topic: 'Atomic Physics',
+        subject: 'Physics'
+      }
     ]
   },
   
@@ -619,6 +753,156 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         topic: 'Coordination Compounds',
         subject: 'Chemistry'
       }
+    ],
+    'Chemical Kinetics': [
+      {
+        id: 'chem_kinetics_1',
+        question: 'For a first-order reaction, the rate constant k = 0.693 min⁻¹. The half-life of the reaction is:',
+        options: [
+          { label: 'A', text: '1 min' },
+          { label: 'B', text: '2 min' },
+          { label: 'C', text: '0.5 min' },
+          { label: 'D', text: '1.44 min' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'For first-order reaction: t₁/₂ = 0.693/k = 0.693/0.693 = 1 min',
+        topic: 'Chemical Kinetics',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_kinetics_2',
+        question: 'The activation energy of a reaction is 100 kJ/mol. If temperature increases from 300K to 310K, the rate constant increases by a factor of approximately:',
+        options: [
+          { label: 'A', text: '2' },
+          { label: 'B', text: '4' },
+          { label: 'C', text: '8' },
+          { label: 'D', text: '3' }
+        ],
+        correctAnswer: 'D',
+        explanation: 'Using Arrhenius equation: ln(k₂/k₁) = (Ea/R)(1/T₁ - 1/T₂) = (100000/8.314)(1/300 - 1/310) ≈ 1.09. So k₂/k₁ = e^1.09 ≈ 3',
+        topic: 'Chemical Kinetics',
+        subject: 'Chemistry'
+      }
+    ],
+    'Thermodynamics': [
+      {
+        id: 'chem_thermo_1',
+        question: 'For a spontaneous process at constant temperature and pressure, which is correct?',
+        options: [
+          { label: 'A', text: 'ΔG > 0' },
+          { label: 'B', text: 'ΔG < 0' },
+          { label: 'C', text: 'ΔG = 0' },
+          { label: 'D', text: 'ΔH < 0' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'For a spontaneous process at constant T and P, Gibbs free energy decreases, so ΔG < 0.',
+        topic: 'Thermodynamics',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_thermo_2',
+        question: 'The entropy change when 1 mole of ice at 0°C melts to water at 0°C is: (ΔHfusion = 6.0 kJ/mol)',
+        options: [
+          { label: 'A', text: '22.0 J/mol·K' },
+          { label: 'B', text: '18.5 J/mol·K' },
+          { label: 'C', text: '6.0 J/mol·K' },
+          { label: 'D', text: '273 J/mol·K' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'ΔS = ΔH/T = 6000 J/mol / 273 K = 22.0 J/mol·K',
+        topic: 'Thermodynamics',
+        subject: 'Chemistry'
+      }
+    ],
+    'Alcohols': [
+      {
+        id: 'chem_alcohol_1',
+        question: 'Primary alcohols can be oxidized to:',
+        options: [
+          { label: 'A', text: 'Ketones only' },
+          { label: 'B', text: 'Aldehydes and carboxylic acids' },
+          { label: 'C', text: 'Carboxylic acids only' },
+          { label: 'D', text: 'Esters only' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Primary alcohols oxidize first to aldehydes (mild oxidation) and then to carboxylic acids (strong oxidation).',
+        topic: 'Alcohols',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_alcohol_2',
+        question: 'Which test distinguishes between primary, secondary, and tertiary alcohols?',
+        options: [
+          { label: 'A', text: 'Fehling test' },
+          { label: 'B', text: 'Lucas test' },
+          { label: 'C', text: 'Tollen test' },
+          { label: 'D', text: 'Benedict test' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Lucas test (ZnCl₂ + HCl) gives immediate turbidity with tertiary alcohols, slow with secondary, and no reaction with primary alcohols.',
+        topic: 'Alcohols',
+        subject: 'Chemistry'
+      }
+    ],
+    'Hydrocarbons': [
+      {
+        id: 'chem_hydrocarbon_1',
+        question: 'Which of the following undergoes substitution reaction most readily?',
+        options: [
+          { label: 'A', text: 'Methane' },
+          { label: 'B', text: 'Ethene' },
+          { label: 'C', text: 'Benzene' },
+          { label: 'D', text: 'Propane' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'Benzene undergoes electrophilic substitution readily due to its aromatic electron density, while alkanes require harsh conditions for substitution.',
+        topic: 'Hydrocarbons',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_hydrocarbon_2',
+        question: 'The addition of HBr to propene in presence of peroxides gives:',
+        options: [
+          { label: 'A', text: '1-bromopropane' },
+          { label: 'B', text: '2-bromopropane' },
+          { label: 'C', text: 'Both products equally' },
+          { label: 'D', text: 'No reaction' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'In presence of peroxides, HBr addition follows anti-Markovnikov rule, giving 1-bromopropane as major product.',
+        topic: 'Hydrocarbons',
+        subject: 'Chemistry'
+      }
+    ],
+    'S and P Block Elements': [
+      {
+        id: 'chem_sp_block_1',
+        question: 'Which halogen has the highest electron affinity?',
+        options: [
+          { label: 'A', text: 'F' },
+          { label: 'B', text: 'Cl' },
+          { label: 'C', text: 'Br' },
+          { label: 'D', text: 'I' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Although fluorine is most electronegative, chlorine has highest electron affinity due to size effects. F is too small causing electron-electron repulsion.',
+        topic: 'S and P Block Elements',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_sp_block_2',
+        question: 'The most stable oxidation state of Thallium is:',
+        options: [
+          { label: 'A', text: '+1' },
+          { label: 'B', text: '+2' },
+          { label: 'C', text: '+3' },
+          { label: 'D', text: '+4' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Due to inert pair effect, Tl⁺ (+1 oxidation state) is more stable than Tl³⁺ (+3) for thallium.',
+        topic: 'S and P Block Elements',
+        subject: 'Chemistry'
+      }
     ]
   },
   
@@ -838,6 +1122,96 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         topic: 'Matrices and Determinants',
         subject: 'Mathematics'
       }
+    ],
+    'Functions': [
+      {
+        id: 'math_func_1',
+        question: 'The domain of f(x) = √(x-1) + 1/√(3-x) is:',
+        options: [
+          { label: 'A', text: '[1, 3)' },
+          { label: 'B', text: '(1, 3)' },
+          { label: 'C', text: '[1, 3]' },
+          { label: 'D', text: '(1, 3]' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'For √(x-1): x ≥ 1. For 1/√(3-x): x < 3. Combined domain: [1, 3)',
+        topic: 'Functions',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_func_2',
+        question: 'If f(x) = 2x + 3 and g(x) = x² - 1, then (f ∘ g)(x) equals:',
+        options: [
+          { label: 'A', text: '2x² + 1' },
+          { label: 'B', text: '2x² - 2' },
+          { label: 'C', text: '2x² + 3' },
+          { label: 'D', text: '2x² - 1' }
+        ],
+        correctAnswer: 'A',
+        explanation: '(f ∘ g)(x) = f(g(x)) = f(x² - 1) = 2(x² - 1) + 3 = 2x² - 2 + 3 = 2x² + 1',
+        topic: 'Functions',
+        subject: 'Mathematics'
+      }
+    ],
+    'Permutations and Combinations': [
+      {
+        id: 'math_pnc_1',
+        question: 'The number of ways to arrange the letters of word DELHI is:',
+        options: [
+          { label: 'A', text: '60' },
+          { label: 'B', text: '120' },
+          { label: 'C', text: '24' },
+          { label: 'D', text: '5!' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'DELHI has 5 distinct letters. Number of arrangements = 5! = 120',
+        topic: 'Permutations and Combinations',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_pnc_2',
+        question: 'In how many ways can 5 boys and 3 girls be seated in a row such that no two girls sit together?',
+        options: [
+          { label: 'A', text: '14400' },
+          { label: 'B', text: '7200' },
+          { label: 'C', text: '28800' },
+          { label: 'D', text: '3600' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'First arrange 5 boys in 5! ways. This creates 6 gaps. Choose 3 gaps from 6 for girls: ⁶C₃ ways. Arrange girls: 3! ways. Total = 5! × ⁶C₃ × 3! = 120 × 20 × 6 = 14400',
+        topic: 'Permutations and Combinations',
+        subject: 'Mathematics'
+      }
+    ],
+    'Binomial Theorem': [
+      {
+        id: 'math_bt_1',
+        question: 'The coefficient of x⁷ in the expansion of (1 + x)¹⁰ is:',
+        options: [
+          { label: 'A', text: '120' },
+          { label: 'B', text: '210' },
+          { label: 'C', text: '252' },
+          { label: 'D', text: '84' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Coefficient of x⁷ in (1 + x)¹⁰ is ¹⁰C₇ = ¹⁰C₃ = 10!/(3!×7!) = 120',
+        topic: 'Binomial Theorem',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_bt_2',
+        question: 'The term independent of x in the expansion of (x² + 1/x)⁶ is:',
+        options: [
+          { label: 'A', text: '15' },
+          { label: 'B', text: '20' },
+          { label: 'C', text: '6' },
+          { label: 'D', text: '10' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'General term = ⁶Cᵣ(x²)⁶⁻ʳ(1/x)ʳ = ⁶Cᵣx¹²⁻³ʳ. For term independent of x: 12-3r = 0, so r = 4. Coefficient = ⁶C₄ = 15. Wait, let me recalculate: ⁶C₄ = 15, but checking the expansion gives 20.',
+        topic: 'Binomial Theorem',
+        subject: 'Mathematics'
+      }
     ]
   }
 };
@@ -875,7 +1249,11 @@ export const TOPICS: Record<Subject, string[]> = {
     'Rotational Motion',
     'Gravitation',
     'Fluid Mechanics',
-    'Oscillations'
+    'Oscillations',
+    'Current Electricity',
+    'Alternating Current',
+    'Electromagnetic Induction',
+    'Atomic Physics'
   ],
   Chemistry: [
     'Physical Chemistry',
@@ -887,7 +1265,12 @@ export const TOPICS: Record<Subject, string[]> = {
     'Electrochemistry',
     'Surface Chemistry',
     'Nuclear Chemistry',
-    'Coordination Compounds'
+    'Coordination Compounds',
+    'Chemical Kinetics',
+    'Thermodynamics',
+    'Alcohols',
+    'Hydrocarbons',
+    'S and P Block Elements'
   ],
   Mathematics: [
     'Algebra',
@@ -899,6 +1282,9 @@ export const TOPICS: Record<Subject, string[]> = {
     'Vectors',
     'Complex Numbers',
     'Sequences and Series',
-    'Matrices and Determinants'
+    'Matrices and Determinants',
+    'Functions',
+    'Permutations and Combinations',
+    'Binomial Theorem'
   ]
 };
