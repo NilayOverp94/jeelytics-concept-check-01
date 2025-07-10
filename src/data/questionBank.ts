@@ -179,6 +179,170 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         explanation: 'The binding energy per nucleon peaks around A = 56 (Iron), making these nuclei most stable.',
         topic: 'Modern Physics',
         subject: 'Physics'
+      },
+      {
+        id: 'phy_mod_2',
+        question: 'The de Broglie wavelength of an electron accelerated through a potential difference of 100V is approximately:',
+        options: [
+          { label: 'A', text: '1.23 Å' },
+          { label: 'B', text: '2.46 Å' },
+          { label: 'C', text: '0.123 Å' },
+          { label: 'D', text: '12.3 Å' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'λ = h/p = h/√(2meV) = 12.27/√V Å. For V = 100V, λ = 1.23 Å',
+        topic: 'Modern Physics',
+        subject: 'Physics'
+      }
+    ],
+    'Waves and Sound': [
+      {
+        id: 'phy_wave_1',
+        question: 'Two waves y₁ = A sin(ωt - kx) and y₂ = A sin(ωt - kx + π/2) interfere. The amplitude of resultant wave is:',
+        options: [
+          { label: 'A', text: 'A' },
+          { label: 'B', text: '2A' },
+          { label: 'C', text: 'A√2' },
+          { label: 'D', text: 'A/√2' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'Phase difference = π/2. Resultant amplitude = √(A² + A² + 2A²cos(π/2)) = A√2',
+        topic: 'Waves and Sound',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_wave_2',
+        question: 'A closed organ pipe of length L resonates at frequency f. The frequency of third overtone is:',
+        options: [
+          { label: 'A', text: '3f' },
+          { label: 'B', text: '5f' },
+          { label: 'C', text: '7f' },
+          { label: 'D', text: '9f' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'For closed pipe: f = (2n-1)v/4L. Third overtone (n=4) gives f₄ = 7v/4L = 7f',
+        topic: 'Waves and Sound',
+        subject: 'Physics'
+      }
+    ],
+    'Rotational Motion': [
+      {
+        id: 'phy_rot_1',
+        question: 'A uniform solid sphere rolls down an inclined plane. The ratio of kinetic energy of translation to kinetic energy of rotation is:',
+        options: [
+          { label: 'A', text: '5:2' },
+          { label: 'B', text: '2:5' },
+          { label: 'C', text: '7:2' },
+          { label: 'D', text: '2:7' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'For solid sphere I = 2mR²/5. KE_trans/KE_rot = (½mv²)/(½Iω²) = (½mv²)/(½×(2mR²/5)×(v²/R²)) = 5/2',
+        topic: 'Rotational Motion',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_rot_2',
+        question: 'A thin ring and solid disk of same mass and radius roll down the same incline. Which reaches bottom first?',
+        options: [
+          { label: 'A', text: 'Ring' },
+          { label: 'B', text: 'Disk' },
+          { label: 'C', text: 'Both together' },
+          { label: 'D', text: 'Cannot be determined' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Time ∝ √(1 + I/mR²). For disk I/mR² = 1/2, for ring I/mR² = 1. Disk has smaller factor, reaches first.',
+        topic: 'Rotational Motion',
+        subject: 'Physics'
+      }
+    ],
+    'Gravitation': [
+      {
+        id: 'phy_grav_1',
+        question: 'The ratio of escape velocity from Earth to escape velocity from Moon is approximately:',
+        options: [
+          { label: 'A', text: '2.4' },
+          { label: 'B', text: '4.8' },
+          { label: 'C', text: '6.0' },
+          { label: 'D', text: '11.2' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'v_e ∝ √(M/R). Taking M_E/M_M ≈ 81 and R_E/R_M ≈ 3.7, ratio = √(81/3.7) ≈ 4.8',
+        topic: 'Gravitation',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_grav_2',
+        question: 'At what height above Earth surface does acceleration due to gravity become g/4?',
+        options: [
+          { label: 'A', text: 'R' },
+          { label: 'B', text: '2R' },
+          { label: 'C', text: 'R/2' },
+          { label: 'D', text: '3R' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'g_h = g(R/(R+h))². For g_h = g/4: 1/4 = R²/(R+h)². Solving: R+h = 2R, so h = R',
+        topic: 'Gravitation',
+        subject: 'Physics'
+      }
+    ],
+    'Fluid Mechanics': [
+      {
+        id: 'phy_fluid_1',
+        question: 'A tank has two holes at heights h₁ and h₂ from bottom. If water streams from both holes meet at ground, then h₁h₂ equals:',
+        options: [
+          { label: 'A', text: 'H²/2' },
+          { label: 'B', text: 'H²/4' },
+          { label: 'C', text: 'H²' },
+          { label: 'D', text: '2H²' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'For streams to meet: Range₁ = Range₂. This gives h₁h₂ = H²/4 where H is height of water.',
+        topic: 'Fluid Mechanics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_fluid_2',
+        question: 'A wooden block of density 0.8 g/cm³ floats in water. What fraction of volume is above water?',
+        options: [
+          { label: 'A', text: '0.2' },
+          { label: 'B', text: '0.8' },
+          { label: 'C', text: '0.5' },
+          { label: 'D', text: '0.6' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'At equilibrium: ρ_block × V_total = ρ_water × V_submerged. Fraction above = 1 - (0.8/1.0) = 0.2',
+        topic: 'Fluid Mechanics',
+        subject: 'Physics'
+      }
+    ],
+    'Oscillations': [
+      {
+        id: 'phy_osc_1',
+        question: 'A pendulum clock runs slow in summer and fast in winter due to:',
+        options: [
+          { label: 'A', text: 'Change in g' },
+          { label: 'B', text: 'Thermal expansion' },
+          { label: 'C', text: 'Air density change' },
+          { label: 'D', text: 'Humidity change' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'T = 2π√(L/g). In summer, L increases due to thermal expansion, T increases (runs slow). In winter, L decreases, T decreases (runs fast).',
+        topic: 'Oscillations',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_osc_2',
+        question: 'Two pendulums of lengths L₁ and L₂ have same amplitude. The ratio of their maximum velocities is:',
+        options: [
+          { label: 'A', text: '√(L₁/L₂)' },
+          { label: 'B', text: '√(L₂/L₁)' },
+          { label: 'C', text: 'L₁/L₂' },
+          { label: 'D', text: 'L₂/L₁' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'v_max = Aω = A√(g/L). For same amplitude A, v₁/v₂ = √(L₂/L₁)',
+        topic: 'Oscillations',
+        subject: 'Physics'
       }
     ]
   },
@@ -313,6 +477,146 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         correctAnswer: 'B',
         explanation: 'Lattice energy ∝ (charge product)/(sum of ionic radii). MgO has highest charge product (+2)(-2) = 4 and small ions.',
         topic: 'Inorganic Chemistry',
+        subject: 'Chemistry'
+      }
+    ],
+    'Chemical Bonding': [
+      {
+        id: 'chem_bond_1',
+        question: 'The bond angle in NH₃ is less than CH₄ due to:',
+        options: [
+          { label: 'A', text: 'Higher electronegativity of N' },
+          { label: 'B', text: 'Presence of lone pair on N' },
+          { label: 'C', text: 'sp³ hybridization of N' },
+          { label: 'D', text: 'Smaller size of N atom' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Lone pair occupies more space than bonding pair, causing lone pair-bond pair repulsion to be greater than bond pair-bond pair repulsion.',
+        topic: 'Chemical Bonding',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_bond_2',
+        question: 'Which molecule has zero dipole moment?',
+        options: [
+          { label: 'A', text: 'NH₃' },
+          { label: 'B', text: 'NF₃' },
+          { label: 'C', text: 'BF₃' },
+          { label: 'D', text: 'ClF₃' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'BF₃ has trigonal planar geometry with 120° bond angles. The three B-F dipoles cancel out, resulting in zero net dipole moment.',
+        topic: 'Chemical Bonding',
+        subject: 'Chemistry'
+      }
+    ],
+    'Atomic Structure': [
+      {
+        id: 'chem_atom_1',
+        question: 'The energy of electron in hydrogen atom is given by En = -13.6/n² eV. The energy required to excite electron from n=2 to n=4 is:',
+        options: [
+          { label: 'A', text: '2.55 eV' },
+          { label: 'B', text: '3.4 eV' },
+          { label: 'C', text: '10.2 eV' },
+          { label: 'D', text: '12.75 eV' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'ΔE = E₄ - E₂ = -13.6/16 - (-13.6/4) = -0.85 + 3.4 = 2.55 eV',
+        topic: 'Atomic Structure',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_atom_2',
+        question: 'The maximum number of electrons in a subshell with l = 3 is:',
+        options: [
+          { label: 'A', text: '6' },
+          { label: 'B', text: '10' },
+          { label: 'C', text: '14' },
+          { label: 'D', text: '18' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'For l = 3 (f subshell), number of orbitals = 2l + 1 = 7. Maximum electrons = 2 × 7 = 14',
+        topic: 'Atomic Structure',
+        subject: 'Chemistry'
+      }
+    ],
+    'Chemical Equilibrium': [
+      {
+        id: 'chem_equil_1',
+        question: 'For the reaction N₂ + 3H₂ ⇌ 2NH₃, if Kc = 0.5, then Kp at 500K is approximately:',
+        options: [
+          { label: 'A', text: '3.1 × 10⁻⁶' },
+          { label: 'B', text: '2.4 × 10⁻⁸' },
+          { label: 'C', text: '1.6 × 10⁻⁵' },
+          { label: 'D', text: '0.5' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Kp = Kc(RT)^Δn. Here Δn = 2-4 = -2. Kp = 0.5 × (8.314 × 500)^(-2) = 2.4 × 10⁻⁸',
+        topic: 'Chemical Equilibrium',
+        subject: 'Chemistry'
+      }
+    ],
+    'Electrochemistry': [
+      {
+        id: 'chem_electro_1',
+        question: 'The standard electrode potential of Cu²⁺/Cu is +0.34V and Zn²⁺/Zn is -0.76V. The EMF of the cell Zn|Zn²⁺||Cu²⁺|Cu is:',
+        options: [
+          { label: 'A', text: '0.42 V' },
+          { label: 'B', text: '1.10 V' },
+          { label: 'C', text: '-0.42 V' },
+          { label: 'D', text: '-1.10 V' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'EMF = E°(cathode) - E°(anode) = E°(Cu²⁺/Cu) - E°(Zn²⁺/Zn) = 0.34 - (-0.76) = 1.10 V',
+        topic: 'Electrochemistry',
+        subject: 'Chemistry'
+      }
+    ],
+    'Surface Chemistry': [
+      {
+        id: 'chem_surf_1',
+        question: 'Langmuir adsorption isotherm is applicable when:',
+        options: [
+          { label: 'A', text: 'Multilayer adsorption occurs' },
+          { label: 'B', text: 'Monolayer adsorption occurs' },
+          { label: 'C', text: 'Physical adsorption dominates' },
+          { label: 'D', text: 'Desorption is faster than adsorption' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Langmuir isotherm assumes monolayer adsorption on homogeneous surface with no interaction between adsorbed molecules.',
+        topic: 'Surface Chemistry',
+        subject: 'Chemistry'
+      }
+    ],
+    'Nuclear Chemistry': [
+      {
+        id: 'chem_nucl_1',
+        question: 'The half-life of C-14 is 5730 years. What fraction of C-14 remains after 11460 years?',
+        options: [
+          { label: 'A', text: '1/2' },
+          { label: 'B', text: '1/4' },
+          { label: 'C', text: '1/8' },
+          { label: 'D', text: '1/16' }
+        ],
+        correctAnswer: 'B',
+        explanation: '11460 years = 2 × 5730 years = 2 half-lives. After 2 half-lives, fraction remaining = (1/2)² = 1/4',
+        topic: 'Nuclear Chemistry',
+        subject: 'Chemistry'
+      }
+    ],
+    'Coordination Compounds': [
+      {
+        id: 'chem_coord_1',
+        question: 'The IUPAC name of [Co(NH₃)₄Cl₂]Cl is:',
+        options: [
+          { label: 'A', text: 'Tetraamminedichlorocobalt(III) chloride' },
+          { label: 'B', text: 'Dichlorotetraamminecobalt(III) chloride' },
+          { label: 'C', text: 'Tetraamminedichloridocobalt(III) chloride' },
+          { label: 'D', text: 'Chloridotetraamminecobalt(III) dichloride' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'IUPAC naming: ligands in alphabetical order (ammine before chloro), then metal with oxidation state. Correct name: Tetraamminedichlorocobalt(III) chloride',
+        topic: 'Coordination Compounds',
         subject: 'Chemistry'
       }
     ]
@@ -452,6 +756,86 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         correctAnswer: 'A',
         explanation: 'Count favorable outcomes: (1,2,6), (1,3,5), (1,4,4), (2,1,6), (2,2,5), (2,3,4), etc. Total ways = 25. Probability = 25/216.',
         topic: 'Probability',
+        subject: 'Mathematics'
+      }
+    ],
+    'Statistics': [
+      {
+        id: 'math_stat_1',
+        question: 'If the mean of numbers 1, 2, 3, ..., n is 5.5, then n equals:',
+        options: [
+          { label: 'A', text: '10' },
+          { label: 'B', text: '11' },
+          { label: 'C', text: '12' },
+          { label: 'D', text: '9' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Mean = (1+2+...+n)/n = n(n+1)/(2n) = (n+1)/2 = 5.5. So n+1 = 11, hence n = 10.',
+        topic: 'Statistics',
+        subject: 'Mathematics'
+      }
+    ],
+    'Vectors': [
+      {
+        id: 'math_vec_1',
+        question: 'If |a⃗| = 3, |b⃗| = 4, and a⃗·b⃗ = 6, then |a⃗ × b⃗| equals:',
+        options: [
+          { label: 'A', text: '6' },
+          { label: 'B', text: '6√3' },
+          { label: 'C', text: '12' },
+          { label: 'D', text: '8√3' }
+        ],
+        correctAnswer: 'B',
+        explanation: '|a⃗ × b⃗| = |a⃗||b⃗|sin θ. Since a⃗·b⃗ = |a⃗||b⃗|cos θ = 6, cos θ = 1/2, so sin θ = √3/2. |a⃗ × b⃗| = 3×4×√3/2 = 6√3',
+        topic: 'Vectors',
+        subject: 'Mathematics'
+      }
+    ],
+    'Complex Numbers': [
+      {
+        id: 'math_complex_1',
+        question: 'The value of (1+i)⁸ is:',
+        options: [
+          { label: 'A', text: '16' },
+          { label: 'B', text: '16i' },
+          { label: 'C', text: '-16' },
+          { label: 'D', text: '8+8i' }
+        ],
+        correctAnswer: 'A',
+        explanation: '(1+i)² = 1+2i-1 = 2i. (1+i)⁴ = (2i)² = -4. (1+i)⁸ = (-4)² = 16',
+        topic: 'Complex Numbers',
+        subject: 'Mathematics'
+      }
+    ],
+    'Sequences and Series': [
+      {
+        id: 'math_seq_1',
+        question: 'The sum of infinite series 1 + 1/3 + 1/9 + 1/27 + ... is:',
+        options: [
+          { label: 'A', text: '3/2' },
+          { label: 'B', text: '2/3' },
+          { label: 'C', text: '4/3' },
+          { label: 'D', text: '1/2' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'This is a geometric series with a = 1, r = 1/3. Sum = a/(1-r) = 1/(1-1/3) = 1/(2/3) = 3/2',
+        topic: 'Sequences and Series',
+        subject: 'Mathematics'
+      }
+    ],
+    'Matrices and Determinants': [
+      {
+        id: 'math_matrix_1',
+        question: 'If A = [1 2; 3 4], then det(A²) equals:',
+        options: [
+          { label: 'A', text: '4' },
+          { label: 'B', text: '-4' },
+          { label: 'C', text: '16' },
+          { label: 'D', text: '-2' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'det(A) = 1×4 - 2×3 = -2. det(A²) = (det(A))² = (-2)² = 4',
+        topic: 'Matrices and Determinants',
         subject: 'Mathematics'
       }
     ]
