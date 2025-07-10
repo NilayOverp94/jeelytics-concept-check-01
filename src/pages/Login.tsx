@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,15 +22,6 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    if (!supabase) {
-      toast({
-        title: "Configuration Error",
-        description: "Supabase is not configured. Please contact the administrator.",
-        variant: "destructive",
-      });
-      setLoading(false);
-      return;
-    }
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
