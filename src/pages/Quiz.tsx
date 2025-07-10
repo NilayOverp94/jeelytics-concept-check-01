@@ -28,10 +28,24 @@ export default function Quiz() {
       return;
     }
 
+    console.log('Quiz: Generating questions for', subject, topic);
     const generatedQuestions = generateMCQs(subject, topic, 5);
+    console.log('Quiz: Generated questions:', generatedQuestions.length);
+    
+    if (generatedQuestions.length === 0) {
+      console.log('Quiz: No questions found for topic:', topic);
+      toast({
+        title: "No Questions Available",
+        description: `No questions found for ${topic}. Please try a different topic.`,
+        variant: "destructive",
+      });
+      navigate('/');
+      return;
+    }
+    
     setQuestions(generatedQuestions);
     setUserAnswers(new Array(5).fill(''));
-  }, [subject, topic, navigate]);
+  }, [subject, topic, navigate, toast]);
 
   useEffect(() => {
     if (timeLeft > 0 && !isSubmitted) {
