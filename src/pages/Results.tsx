@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Trophy, RotateCcw, BookOpen, Share, Home, Target, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { MCQQuestion, TestResult, UserStats, Subject } from '@/types/jee';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const STRENGTH_CONFIG = {
   Strong: {
@@ -47,7 +48,15 @@ const MOTIVATIONAL_QUOTES = [
 export default function Results() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [userStats, setUserStats] = useState<UserStats>({
+    streak: 0,
+    lastTestDate: null,
+    testHistory: [],
+    totalTests: 0,
+    totalScore: 0
+  });
   
   const {
     subject,
@@ -69,46 +78,62 @@ export default function Results() {
     timeSpent: number;
   };
 
-  const [userStats, setUserStats] = useLocalStorage<UserStats>('jeelytics-stats', {
-    streak: 0,
-    lastTestDate: null,
-    testHistory: [],
-    totalTests: 0,
-    totalScore: 0
-  });
 
   useEffect(() => {
-    if (!subject || score === undefined) {
+    if (!subject || score === undefined || !user) {
       navigate('/');
       return;
     }
 
-    // Calculate concept strength
-    const percentage = (score / totalQuestions) * 100;
-    let conceptStrength: 'Strong' | 'Moderate' | 'Weak' = 'Weak';
-    if (percentage >= 80) conceptStrength = 'Strong';
-    else if (percentage >= 60) conceptStrength = 'Moderate';
+    saveTestResult();
+  }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, user, navigate]);
 
-    // Create test result
-    const testResult: TestResult = {
-      score,
-      totalQuestions,
-      conceptStrength,
-      percentage,
-      topic,
-      subject,
-      userAnswers,
-      correctAnswers,
-      timestamp: new Date()
-    };
+  const saveTestResult = async () => {
+    if (!user) return;
 
-    // Update user stats
-    setUserStats(prevStats => {
+    try {
+      // Save test result
+      const { error: testError } = await supabase
+        .from('test_results')
+        .insert({
+          user_id: user.id,
+          subject,
+          topic,
+          score,
+          total_questions: totalQuestions,
+          time_spent: timeSpent,
+          questions,
+          user_answers: userAnswers,
+          correct_answers: correctAnswers
+        });
+
+      if (testError) {
+        console.error('Error saving test result:', testError);
+        toast({
+          title: "Error",
+          description: "Failed to save test result. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update user stats
+      const { data: existingStats, error: fetchError } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error fetching user stats:', fetchError);
+        return;
+      }
+
       const today = new Date().toDateString();
-      const lastTestDate = prevStats.lastTestDate ? new Date(prevStats.lastTestDate).toDateString() : null;
+      const lastTestDate = existingStats?.last_test_date ? new Date(existingStats.last_test_date).toDateString() : null;
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
       
-      let newStreak = prevStats.streak;
+      let newStreak = existingStats?.streak || 0;
       if (lastTestDate === today) {
         // Same day, don't change streak
       } else if (lastTestDate === yesterday) {
@@ -122,16 +147,33 @@ export default function Results() {
         newStreak = 1;
       }
 
-      return {
-        ...prevStats,
+      const newStats = {
+        user_id: user.id,
         streak: newStreak,
-        lastTestDate: new Date(),
-        testHistory: [...prevStats.testHistory, testResult],
-        totalTests: prevStats.totalTests + 1,
-        totalScore: prevStats.totalScore + score
+        last_test_date: new Date().toISOString(),
+        total_tests: (existingStats?.total_tests || 0) + 1,
+        total_score: (existingStats?.total_score || 0) + score
       };
-    });
-  }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, navigate, setUserStats]);
+
+      const { error: statsError } = await supabase
+        .from('user_stats')
+        .upsert(newStats);
+
+      if (statsError) {
+        console.error('Error updating user stats:', statsError);
+      } else {
+        setUserStats({
+          streak: newStats.streak,
+          lastTestDate: new Date(newStats.last_test_date),
+          testHistory: [],
+          totalTests: newStats.total_tests,
+          totalScore: newStats.total_score
+        });
+      }
+    } catch (error) {
+      console.error('Error saving test data:', error);
+    }
+  };
 
   if (!subject || score === undefined) {
     return null;

@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StreakDisplay } from '@/components/StreakDisplay';
 import { SUBJECTS, Subject } from '@/types/jee';
 import { UserStats } from '@/types/jee';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
@@ -24,15 +27,66 @@ const SUBJECT_COLORS: Record<Subject, string> = {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [selectedSubject, setSelectedSubject] = useState<Subject | ''>('');
   const [selectedTopic, setSelectedTopic] = useState('');
-  const [userStats] = useLocalStorage<UserStats>('jeelytics-stats', {
+  const [userStats, setUserStats] = useState<UserStats>({
     streak: 0,
     lastTestDate: null,
     testHistory: [],
     totalTests: 0,
     totalScore: 0
   });
+
+  useEffect(() => {
+    if (user) {
+      fetchUserStats();
+    }
+  }, [user]);
+
+  const fetchUserStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user stats:', error);
+        return;
+      }
+
+      if (data) {
+        setUserStats({
+          streak: data.streak,
+          lastTestDate: data.last_test_date,
+          testHistory: [],
+          totalTests: data.total_tests,
+          totalScore: data.total_score
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleStartTest = () => {
     if (selectedSubject && selectedTopic) {
@@ -63,6 +117,22 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <StreakDisplay streak={userStats.streak} />
             <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-popover border border-border">
+                <DropdownMenuItem disabled className="font-medium">
+                  {user?.user_metadata?.name || user?.email}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
