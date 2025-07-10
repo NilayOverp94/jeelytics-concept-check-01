@@ -14,7 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      test_results: {
+        Row: {
+          correct_answers: string[]
+          created_at: string
+          id: string
+          questions: Json
+          score: number
+          subject: string
+          time_spent: number
+          topic: string
+          total_questions: number
+          user_answers: string[]
+          user_id: string
+        }
+        Insert: {
+          correct_answers: string[]
+          created_at?: string
+          id?: string
+          questions: Json
+          score: number
+          subject: string
+          time_spent: number
+          topic: string
+          total_questions: number
+          user_answers: string[]
+          user_id: string
+        }
+        Update: {
+          correct_answers?: string[]
+          created_at?: string
+          id?: string
+          questions?: Json
+          score?: number
+          subject?: string
+          time_spent?: number
+          topic?: string
+          total_questions?: number
+          user_answers?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          created_at: string
+          id: string
+          last_test_date: string | null
+          streak: number
+          total_score: number
+          total_tests: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_test_date?: string | null
+          streak?: number
+          total_score?: number
+          total_tests?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_test_date?: string | null
+          streak?: number
+          total_score?: number
+          total_tests?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
