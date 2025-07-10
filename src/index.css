@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* JEElytics Design System - Academic Colors & Gradients */
+
+@layer base {
+  :root {
+    /* Academic Color Palette */
+    --background: 220 20% 98%;
+    --foreground: 230 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 15% 15%;
+
+    /* Primary: Academic Blue */
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 220 90% 70%;
+
+    /* Secondary: Purple */  
+    --secondary: 270 80% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-glow: 270 80% 75%;
+
+    /* Accent: Orange */
+    --accent: 25 95% 60%;
+    --accent-foreground: 0 0% 100%;
+    --accent-glow: 25 95% 75%;
+
+    --muted: 220 13% 95%;
+    --muted-foreground: 230 10% 50%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 90% 56%;
+
+    --radius: 0.75rem;
+
+    /* JEElytics Custom Variables */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.2);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
+    --shadow-card: 0 4px 20px -4px hsl(var(--primary) / 0.1);
+
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark Theme - Academic Colors */
+    --background: 230 20% 8%;
+    --foreground: 220 20% 95%;
+
+    --card: 230 15% 12%;
+    --card-foreground: 220 20% 95%;
+
+    --popover: 230 15% 12%;
+    --popover-foreground: 220 20% 95%;
+
+    --primary: 220 90% 65%;
+    --primary-foreground: 230 20% 8%;
+    --primary-glow: 220 90% 80%;
+
+    --secondary: 270 80% 70%;
+    --secondary-foreground: 230 20% 8%;
+    --secondary-glow: 270 80% 85%;
+
+    --accent: 25 95% 70%;
+    --accent-foreground: 230 20% 8%;
+    --accent-glow: 25 95% 85%;
+
+    --muted: 230 15% 15%;
+    --muted-foreground: 220 15% 60%;
+
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 220 20% 95%;
+
+    --border: 230 15% 20%;
+    --input: 230 15% 20%;
+    --ring: 220 90% 65%;
+
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.4);
+    --shadow-card: 0 4px 20px -4px hsl(var(--primary) / 0.2);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-smooth;
+  }
+}
+
+@layer components {
+  /* JEElytics Custom Components */
+  .btn-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-elegant hover:shadow-glow transition-smooth;
+  }
+  
+  .btn-gradient-secondary {
+    @apply bg-gradient-to-r from-secondary to-secondary-glow text-secondary-foreground shadow-elegant hover:shadow-glow transition-smooth;
+  }
+  
+  .btn-gradient-accent {
+    @apply bg-gradient-to-r from-accent to-accent-glow text-accent-foreground shadow-elegant hover:shadow-glow transition-smooth;
+  }
+
+  .card-jee {
+    @apply bg-card border border-border rounded-lg p-6 shadow-card hover:shadow-elegant transition-smooth;
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .streak-fire {
+    @apply animate-pulse text-accent;
+  }
+}
