@@ -24,6 +24,16 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
 
+    if (!supabase) {
+      toast({
+        title: "Configuration Error",
+        description: "Supabase is not configured. Please contact the administrator.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Password Mismatch",

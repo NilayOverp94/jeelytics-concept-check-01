@@ -22,6 +22,16 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
+    if (!supabase) {
+      toast({
+        title: "Configuration Error",
+        description: "Supabase is not configured. Please contact the administrator.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,

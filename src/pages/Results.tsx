@@ -89,7 +89,7 @@ export default function Results() {
   }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, user, navigate]);
 
   const saveTestResult = async () => {
-    if (!user) return;
+    if (!user || !supabase) return;
 
     try {
       // Save test result

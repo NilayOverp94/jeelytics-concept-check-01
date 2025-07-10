@@ -46,6 +46,8 @@ export default function Home() {
   }, [user]);
 
   const fetchUserStats = async () => {
+    if (!supabase || !user) return;
+    
     try {
       const { data, error } = await supabase
         .from('user_stats')
