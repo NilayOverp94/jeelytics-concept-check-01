@@ -1,0 +1,79 @@
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { Subject } from '@/types/jee';
+
+interface UseResultsHandlersProps {
+  subject: Subject;
+  topic: string;
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  conceptStrength: 'Strong' | 'Moderate' | 'Weak';
+  streak: number;
+  randomQuote: string;
+}
+
+export function useResultsHandlers({
+  subject,
+  topic,
+  score,
+  totalQuestions,
+  percentage,
+  conceptStrength,
+  streak,
+  randomQuote,
+}: UseResultsHandlersProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleTryAgain = () => {
+    navigate('/quiz', { state: { subject, topic } });
+  };
+
+  const handlePickAnother = () => {
+    // Force refresh of home page to show updated stats
+    navigate('/', { replace: true });
+    window.location.reload();
+  };
+
+  const handleShare = () => {
+    const message = `🎯 JEElytics Test Result!
+    
+📚 Subject: ${subject}
+📖 Topic: ${topic}
+📊 Score: ${score}/${totalQuestions} (${percentage.toFixed(0)}%)
+💪 Concept Strength: ${conceptStrength}
+🔥 Current Streak: ${streak} day${streak > 1 ? 's' : ''}
+
+"${randomQuote}"
+
+Check your concept strength at JEElytics! 🚀`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'JEElytics Test Result',
+        text: message,
+      });
+    } else {
+      // Fallback to WhatsApp
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+    
+    toast({
+      title: "Result Shared!",
+      description: "Your test result has been shared successfully.",
+    });
+  };
+
+  const handleGoHome = () => {
+    handlePickAnother();
+  };
+
+  return {
+    handleTryAgain,
+    handlePickAnother,
+    handleShare,
+    handleGoHome,
+  };
+}
