@@ -91,6 +91,8 @@ export default function Results() {
   const saveTestResult = async () => {
     if (!user) return;
 
+    console.log('Saving test result:', { subject, score, totalQuestions, topic });
+
     try {
       // Save test result
       const { error: testError } = await supabase
@@ -116,6 +118,8 @@ export default function Results() {
         });
         return;
       }
+
+      console.log('Test result saved successfully');
 
       // Update user stats
       const { data: existingStats, error: fetchError } = await supabase
@@ -162,6 +166,7 @@ export default function Results() {
       if (statsError) {
         console.error('Error updating user stats:', statsError);
       } else {
+        console.log('User stats updated successfully:', newStats);
         setUserStats({
           streak: newStats.streak,
           lastTestDate: new Date(newStats.last_test_date),
@@ -195,7 +200,9 @@ export default function Results() {
   };
 
   const handlePickAnother = () => {
-    navigate('/');
+    // Force refresh of home page to show updated stats
+    navigate('/', { replace: true });
+    window.location.reload();
   };
 
   const handleShare = () => {
@@ -325,7 +332,7 @@ Check your concept strength at JEElytics! 🚀`;
               const correctOption = question.options.find(opt => opt.label === correctAnswer);
 
               return (
-                <div key={question.id} className="border border-border rounded-lg p-4 space-y-3">
+                <div key={`question-${question.id}`} className="border border-border rounded-lg p-4 space-y-3">
                   <div className="flex items-start gap-3">
                     {isCorrect ? (
                       <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
@@ -395,7 +402,7 @@ Check your concept strength at JEElytics! 🚀`;
           <Button
             variant="outline"
             className="h-14 hover:shadow-card"
-            onClick={() => navigate('/')}
+            onClick={handlePickAnother}
           >
             <Home className="h-5 w-5 mr-2" />
             Home
