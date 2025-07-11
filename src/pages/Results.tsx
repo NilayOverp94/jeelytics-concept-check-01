@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { MCQQuestion, TestResult, UserStats, Subject } from '@/types/jee';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const STRENGTH_CONFIG = {
   Strong: {
@@ -89,7 +89,7 @@ export default function Results() {
   }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, user, navigate]);
 
   const saveTestResult = async () => {
-    if (!user || !supabase) return;
+    if (!user) return;
 
     try {
       // Save test result
@@ -102,7 +102,7 @@ export default function Results() {
           score,
           total_questions: totalQuestions,
           time_spent: timeSpent,
-          questions,
+          questions: questions as any,
           user_answers: userAnswers,
           correct_answers: correctAnswers
         });

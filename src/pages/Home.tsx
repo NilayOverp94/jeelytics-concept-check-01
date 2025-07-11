@@ -11,7 +11,7 @@ import { SUBJECTS, Subject } from '@/types/jee';
 import { UserStats } from '@/types/jee';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
@@ -46,7 +46,7 @@ export default function Home() {
   }, [user]);
 
   const fetchUserStats = async () => {
-    if (!supabase || !user) return;
+    if (!user) return;
     
     try {
       const { data, error } = await supabase
@@ -63,7 +63,7 @@ export default function Home() {
       if (data) {
         setUserStats({
           streak: data.streak,
-          lastTestDate: data.last_test_date,
+          lastTestDate: data.last_test_date ? new Date(data.last_test_date) : null,
           testHistory: [],
           totalTests: data.total_tests,
           totalScore: data.total_score
