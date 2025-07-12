@@ -31,9 +31,8 @@ export function useResultsHandlers({
   };
 
   const handlePickAnother = () => {
-    // Force refresh of home page to show updated stats
-    navigate('/', { replace: true });
-    window.location.reload();
+    // Navigate to home and trigger stats refresh
+    navigate('/', { state: { refresh: Date.now() } });
   };
 
   const handleShare = () => {
@@ -67,7 +66,7 @@ Check your concept strength at JEElytics! 🚀`;
   };
 
   const handleGoHome = () => {
-    handlePickAnother();
+    navigate('/', { state: { refresh: Date.now() } });
   };
 
   return {

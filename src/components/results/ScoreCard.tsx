@@ -39,10 +39,15 @@ export function ScoreCard({
           <Trophy className="h-8 w-8 text-white" />
         </div>
         <CardTitle className="text-3xl mb-2">
-          {score}/{totalQuestions} Correct!
+          Test Results Summary
         </CardTitle>
         <div className="text-6xl font-bold text-gradient-primary mb-2">
           {percentage.toFixed(0)}%
+        </div>
+        <div className="text-xl text-muted-foreground space-y-1">
+          <div>✅ Correct: <span className="font-bold text-green-600">{score}</span></div>
+          <div>❌ Incorrect: <span className="font-bold text-red-600">{totalQuestions - score}</span></div>
+          <div>📝 Total: <span className="font-bold">{totalQuestions}</span></div>
         </div>
       </CardHeader>
       <CardContent className="text-center space-y-6">

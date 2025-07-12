@@ -56,49 +56,109 @@ export default function Results() {
   }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, user, navigate]);
 
   const saveTestResult = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('No user found, cannot save test result');
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to save your test results.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    console.log('Saving test result:', { subject, score, totalQuestions, topic });
+    // Show saving status
+    console.log('🔄 Starting to save test result...', { 
+      userId: user.id, 
+      subject, 
+      topic, 
+      score, 
+      totalQuestions,
+      timeSpent: timeSpent || 0
+    });
+
+    toast({
+      title: "Saving Results...",
+      description: "Please wait while we save your test results.",
+    });
 
     try {
-      // Save test result
-      const { error: testError } = await supabase
-        .from('test_results')
-        .insert({
-          user_id: user.id,
-          subject,
-          topic,
-          score,
-          total_questions: totalQuestions,
-          time_spent: timeSpent,
-          questions: questions as any,
-          user_answers: userAnswers,
-          correct_answers: correctAnswers
-        });
-
-      if (testError) {
-        console.error('Error saving test result:', testError);
+      // Check authentication status
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('❌ No active session found');
         toast({
-          title: "Error",
-          description: "Failed to save test result. Please try again.",
+          title: "Session Expired",
+          description: "Please log in again to save your results.",
           variant: "destructive",
         });
         return;
       }
 
-      console.log('Test result saved successfully');
+      console.log('✅ Session verified, proceeding with save...');
 
-      // Update user stats
+      // Save test result with retry logic
+      let testSaveAttempts = 0;
+      const maxAttempts = 3;
+      
+      while (testSaveAttempts < maxAttempts) {
+        testSaveAttempts++;
+        console.log(`📝 Attempt ${testSaveAttempts} - Saving test result...`);
+        
+        const { data: testData, error: testError } = await supabase
+          .from('test_results')
+          .insert({
+            user_id: user.id,
+            subject,
+            topic,
+            score,
+            total_questions: totalQuestions,
+            time_spent: timeSpent || 0,
+            questions: questions as any,
+            user_answers: userAnswers,
+            correct_answers: correctAnswers
+          })
+          .select();
+
+        if (!testError) {
+          console.log('✅ Test result saved successfully:', testData);
+          break;
+        }
+
+        console.error(`❌ Attempt ${testSaveAttempts} failed:`, testError);
+        
+        if (testSaveAttempts === maxAttempts) {
+          toast({
+            title: "Save Failed",
+            description: `Failed to save test result after ${maxAttempts} attempts. Error: ${testError.message}`,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // Update user stats with retry logic
+      console.log('📊 Updating user stats...');
+      
       const { data: existingStats, error: fetchError } = await supabase
         .from('user_stats')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('Error fetching user stats:', fetchError);
+      if (fetchError) {
+        console.error('❌ Error fetching user stats:', fetchError);
+        toast({
+          title: "Warning",
+          description: "Test saved but failed to update statistics.",
+          variant: "destructive",
+        });
         return;
       }
+
+      console.log('📈 Current stats:', existingStats);
 
       const today = new Date().toDateString();
       const lastTestDate = existingStats?.last_test_date ? new Date(existingStats.last_test_date).toDateString() : null;
@@ -107,15 +167,19 @@ export default function Results() {
       let newStreak = existingStats?.streak || 0;
       if (lastTestDate === today) {
         // Same day, don't change streak
+        console.log('📅 Same day test, streak unchanged');
       } else if (lastTestDate === yesterday) {
         // Consecutive day, increment streak
         newStreak += 1;
+        console.log('🔥 Consecutive day, streak incremented to:', newStreak);
       } else if (lastTestDate === null) {
         // First test ever
         newStreak = 1;
+        console.log('🎉 First test ever, streak set to 1');
       } else {
         // Streak broken
         newStreak = 1;
+        console.log('💔 Streak broken, reset to 1');
       }
 
       const newStats = {
@@ -126,14 +190,22 @@ export default function Results() {
         total_score: (existingStats?.total_score || 0) + score
       };
 
-      const { error: statsError } = await supabase
+      console.log('📊 Updating stats with:', newStats);
+
+      const { data: statsData, error: statsError } = await supabase
         .from('user_stats')
-        .upsert(newStats);
+        .upsert(newStats, { onConflict: 'user_id' })
+        .select();
 
       if (statsError) {
-        console.error('Error updating user stats:', statsError);
+        console.error('❌ Error updating user stats:', statsError);
+        toast({
+          title: "Partial Success",
+          description: "Test saved but statistics update failed.",
+          variant: "destructive",
+        });
       } else {
-        console.log('User stats updated successfully:', newStats);
+        console.log('✅ User stats updated successfully:', statsData);
         setUserStats({
           streak: newStats.streak,
           lastTestDate: new Date(newStats.last_test_date),
@@ -141,9 +213,19 @@ export default function Results() {
           totalTests: newStats.total_tests,
           totalScore: newStats.total_score
         });
+        
+        toast({
+          title: "Success!",
+          description: `Test results saved! Score: ${score}/${totalQuestions} (${Math.round((score/totalQuestions)*100)}%)`,
+        });
       }
     } catch (error) {
-      console.error('Error saving test data:', error);
+      console.error('💥 Unexpected error saving test data:', error);
+      toast({
+        title: "Unexpected Error",
+        description: `Failed to save test data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive",
+      });
     }
   };
 

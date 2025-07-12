@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Brain, BookOpen, Calculator, Zap, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +27,7 @@ const SUBJECT_COLORS: Record<Subject, string> = {
 
 export default function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [selectedSubject, setSelectedSubject] = useState<Subject | ''>('');
@@ -45,20 +46,45 @@ export default function Home() {
     }
   }, [user]);
 
+  // Refresh stats when returning from test or when location state changes
+  useEffect(() => {
+    if (user && location.state?.refresh) {
+      console.log('🔄 Refresh triggered by navigation state, fetching stats...');
+      fetchUserStats();
+    }
+  }, [location.state, user]);
+
+  // Refresh stats when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        console.log('🔄 Page became visible, refreshing stats...');
+        fetchUserStats();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user]);
+
   const fetchUserStats = async () => {
     if (!user) return;
+    
+    console.log('🏠 Fetching user stats for user:', user.id);
     
     try {
       const { data, error } = await supabase
         .from('user_stats')
         .select('*')
-        .eq('user_id', user?.id)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user stats:', error);
+      if (error) {
+        console.error('❌ Error fetching user stats:', error);
         return;
       }
+
+      console.log('📊 Fetched user stats:', data);
 
       if (data) {
         setUserStats({
@@ -68,9 +94,12 @@ export default function Home() {
           totalTests: data.total_tests,
           totalScore: data.total_score
         });
+        console.log('✅ User stats updated in state');
+      } else {
+        console.log('ℹ️ No user stats found, using defaults');
       }
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+      console.error('💥 Unexpected error fetching user stats:', error);
     }
   };
 
