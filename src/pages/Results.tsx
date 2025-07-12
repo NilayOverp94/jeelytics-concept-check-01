@@ -113,7 +113,7 @@ export default function Results() {
             score,
             total_questions: totalQuestions,
             time_spent: timeSpent || 0,
-            questions: questions as any,
+            questions: JSON.parse(JSON.stringify(questions)),
             user_answers: userAnswers,
             correct_answers: correctAnswers
           })

@@ -23,7 +23,7 @@ export function QuestionReview({ questions, userAnswers, correctAnswers }: Quest
           const correctOption = question.options.find(opt => opt.label === correctAnswer);
 
           return (
-            <div key={`question-${question.id}`} className="border border-border rounded-lg p-4 space-y-3">
+            <div key={`question-${index}-${question.id || question.question.slice(0,10)}`} className="border border-border rounded-lg p-4 space-y-3">
               <div className="flex items-start gap-3">
                 {isCorrect ? (
                   <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
