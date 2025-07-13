@@ -47,7 +47,24 @@ export default function Results() {
   };
 
   useEffect(() => {
-    if (!subject || score === undefined || !user) {
+    console.log('📊 Results page loaded with:', { 
+      subject, 
+      score, 
+      totalQuestions, 
+      user: user?.id,
+      hasQuestions: !!questions?.length,
+      hasUserAnswers: !!userAnswers?.length,
+      hasCorrectAnswers: !!correctAnswers?.length
+    });
+
+    if (!subject || score === undefined) {
+      console.log('❌ Missing required data, redirecting to home');
+      navigate('/');
+      return;
+    }
+
+    if (!user) {
+      console.log('❌ No user found, redirecting to home');
       navigate('/');
       return;
     }
@@ -57,10 +74,24 @@ export default function Results() {
 
   const saveTestResult = async () => {
     if (!user) {
-      console.error('No user found, cannot save test result');
+      console.error('❌ No user found, cannot save test result');
       toast({
-        title: "Authentication Error",
+        title: "Authentication Error", 
         description: "Please log in to save your test results.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!questions || !userAnswers || !correctAnswers) {
+      console.error('❌ Missing required data:', { 
+        hasQuestions: !!questions?.length, 
+        hasUserAnswers: !!userAnswers?.length, 
+        hasCorrectAnswers: !!correctAnswers?.length 
+      });
+      toast({
+        title: "Data Error",
+        description: "Missing test data. Please try taking the test again.",
         variant: "destructive",
       });
       return;
