@@ -9,11 +9,13 @@ import { Progress } from '@/components/ui/progress';
 import { MCQQuestion, Subject } from '@/types/jee';
 import { generateMCQs } from '@/data/questionBank';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Quiz() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
   const { subject, topic } = location.state as { subject: Subject; topic: string };
 
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
@@ -21,6 +23,22 @@ export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Check authentication first
+  useEffect(() => {
+    if (loading) return; // Wait for auth to load
+    
+    if (!user) {
+      console.log('❌ Quiz: User not authenticated, redirecting to login');
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to take the quiz.",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+  }, [user, loading, navigate, toast]);
 
   useEffect(() => {
     if (!subject || !topic) {
@@ -116,6 +134,18 @@ export default function Quiz() {
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
   const answeredCount = userAnswers.filter(answer => answer).length;
+
+  // Show loading if auth is loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (questions.length === 0) {
     return (
