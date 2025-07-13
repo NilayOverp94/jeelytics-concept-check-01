@@ -51,7 +51,7 @@ export default function Results() {
       subject, 
       score, 
       totalQuestions, 
-      user: user?.id,
+      user: user?.id || 'NO_USER',
       hasQuestions: !!questions?.length,
       hasUserAnswers: !!userAnswers?.length,
       hasCorrectAnswers: !!correctAnswers?.length
@@ -63,12 +63,21 @@ export default function Results() {
       return;
     }
 
+    // Only proceed if user is authenticated
     if (!user) {
-      console.log('❌ No user found, redirecting to home');
-      navigate('/');
-      return;
+      console.log('❌ No user found, waiting for auth or redirecting');
+      // Give a moment for auth to load, then redirect if still no user
+      const timeout = setTimeout(() => {
+        if (!user) {
+          console.log('❌ Still no user after timeout, redirecting to login');
+          navigate('/login');
+        }
+      }, 1000);
+      return () => clearTimeout(timeout);
     }
 
+    // User is authenticated, save the test result
+    console.log('✅ User authenticated, saving test result');
     saveTestResult();
   }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, user, navigate]);
 
@@ -261,6 +270,13 @@ export default function Results() {
   };
 
   if (!subject || score === undefined) {
+    console.log('❌ Missing required route data:', { subject, score });
+    return null;
+  }
+
+  if (!user) {
+    console.log('❌ No authenticated user found, redirecting');
+    navigate('/login');
     return null;
   }
 
