@@ -269,17 +269,7 @@ export default function Results() {
     }
   };
 
-  if (!subject || score === undefined) {
-    console.log('❌ Missing required route data:', { subject, score });
-    return null;
-  }
-
-  if (!user) {
-    console.log('❌ No authenticated user found, redirecting');
-    navigate('/login');
-    return null;
-  }
-
+  // Calculate derived values (after all hooks)
   const percentage = (score / totalQuestions) * 100;
   let conceptStrength: 'Strong' | 'Moderate' | 'Weak' = 'Weak';
   if (percentage >= 80) conceptStrength = 'Strong';
@@ -305,6 +295,18 @@ export default function Results() {
     streak: userStats.streak,
     randomQuote,
   });
+
+  // Early returns after all hooks
+  if (!subject || score === undefined) {
+    console.log('❌ Missing required route data:', { subject, score });
+    return null;
+  }
+
+  if (!user) {
+    console.log('❌ No authenticated user found, redirecting');
+    navigate('/login');
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
