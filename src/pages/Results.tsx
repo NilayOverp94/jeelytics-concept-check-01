@@ -26,6 +26,25 @@ export default function Results() {
     totalScore: 0
   });
   
+  // Safely handle location state
+  const locationState = location.state as {
+    subject: Subject;
+    topic: string;
+    questions: MCQQuestion[];
+    userAnswers: string[];
+    correctAnswers: string[];
+    score: number;
+    totalQuestions: number;
+    timeSpent: number;
+  } | null;
+
+  // Check if we have the required data
+  if (!locationState) {
+    console.log('❌ No location state found, redirecting to home');
+    navigate('/');
+    return null;
+  }
+
   const {
     subject,
     topic,
@@ -35,16 +54,7 @@ export default function Results() {
     score,
     totalQuestions,
     timeSpent
-  } = location.state as {
-    subject: Subject;
-    topic: string;
-    questions: MCQQuestion[];
-    userAnswers: string[];
-    correctAnswers: string[];
-    score: number;
-    totalQuestions: number;
-    timeSpent: number;
-  };
+  } = locationState;
 
   useEffect(() => {
     console.log('📊 Results page loaded with:', { 
