@@ -117,6 +117,34 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         explanation: 'For adiabatic process: PVᵞ = constant. So P₂/P₁ = (V₁/V₂)ᵞ = (1/8)^1.5 = 1/32',
         topic: 'Thermodynamics',
         subject: 'Physics'
+      },
+      {
+        id: 'phy_thermo_4',
+        question: 'A heat engine operates between 500K and 300K. Maximum possible efficiency is:',
+        options: [
+          { label: 'A', text: '60%' },
+          { label: 'B', text: '40%' },
+          { label: 'C', text: '20%' },
+          { label: 'D', text: '80%' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Maximum efficiency (Carnot efficiency) = 1 - T₂/T₁ = 1 - 300/500 = 0.4 = 40%',
+        topic: 'Thermodynamics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_thermo_5',
+        question: 'For an ideal gas, which process requires maximum work for the same change in volume?',
+        options: [
+          { label: 'A', text: 'Isothermal' },
+          { label: 'B', text: 'Adiabatic' },
+          { label: 'C', text: 'Isobaric' },
+          { label: 'D', text: 'Isochoric' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'Work = ∫P dV. For isobaric process W = P(V₂-V₁), which is maximum for same ΔV among the given options.',
+        topic: 'Thermodynamics',
+        subject: 'Physics'
       }
     ],
     'Electromagnetism': [
@@ -163,6 +191,62 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         explanation: 'Fringe width β = λD/d. If d becomes d/2 and D becomes 2D, then β becomes 4β.',
         topic: 'Optics',
         subject: 'Physics'
+      },
+      {
+        id: 'phy_opt_2',
+        question: 'A convex lens of focal length 20 cm forms real image at 60 cm. The object distance is:',
+        options: [
+          { label: 'A', text: '15 cm' },
+          { label: 'B', text: '30 cm' },
+          { label: 'C', text: '40 cm' },
+          { label: 'D', text: '12 cm' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Using lens formula: 1/f = 1/v - 1/u. So 1/20 = 1/60 - 1/u. Solving: u = 30 cm',
+        topic: 'Optics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_opt_3',
+        question: 'Critical angle for total internal reflection from glass to air is 42°. The refractive index of glass is:',
+        options: [
+          { label: 'A', text: '1.33' },
+          { label: 'B', text: '1.49' },
+          { label: 'C', text: '1.67' },
+          { label: 'D', text: '1.52' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'sin C = 1/μ. So μ = 1/sin 42° = 1/0.669 = 1.49',
+        topic: 'Optics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_opt_4',
+        question: 'A ray of light passes through a prism of angle 60° and refractive index √3. For minimum deviation, the angle of incidence is:',
+        options: [
+          { label: 'A', text: '30°' },
+          { label: 'B', text: '45°' },
+          { label: 'C', text: '60°' },
+          { label: 'D', text: '90°' }
+        ],
+        correctAnswer: 'C',
+        explanation: 'At minimum deviation: i = (A + δm)/2 and r = A/2. Using Snell\'s law: sin i = μ sin r = √3 × sin 30° = √3/2. So i = 60°',
+        topic: 'Optics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_opt_5',
+        question: 'In Michelson interferometer, if mirror moves 0.25 mm, the number of fringes crossed (λ = 500 nm) is:',
+        options: [
+          { label: 'A', text: '500' },
+          { label: 'B', text: '1000' },
+          { label: 'C', text: '250' },
+          { label: 'D', text: '2000' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Path difference change = 2 × displacement = 2 × 0.25 mm = 0.5 mm. Number of fringes = 0.5 mm / 500 nm = 1000',
+        topic: 'Optics',
+        subject: 'Physics'
       }
     ],
     'Modern Physics': [
@@ -191,6 +275,48 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         ],
         correctAnswer: 'A',
         explanation: 'λ = h/p = h/√(2meV) = 12.27/√V Å. For V = 100V, λ = 1.23 Å',
+        topic: 'Modern Physics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_mod_3',
+        question: 'In photoelectric effect, stopping potential is independent of:',
+        options: [
+          { label: 'A', text: 'Frequency of incident light' },
+          { label: 'B', text: 'Intensity of incident light' },
+          { label: 'C', text: 'Work function of metal' },
+          { label: 'D', text: 'Nature of photocathode' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Stopping potential V₀ = (hf - φ)/e, depends on frequency and work function, but not on intensity.',
+        topic: 'Modern Physics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_mod_4',
+        question: 'The radius of second Bohr orbit of hydrogen atom is:',
+        options: [
+          { label: 'A', text: '0.529 Å' },
+          { label: 'B', text: '2.116 Å' },
+          { label: 'C', text: '4.761 Å' },
+          { label: 'D', text: '1.058 Å' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Radius of nth orbit = n² × 0.529 Å. For n = 2: r₂ = 4 × 0.529 = 2.116 Å',
+        topic: 'Modern Physics',
+        subject: 'Physics'
+      },
+      {
+        id: 'phy_mod_5',
+        question: 'X-rays are produced when high energy electrons strike a metal target. The minimum wavelength depends on:',
+        options: [
+          { label: 'A', text: 'Atomic number of target' },
+          { label: 'B', text: 'Accelerating voltage only' },
+          { label: 'C', text: 'Current in the tube' },
+          { label: 'D', text: 'Temperature of target' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'Minimum wavelength λ_min = hc/eV depends only on accelerating voltage V, not on target material.',
         topic: 'Modern Physics',
         subject: 'Physics'
       }
@@ -612,6 +738,48 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         explanation: 'Lattice energy ∝ (charge product)/(sum of ionic radii). MgO has highest charge product (+2)(-2) = 4 and small ions.',
         topic: 'Inorganic Chemistry',
         subject: 'Chemistry'
+      },
+      {
+        id: 'chem_inorg_3',
+        question: 'The oxidation state of chromium in K₂Cr₂O₇ is:',
+        options: [
+          { label: 'A', text: '+3' },
+          { label: 'B', text: '+6' },
+          { label: 'C', text: '+4' },
+          { label: 'D', text: '+7' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'In K₂Cr₂O₇: 2(+1) + 2x + 7(-2) = 0. Solving: 2 + 2x - 14 = 0, so x = +6',
+        topic: 'Inorganic Chemistry',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_inorg_4',
+        question: 'Which noble gas has the highest boiling point?',
+        options: [
+          { label: 'A', text: 'He' },
+          { label: 'B', text: 'Ne' },
+          { label: 'C', text: 'Ar' },
+          { label: 'D', text: 'Xe' }
+        ],
+        correctAnswer: 'D',
+        explanation: 'Boiling point increases with atomic size due to stronger van der Waals forces. Xe is the largest, so has highest boiling point.',
+        topic: 'Inorganic Chemistry',
+        subject: 'Chemistry'
+      },
+      {
+        id: 'chem_inorg_5',
+        question: 'The shape of ClF₃ molecule is:',
+        options: [
+          { label: 'A', text: 'Trigonal planar' },
+          { label: 'B', text: 'T-shaped' },
+          { label: 'C', text: 'Trigonal pyramidal' },
+          { label: 'D', text: 'Linear' }
+        ],
+        correctAnswer: 'B',
+        explanation: 'ClF₃ has 5 electron pairs (3 bonding, 2 lone pairs) around Cl. The shape is T-shaped due to lone pair repulsion.',
+        topic: 'Inorganic Chemistry',
+        subject: 'Chemistry'
       }
     ],
     'Chemical Bonding': [
@@ -1009,6 +1177,62 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         explanation: 'For chord subtending 90° at center of circle x² + y² = r², locus of midpoint is x² + y² = r²/2. Here r² = 4, so locus is x² + y² = 2.',
         topic: 'Coordinate Geometry',
         subject: 'Mathematics'
+      },
+      {
+        id: 'math_coord_2',
+        question: 'The equation of directrix of parabola y² = 8x is:',
+        options: [
+          { label: 'A', text: 'x = -2' },
+          { label: 'B', text: 'x = 2' },
+          { label: 'C', text: 'y = -2' },
+          { label: 'D', text: 'y = 2' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'For parabola y² = 4ax, directrix is x = -a. Here 4a = 8, so a = 2. Directrix: x = -2',
+        topic: 'Coordinate Geometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_coord_3',
+        question: 'Distance between parallel lines 3x + 4y = 5 and 3x + 4y = 15 is:',
+        options: [
+          { label: 'A', text: '2' },
+          { label: 'B', text: '3' },
+          { label: 'C', text: '5' },
+          { label: 'D', text: '10' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Distance = |c₁ - c₂|/√(a² + b²) = |5 - 15|/√(9 + 16) = 10/5 = 2',
+        topic: 'Coordinate Geometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_coord_4',
+        question: 'The center of circle x² + y² + 4x - 6y + 9 = 0 is:',
+        options: [
+          { label: 'A', text: '(-2, 3)' },
+          { label: 'B', text: '(2, -3)' },
+          { label: 'C', text: '(-4, 6)' },
+          { label: 'D', text: '(4, -6)' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Comparing with (x-h)² + (y-k)² = r², we get center (-g, -f) = (-2, 3) where g = 2, f = -3',
+        topic: 'Coordinate Geometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_coord_5',
+        question: 'The eccentricity of hyperbola x²/16 - y²/9 = 1 is:',
+        options: [
+          { label: 'A', text: '5/4' },
+          { label: 'B', text: '4/5' },
+          { label: 'C', text: '3/4' },
+          { label: 'D', text: '√7/4' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'For hyperbola x²/a² - y²/b² = 1: e = √(1 + b²/a²) = √(1 + 9/16) = √(25/16) = 5/4',
+        topic: 'Coordinate Geometry',
+        subject: 'Mathematics'
       }
     ],
     'Trigonometry': [
@@ -1023,6 +1247,62 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
         ],
         correctAnswer: 'A',
         explanation: 'Using sum-to-product: sin x + sin 5x = 2sin(3x)cos(2x). So equation becomes sin(3x)[2cos(2x) + 1] = 0. Solutions: x = nπ/3 or cos(2x) = -1/2.',
+        topic: 'Trigonometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_trig_2',
+        question: 'The value of cos 15° is:',
+        options: [
+          { label: 'A', text: '(√6 + √2)/4' },
+          { label: 'B', text: '(√6 - √2)/4' },
+          { label: 'C', text: '(√3 + 1)/(2√2)' },
+          { label: 'D', text: '(√3 - 1)/(2√2)' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'cos 15° = cos(45° - 30°) = cos 45° cos 30° + sin 45° sin 30° = (1/√2)(√3/2) + (1/√2)(1/2) = (√6 + √2)/4',
+        topic: 'Trigonometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_trig_3',
+        question: 'If tan A + cot A = 2, then tan²A + cot²A equals:',
+        options: [
+          { label: 'A', text: '2' },
+          { label: 'B', text: '4' },
+          { label: 'C', text: '6' },
+          { label: 'D', text: '8' }
+        ],
+        correctAnswer: 'A',
+        explanation: '(tan A + cot A)² = tan²A + cot²A + 2. Given tan A + cot A = 2, so 4 = tan²A + cot²A + 2, hence tan²A + cot²A = 2',
+        topic: 'Trigonometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_trig_4',
+        question: 'The maximum value of 3 sin x + 4 cos x is:',
+        options: [
+          { label: 'A', text: '5' },
+          { label: 'B', text: '7' },
+          { label: 'C', text: '12' },
+          { label: 'D', text: '√7' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Maximum value of a sin x + b cos x is √(a² + b²) = √(9 + 16) = 5',
+        topic: 'Trigonometry',
+        subject: 'Mathematics'
+      },
+      {
+        id: 'math_trig_5',
+        question: 'The principal value of sin⁻¹(sin 5π/6) is:',
+        options: [
+          { label: 'A', text: 'π/6' },
+          { label: 'B', text: '5π/6' },
+          { label: 'C', text: '-π/6' },
+          { label: 'D', text: 'π/3' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'sin(5π/6) = sin(π - π/6) = sin(π/6) = 1/2. Principal value of sin⁻¹(1/2) = π/6',
         topic: 'Trigonometry',
         subject: 'Mathematics'
       }
