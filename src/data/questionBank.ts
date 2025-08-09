@@ -1496,21 +1496,61 @@ export const QUESTION_BANK: Record<Subject, Record<string, MCQQuestion[]>> = {
   }
 };
 
-// Function to generate random MCQs for a topic
+// Function to generate random MCQs for a topic with topic aliasing between UI and bank keys
+const TOPIC_ALIASES: Record<Subject, Record<string, string | string[]>> = {
+  Physics: {
+    'Waves & Oscillations': ['Waves and Sound', 'Oscillations'],
+    'Electricity & Magnetism': 'Electromagnetism',
+    'AC Circuits': 'Alternating Current',
+  },
+  Chemistry: {
+    'P-Block Elements': 'S and P Block Elements',
+    'S-Block Elements': 'S and P Block Elements',
+    'Alcohols & Ethers': 'Alcohols',
+  },
+  Mathematics: {
+    'Sequences & Series': 'Sequences and Series',
+    'Matrices & Determinants': 'Matrices and Determinants',
+    'Permutations & Combinations': 'Permutations and Combinations',
+  },
+};
+
+function resolveTopicKeys(subject: Subject, topic: string): string[] {
+  const normalize = (s: string) => s.replace(/&/g, 'and').replace(/\s+/g, ' ').trim();
+  const map = TOPIC_ALIASES[subject] || {};
+  const direct = (map as any)[topic] ?? (map as any)[normalize(topic)];
+  if (Array.isArray(direct)) return direct as string[];
+  if (typeof direct === 'string') return [direct as string];
+  const norm = normalize(topic);
+  if (QUESTION_BANK[subject]?.[topic]) return [topic];
+  if (QUESTION_BANK[subject]?.[norm]) return [norm];
+  return [topic];
+}
+
 export function generateMCQs(subject: Subject, topic: string, count: number = 5): MCQQuestion[] {
-  const topicQuestions = QUESTION_BANK[subject]?.[topic] || [];
-  
-  if (topicQuestions.length === 0) {
-    // Return empty array if no questions found - this will trigger user to add API key
+  const keys = resolveTopicKeys(subject, topic);
+  let pool: MCQQuestion[] = [];
+  for (const k of keys) {
+    pool = pool.concat(QUESTION_BANK[subject]?.[k] || []);
+  }
+  // De-duplicate by id to avoid repeats when merging topics
+  const seen = new Set<string>();
+  pool = pool.filter((q) => {
+    if (seen.has(q.id)) return false;
+    seen.add(q.id);
+    return true;
+  });
+
+  if (pool.length === 0) {
     return [];
   }
   
   // Shuffle and return required number of questions
-  const shuffled = [...topicQuestions].sort(() => Math.random() - 0.5);
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
   
   // If we need more questions than available, repeat some
-  while (shuffled.length < count && topicQuestions.length > 0) {
-    const additionalQuestions = [...topicQuestions].sort(() => Math.random() - 0.5);
+  while (shuffled.length < count && pool.length > 0) {
+    const additionalQuestions = [...pool].sort(() => Math.random() - 0.5);
     shuffled.push(...additionalQuestions);
   }
   
