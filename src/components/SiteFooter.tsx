@@ -48,7 +48,7 @@ export default function SiteFooter() {
             <h3 className="text-sm font-semibold text-foreground">Contact</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li>
-                <a className="hover:text-foreground transition-colors" href="mailto:support@jeeprep.example">support@jeeprep.example</a>
+                <a className="hover:text-foreground transition-colors" href="mailto:nilayraj712@gmail.com">nilayraj712@gmail.com</a>
               </li>
             </ul>
           </section>

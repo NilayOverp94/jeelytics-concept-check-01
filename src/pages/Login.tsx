@@ -57,6 +57,33 @@ export default function Login() {
       [e.target.name]: e.target.value
     }));
   };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) {
+        toast({
+          title: "Google sign-in failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
@@ -101,6 +128,19 @@ Sign in to continue your JEE preparation journey</p>
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
+
+            <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="h-px flex-1 bg-border" />
+              <span>or</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <Button type="button" variant="secondary" className="w-full" onClick={handleGoogleLogin} disabled={loading}>
+              <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" className="mr-2">
+                <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.2-1.6 3.6-5.5 3.6-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 3.9 1.4l2.6-2.6C16.6 3.2 14.5 2.3 12 2.3 6.9 2.3 2.8 6.4 2.8 11.5S6.9 20.7 12 20.7c5.6 0 9.3-3.9 9.3-9.4 0-.6-.1-1-.2-1.5H12z"/>
+              </svg>
+              Continue with Google
+            </Button>
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Don't have an account? </span>

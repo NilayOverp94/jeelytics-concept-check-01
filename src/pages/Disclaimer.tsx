@@ -24,7 +24,7 @@ export default function Disclaimer() {
         <section className="mt-8 space-y-4">
           <h2 className="text-xl font-medium text-foreground">Contact</h2>
           <p className="text-muted-foreground">
-            For any concerns, reach us at <a className="underline hover:text-foreground" href="mailto:support@jeeprep.example">support@jeeprep.example</a>.
+            For any concerns, reach us at <a className="underline hover:text-foreground" href="mailto:nilayraj712@gmail.com">nilayraj712@gmail.com</a>.
           </p>
         </section>
       </article>
