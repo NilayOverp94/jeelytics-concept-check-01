@@ -189,29 +189,6 @@ export default function Results() {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      // Record answered questions for no-repeat tracking
-      try {
-        const answeredRows = (questions || []).map((q) => ({
-          user_id: user.id,
-          subject,
-          topic,
-          question_id: (q as any).id,
-          answered_at: new Date().toISOString(),
-        }));
-        if (answeredRows.length > 0) {
-          const { error: answeredErr } = await supabase
-            .from('answered_questions')
-            .upsert(answeredRows, { onConflict: 'user_id,subject,topic,question_id' });
-          if (answeredErr) {
-            console.error('❌ Error saving answered questions:', answeredErr);
-          } else {
-            console.log('✅ Answered questions recorded for tracking');
-          }
-        }
-      } catch (e) {
-        console.error('❌ Unexpected error recording answered questions:', e);
-      }
-
       // Update user stats with retry logic
       console.log('📊 Updating user stats...');
       
