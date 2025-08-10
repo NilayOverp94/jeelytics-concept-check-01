@@ -264,7 +264,7 @@ export default function Home() {
             <CardContent className="pt-6 text-center">
               <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">JEE Focused</h3>
-              <p className="text-sm text-muted-foreground">Questions aligned with JEE patterns Contact - nila</p>
+              <p className="text-sm text-muted-foreground">Questions aligned with JEE patterns</p>
             </CardContent>
           </Card>
         </div>
