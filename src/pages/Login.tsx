@@ -88,9 +88,12 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-lg gradient-hero flex items-center justify-center mx-auto mb-4">
-            <Brain className="h-8 w-8 text-white" />
-          </div>
+          <img
+            src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
+            alt="JEElytics logo"
+            className="w-16 h-16 rounded-lg mx-auto mb-4"
+            loading="eager"
+          />
           <h1 className="text-3xl font-bold text-gradient-primary mb-2">
             Welcome Back
           </h1>

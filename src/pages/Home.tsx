@@ -126,9 +126,12 @@ export default function Home() {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
-              <Brain className="h-5 w-5 text-white" />
-            </div>
+            <img
+              src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
+              alt="JEElytics logo"
+              className="h-8 w-8 rounded"
+              loading="eager"
+            />
             <h1 className="text-2xl font-bold text-gradient-primary">
               JEElytics
             </h1>
