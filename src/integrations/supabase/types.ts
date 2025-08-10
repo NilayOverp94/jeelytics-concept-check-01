@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      answered_questions: {
+        Row: {
+          answered_at: string
+          id: string
+          question_id: string
+          subject: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string
+          id?: string
+          question_id: string
+          subject: string
+          topic: string
+          user_id: string
+        }
+        Update: {
+          answered_at?: string
+          id?: string
+          question_id?: string
+          subject?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answered_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -35,6 +70,42 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          explanation: string | null
+          id: string
+          options: Json
+          question: string
+          subject: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          options: Json
+          question: string
+          subject: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          options?: Json
+          question?: string
+          subject?: string
+          topic?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -118,7 +189,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      fetch_random_questions: {
+        Args: {
+          p_user_id: string
+          p_subject: string
+          p_topic: string
+          p_limit: number
+        }
+        Returns: {
+          correct_answer: string
+          created_at: string
+          explanation: string | null
+          id: string
+          options: Json
+          question: string
+          subject: string
+          topic: string
+          updated_at: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
