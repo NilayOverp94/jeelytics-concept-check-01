@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { MCQQuestion, Subject } from '@/types/jee';
-import { generateMCQs } from '@/data/questionBank';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -46,24 +46,61 @@ export default function Quiz() {
       return;
     }
 
-    console.log('Quiz: Generating questions for', subject, topic);
-    const generatedQuestions = generateMCQs(subject, topic, 5);
-    console.log('Quiz: Generated questions:', generatedQuestions.length);
-    
-    if (generatedQuestions.length === 0) {
-      console.log('Quiz: No questions found for topic:', topic);
-      toast({
-        title: "No Questions Available",
-        description: `No questions found for ${topic}. Please try a different topic.`,
-        variant: "destructive",
+    if (loading || !user) return;
+
+    const fetchQuestions = async () => {
+      console.log('Quiz: Fetching randomized questions for', subject, topic);
+      const { data, error } = await supabase.rpc('fetch_random_questions', {
+        p_user_id: user.id,
+        p_subject: subject,
+        p_topic: topic,
+        p_limit: 5,
       });
-      navigate('/');
-      return;
-    }
-    
-    setQuestions(generatedQuestions);
-    setUserAnswers(new Array(5).fill(''));
-  }, [subject, topic, navigate, toast]);
+
+      if (error) {
+        console.error('Quiz: Error fetching questions:', error);
+        toast({
+          title: 'Error loading questions',
+          description: 'Please try again later.',
+          variant: 'destructive',
+        });
+        navigate('/');
+        return;
+      }
+
+      const mapped: MCQQuestion[] = (data || []).map((row: any) => {
+        const opts = Array.isArray(row.options) ? row.options : [];
+        const normalized = opts.map((opt: any, idx: number) =>
+          typeof opt === 'string' ? { label: String.fromCharCode(65 + idx), text: opt } : opt
+        );
+        return {
+          id: row.id,
+          question: row.question,
+          options: normalized,
+          correctAnswer: row.correct_answer ?? row.correctAnswer,
+          explanation: row.explanation ?? '',
+          topic: row.topic,
+          subject: row.subject,
+        } as MCQQuestion;
+      });
+
+      if (mapped.length === 0) {
+        console.log('Quiz: No questions found for topic:', topic);
+        toast({
+          title: 'No Questions Available',
+          description: `No questions found for ${topic}. Please try a different topic.`,
+          variant: 'destructive',
+        });
+        navigate('/');
+        return;
+      }
+
+      setQuestions(mapped);
+      setUserAnswers(new Array(mapped.length).fill(''));
+    };
+
+    fetchQuestions();
+  }, [subject, topic, user, loading, navigate, toast]);
 
   useEffect(() => {
     if (timeLeft > 0 && !isSubmitted) {
