@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Clock, ArrowLeft, CheckCircle } from 'lucide-react';
@@ -7,9 +8,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { MCQQuestion, Subject } from '@/types/jee';
-import { generateMCQs } from '@/data/questionBank';
+// Removed local generator; we now fetch from Supabase
+// import { generateMCQs } from '@/data/questionBank';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Quiz() {
   const location = useLocation();
@@ -46,23 +49,65 @@ export default function Quiz() {
       return;
     }
 
-    console.log('Quiz: Generating questions for', subject, topic);
-    const generatedQuestions = generateMCQs(subject, topic, 5);
-    console.log('Quiz: Generated questions:', generatedQuestions.length);
-    
-    if (generatedQuestions.length === 0) {
-      console.log('Quiz: No questions found for topic:', topic);
-      toast({
-        title: "No Questions Available",
-        description: `No questions found for ${topic}. Please try a different topic.`,
-        variant: "destructive",
-      });
-      navigate('/');
-      return;
-    }
-    
-    setQuestions(generatedQuestions);
-    setUserAnswers(new Array(5).fill(''));
+    // Fetch questions securely via Supabase RPC (no answers/explanations)
+    const fetchQuestions = async () => {
+      try {
+        console.log('Quiz: Fetching questions via Supabase RPC for', subject, topic);
+        const { data, error } = await supabase.rpc('fetch_random_questions_public', {
+          p_subject: subject,
+          p_topic: topic,
+          p_limit: 5,
+        });
+
+        if (error) {
+          console.error('Quiz: RPC error fetching questions:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load questions. Please try again.",
+            variant: "destructive",
+          });
+          navigate('/');
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          console.log('Quiz: No questions found for topic:', topic);
+          toast({
+            title: "No Questions Available",
+            description: `No questions found for ${topic}. Please try a different topic.`,
+            variant: "destructive",
+          });
+          navigate('/');
+          return;
+        }
+
+        // Map RPC rows to MCQQuestion shape (without answers/explanations)
+        const mapped: MCQQuestion[] = data.map((row: any) => ({
+          id: String(row.id),
+          question: row.question,
+          options: Array.isArray(row.options) ? row.options : [],
+          // Fill placeholders (answers fetched after submission)
+          correctAnswer: '',
+          explanation: '',
+          topic: row.topic,
+          subject: row.subject,
+        }));
+
+        console.log('Quiz: Received questions:', mapped.length);
+        setQuestions(mapped);
+        setUserAnswers(new Array(mapped.length).fill(''));
+      } catch (e) {
+        console.error('Quiz: Unexpected error fetching questions:', e);
+        toast({
+          title: "Unexpected Error",
+          description: "Failed to load questions. Please try again.",
+          variant: "destructive",
+        });
+        navigate('/');
+      }
+    };
+
+    fetchQuestions();
   }, [subject, topic, navigate, toast]);
 
   useEffect(() => {
@@ -92,31 +137,62 @@ export default function Quiz() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const unansweredCount = userAnswers.filter(answer => !answer).length;
     
     if (unansweredCount > 0) {
       toast({
         title: "Incomplete Test",
-        description: `You have ${unansweredCount} unanswered questions. Submit anyway?`,
+        description: `You have ${unansweredCount} unanswered questions. Submitting...`,
         variant: "destructive",
       });
     }
 
-    // Calculate results
-    const correctAnswers = questions.map(q => q.correctAnswer);
+    // Fetch correct answers and explanations securely for served question IDs
+    const questionIds = questions.map(q => q.id);
+    console.log('Quiz: Fetching answers for question IDs:', questionIds);
+
+    const { data: answersData, error: answersError } = await supabase.rpc('get_question_answers_public', {
+      p_question_ids: questionIds,
+    });
+
+    if (answersError) {
+      console.error('Quiz: Error fetching answers:', answersError);
+      toast({
+        title: "Error",
+        description: "Failed to fetch answers. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const answerMap = new Map<string, { correct_answer: string; explanation: string }>();
+    (answersData || []).forEach((row: any) => {
+      answerMap.set(String(row.id), {
+        correct_answer: row.correct_answer,
+        explanation: row.explanation ?? '',
+      });
+    });
+
+    const correctAnswers = questionIds.map(id => answerMap.get(id)?.correct_answer || '');
+    const questionsWithExplanations: MCQQuestion[] = questions.map(q => ({
+      ...q,
+      explanation: answerMap.get(q.id)?.explanation || '',
+    }));
+
+    // Calculate score
     const score = userAnswers.reduce((total, answer, index) => {
       return total + (answer === correctAnswers[index] ? 1 : 0);
     }, 0);
 
     setIsSubmitted(true);
     
-    // Navigate to results with data
+    // Navigate to results with full data
     navigate('/results', {
       state: {
         subject,
         topic,
-        questions,
+        questions: questionsWithExplanations,
         userAnswers,
         correctAnswers,
         score,
@@ -132,7 +208,7 @@ export default function Quiz() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const progress = ((currentQuestion + 1) / (questions.length || 1)) * 100;
   const answeredCount = userAnswers.filter(answer => answer).length;
 
   // Show loading if auth is loading
