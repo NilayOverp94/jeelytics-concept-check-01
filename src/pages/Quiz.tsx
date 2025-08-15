@@ -180,9 +180,10 @@ export default function Quiz() {
       explanation: answerMap.get(q.id)?.explanation || '',
     }));
 
-    // Calculate score
+    // Calculate score - only count answered questions that are correct
     const score = userAnswers.reduce((total, answer, index) => {
-      return total + (answer === correctAnswers[index] ? 1 : 0);
+      // Only count as correct if answer is provided AND matches correct answer
+      return total + (answer && answer === correctAnswers[index] ? 1 : 0);
     }, 0);
 
     setIsSubmitted(true);
