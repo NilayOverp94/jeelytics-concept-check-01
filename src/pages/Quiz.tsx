@@ -168,17 +168,22 @@ export default function Quiz() {
 
     const answerMap = new Map<string, { correct_answer: string; explanation: string }>();
     (answersData || []).forEach((row: any) => {
+      console.log('Processing answer row:', row);
       answerMap.set(String(row.id), {
         correct_answer: row.correct_answer,
         explanation: row.explanation ?? '',
       });
     });
 
+    console.log('Answer map created:', Array.from(answerMap.entries()));
+
     const correctAnswers = questionIds.map(id => answerMap.get(id)?.correct_answer || '');
     const questionsWithExplanations: MCQQuestion[] = questions.map(q => ({
       ...q,
-      explanation: answerMap.get(q.id)?.explanation || '',
+      explanation: answerMap.get(q.id)?.explanation || 'No explanation available',
     }));
+
+    console.log('Questions with explanations:', questionsWithExplanations.map(q => ({ id: q.id, explanation: q.explanation })));
 
     // Calculate score - only count answered questions that are correct
     const score = userAnswers.reduce((total, answer, index) => {

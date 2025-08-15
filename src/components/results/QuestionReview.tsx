@@ -18,7 +18,7 @@ export function QuestionReview({ questions, userAnswers, correctAnswers }: Quest
         {questions.map((question, index) => {
           const userAnswer = userAnswers[index];
           const correctAnswer = correctAnswers[index];
-          const isCorrect = userAnswer === correctAnswer;
+          const isCorrect = userAnswer && userAnswer === correctAnswer;
           const userOption = question.options.find(opt => opt.label === userAnswer);
           const correctOption = question.options.find(opt => opt.label === correctAnswer);
 
