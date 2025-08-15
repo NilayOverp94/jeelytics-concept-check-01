@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -191,10 +191,10 @@ export type Database = {
     Functions: {
       fetch_random_questions: {
         Args: {
-          p_user_id: string
+          p_limit: number
           p_subject: string
           p_topic: string
-          p_limit: number
+          p_user_id: string
         }
         Returns: {
           correct_answer: string
@@ -209,11 +209,11 @@ export type Database = {
         }[]
       }
       fetch_random_questions_public: {
-        Args: { p_subject: string; p_topic: string; p_limit?: number }
+        Args: { p_limit?: number; p_subject: string; p_topic: string }
         Returns: {
           id: string
-          question: string
           options: Json
+          question: string
           subject: string
           topic: string
         }[]
@@ -221,9 +221,9 @@ export type Database = {
       get_question_answers_public: {
         Args: { p_question_ids: string[] }
         Returns: {
-          id: string
           correct_answer: string
           explanation: string
+          id: string
         }[]
       }
     }
