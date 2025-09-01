@@ -48,8 +48,7 @@ export function useResultsHandlers({
 
 "${randomQuote}"
 
-Check your concept strength at JEElytics! 🚀
-${websiteUrl}`;
+Check your concept strength at JEElytics! 🚀`;
 
     if (navigator.share) {
       navigator.share({
@@ -58,12 +57,14 @@ ${websiteUrl}`;
         url: websiteUrl,
       }).catch(() => {
         // If native sharing fails, fallback to WhatsApp
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const whatsappMessage = `${message}\n\n${websiteUrl}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
         window.open(whatsappUrl, '_blank');
       });
     } else {
       // Fallback to WhatsApp
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      const whatsappMessage = `${message}\n\n${websiteUrl}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
       window.open(whatsappUrl, '_blank');
     }
     
