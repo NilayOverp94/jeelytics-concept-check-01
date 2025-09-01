@@ -55,6 +55,11 @@ ${websiteUrl}`;
       navigator.share({
         title: 'JEElytics Test Result',
         text: message,
+        url: websiteUrl,
+      }).catch(() => {
+        // If native sharing fails, fallback to WhatsApp
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
       });
     } else {
       // Fallback to WhatsApp
