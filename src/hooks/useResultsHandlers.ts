@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Subject } from '@/types/jee';
@@ -36,6 +37,7 @@ export function useResultsHandlers({
   };
 
   const handleShare = () => {
+    const websiteUrl = window.location.origin;
     const message = `🎯 JEElytics Test Result!
     
 📚 Subject: ${subject}
@@ -46,7 +48,8 @@ export function useResultsHandlers({
 
 "${randomQuote}"
 
-Check your concept strength at JEElytics! 🚀`;
+Check your concept strength at JEElytics! 🚀
+${websiteUrl}`;
 
     if (navigator.share) {
       navigator.share({
