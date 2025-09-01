@@ -26,6 +26,7 @@ export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [labelMaps, setLabelMaps] = useState<Record<string, Record<string, string>>>({});
 
   // Check authentication first
   useEffect(() => {
@@ -93,9 +94,33 @@ export default function Quiz() {
           subject: row.subject,
         }));
 
-        console.log('Quiz: Received questions:', mapped.length);
-        setQuestions(mapped);
-        setUserAnswers(new Array(mapped.length).fill(''));
+        // Randomize options and re-label A/B/C/D so correct isn't always the same letter
+        const letters = ['A', 'B', 'C', 'D'];
+        const newLabelMaps: Record<string, Record<string, string>> = {};
+        const shuffledQuestions: MCQQuestion[] = mapped.map((q) => {
+          const original = q.options;
+          // Fisher–Yates shuffle (pure)
+          const shuffled = [...original];
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          // Build mapping from original label -> new label based on shuffled order
+          const labelMap: Record<string, string> = {};
+          const relabeled = shuffled.map((opt, idx) => {
+            const newLabel = letters[idx] ?? String.fromCharCode(65 + idx);
+            labelMap[opt.label] = newLabel;
+            return { label: newLabel, text: opt.text };
+          });
+          newLabelMaps[q.id] = labelMap;
+          return { ...q, options: relabeled };
+        });
+
+        console.log('Quiz: Applied option shuffling and relabeling with maps:', newLabelMaps);
+        setLabelMaps(newLabelMaps);
+        console.log('Quiz: Received questions:', shuffledQuestions.length);
+        setQuestions(shuffledQuestions);
+        setUserAnswers(new Array(shuffledQuestions.length).fill(''));
       } catch (e) {
         console.error('Quiz: Unexpected error fetching questions:', e);
         toast({
@@ -177,7 +202,13 @@ export default function Quiz() {
 
     console.log('Answer map created:', Array.from(answerMap.entries()));
 
-    const correctAnswers = questionIds.map(id => answerMap.get(id)?.correct_answer || '');
+    const correctAnswersOriginal = questionIds.map(id => answerMap.get(id)?.correct_answer || '');
+    const correctAnswers = questionIds.map((id, idx) => {
+      const orig = correctAnswersOriginal[idx];
+      const map = labelMaps[id];
+      const translated = map && orig ? (map[orig] ?? '') : orig;
+      return translated || '';
+    });
     const questionsWithExplanations: MCQQuestion[] = questions.map(q => ({
       ...q,
       explanation: answerMap.get(q.id)?.explanation || 'No explanation available',
