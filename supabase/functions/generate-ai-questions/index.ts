@@ -99,7 +99,16 @@ Make sure all questions are unique, conceptually sound, and test different aspec
     }
 
     // Extract JSON from the response (remove any markdown formatting)
-    const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
+    let jsonText = generatedText;
+    
+    // Remove markdown code blocks if present
+    const codeBlockMatch = generatedText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1];
+    }
+    
+    // Find JSON array
+    const jsonMatch = jsonText.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       console.error('No JSON found in response:', generatedText);
       return new Response(JSON.stringify({ error: 'Invalid response format' }), {
@@ -108,7 +117,34 @@ Make sure all questions are unique, conceptually sound, and test different aspec
       });
     }
 
-    const questions = JSON.parse(jsonMatch[0]);
+    let questions;
+    try {
+      // Clean up common JSON issues before parsing
+      let cleanJson = jsonMatch[0]
+        .replace(/[\u201C\u201D]/g, '"') // Replace smart quotes
+        .replace(/[\u2018\u2019]/g, "'") // Replace smart apostrophes
+        .replace(/([^\\])\\([^"\\\/bfnrtu])/g, '$1\\\\$2') // Fix unescaped backslashes
+        .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+        .replace(/"\s*:\s*"([^"]*)"C"\s*:/g, '": "$1°C":'); // Fix temperature symbols
+      
+      questions = JSON.parse(cleanJson);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Failed to parse JSON:', jsonMatch[0]);
+      return new Response(JSON.stringify({ error: 'Failed to parse AI response. Please try again.' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate questions structure
+    if (!Array.isArray(questions) || questions.length === 0) {
+      console.error('Invalid questions format:', questions);
+      return new Response(JSON.stringify({ error: 'Invalid questions format' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     // Add unique IDs to questions for tracking
     const questionsWithIds = questions.map((q: any, index: number) => ({
