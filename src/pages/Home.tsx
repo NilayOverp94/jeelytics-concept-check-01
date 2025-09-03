@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StreakDisplay } from '@/components/StreakDisplay';
 import { SUBJECTS, Subject } from '@/types/jee';
@@ -34,6 +35,7 @@ export default function Home() {
   } = useToast();
   const [selectedSubject, setSelectedSubject] = useState<Subject | ''>('');
   const [selectedTopic, setSelectedTopic] = useState('');
+  const [useAIQuestions, setUseAIQuestions] = useState(false);
   const [userStats, setUserStats] = useState<UserStats>({
     streak: 0,
     lastTestDate: null,
@@ -115,7 +117,8 @@ export default function Home() {
       navigate('/quiz', {
         state: {
           subject: selectedSubject,
-          topic: selectedTopic
+          topic: selectedTopic,
+          useAI: useAIQuestions
         }
       });
     }
@@ -230,6 +233,20 @@ export default function Home() {
                       </SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>}
+
+            {/* AI Questions Toggle */}
+            {selectedSubject && selectedTopic && <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg animate-fade-in">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">AI Generated Questions</label>
+                  <p className="text-xs text-muted-foreground">
+                    Get fresh, AI-powered questions for practice
+                  </p>
+                </div>
+                <Switch
+                  checked={useAIQuestions}
+                  onCheckedChange={setUseAIQuestions}
+                />
               </div>}
 
             <div className="pt-4">
