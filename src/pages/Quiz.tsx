@@ -20,6 +20,13 @@ export default function Quiz() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading } = useAuth();
+  
+  // Safely handle location state - redirect if missing
+  if (!location.state) {
+    navigate('/');
+    return null;
+  }
+  
   const { subject, topic, useAI } = location.state as { subject: Subject; topic: string; useAI?: boolean };
 
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
