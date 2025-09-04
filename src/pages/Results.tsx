@@ -30,6 +30,7 @@ export default function Results() {
   const locationState = location.state as {
     subject: Subject;
     topic: string;
+    useAI?: boolean;
     questions: MCQQuestion[];
     userAnswers: string[];
     correctAnswers: string[];
@@ -48,6 +49,7 @@ export default function Results() {
   const {
     subject,
     topic,
+    useAI = false,
     questions,
     userAnswers,
     correctAnswers,
@@ -353,6 +355,7 @@ export default function Results() {
           questions={questions}
           userAnswers={userAnswers}
           correctAnswers={correctAnswers}
+          useAI={useAI}
         />
 
         <MotivationalQuote quote={randomQuote} />

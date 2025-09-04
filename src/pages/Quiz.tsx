@@ -13,6 +13,7 @@ import { MCQQuestion, Subject } from '@/types/jee';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import DOMPurify from 'dompurify';
 
 export default function Quiz() {
   const location = useLocation();
@@ -27,6 +28,11 @@ export default function Quiz() {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [labelMaps, setLabelMaps] = useState<Record<string, Record<string, string>>>({});
+
+  // Helper function to safely render HTML content for AI questions
+  const createSafeMarkup = (html: string) => {
+    return { __html: DOMPurify.sanitize(html) };
+  };
 
   // Check authentication first
   useEffect(() => {
@@ -272,6 +278,7 @@ export default function Quiz() {
       state: {
         subject,
         topic,
+        useAI,
         questions: questionsWithExplanations,
         userAnswers,
         correctAnswers,
@@ -367,9 +374,16 @@ export default function Quiz() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Question */}
-            <div className="text-lg leading-relaxed">
-              {currentQ.question}
-            </div>
+            {useAI ? (
+              <div 
+                className="text-lg leading-relaxed"
+                dangerouslySetInnerHTML={createSafeMarkup(currentQ.question)}
+              />
+            ) : (
+              <div className="text-lg leading-relaxed">
+                {currentQ.question}
+              </div>
+            )}
 
             {/* Options */}
             <RadioGroup
@@ -387,7 +401,11 @@ export default function Quiz() {
                     <span className="font-semibold text-primary mr-2">
                       {option.label}.
                     </span>
-                    {option.text}
+                    {useAI ? (
+                      <span dangerouslySetInnerHTML={createSafeMarkup(option.text)} />
+                    ) : (
+                      option.text
+                    )}
                   </Label>
                 </div>
               ))}
