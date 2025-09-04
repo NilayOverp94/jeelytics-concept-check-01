@@ -13,6 +13,7 @@ import { UserStats } from '@/types/jee';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { AIAssistant } from '@/components/AIAssistant';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
@@ -163,7 +164,10 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-8 max-w-7xl mx-auto">
+          {/* Left Content - Main Quiz Area */}
+          <main className="flex-1 max-w-4xl">
         {/* Hero Section */}
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
@@ -289,5 +293,15 @@ export default function Home() {
           </Card>
         </div>
       </main>
+
+      {/* Right Sidebar - AI Assistant */}
+      <aside className="w-80 hidden lg:block">
+        <div className="sticky top-24">
+          <AIAssistant />
+        </div>
+      </aside>
+        
+    </div>
+      </div>
     </div>;
 }
