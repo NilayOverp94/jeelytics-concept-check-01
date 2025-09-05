@@ -50,3 +50,6 @@ enable_sms_confirmations = false
 
 [functions.generate-ai-questions]
 verify_jwt = true
+
+[functions.ai-chat]
+verify_jwt = false

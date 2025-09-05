@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -55,36 +56,37 @@ export function AIAssistant() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue.trim();
     setInputValue('');
     setIsLoading(true);
 
     try {
-      // Simulate AI response (replace with actual AI integration)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const responses = [
-        "Great question! Let me break this concept down for you step by step...",
-        "I can help you understand this topic better. Here's what you need to know...",
-        "This is an important JEE concept! Let me explain it in a simple way...",
-        "Perfect! This topic often appears in JEE exams. Here's the key insight...",
-        "Excellent doubt! Understanding this will strengthen your foundation in this subject..."
-      ];
-      
-      const aiResponse: Message = {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { message: currentInput }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: responses[Math.floor(Math.random() * responses.length)],
+        text: data.response || "I'm sorry, I couldn't process your question. Please try again!",
         sender: 'ai',
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
+      console.error('Error calling AI function:', error);
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Sorry, I'm facing some technical difficulties. Please try asking your doubt again!",
+        text: "I'm having trouble connecting right now. Please try again in a moment!",
         sender: 'ai',
         timestamp: new Date()
       };
+
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
