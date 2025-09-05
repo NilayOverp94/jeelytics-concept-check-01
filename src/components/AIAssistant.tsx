@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,13 +17,15 @@ export function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm your JEE study assistant. Ask me anything about Physics, Chemistry, or Mathematics concepts!",
+      text: "Hi! I'm Harshit, your personal JEE doubt solver. Ask me anything about Physics, Chemistry, or Mathematics concepts!",
       sender: 'ai',
       timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +35,14 @@ export function AIAssistant() {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Hide welcome message after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -52,9 +62,17 @@ export function AIAssistant() {
       // Simulate AI response (replace with actual AI integration)
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      const responses = [
+        "Great question! Let me break this concept down for you step by step...",
+        "I can help you understand this topic better. Here's what you need to know...",
+        "This is an important JEE concept! Let me explain it in a simple way...",
+        "Perfect! This topic often appears in JEE exams. Here's the key insight...",
+        "Excellent doubt! Understanding this will strengthen your foundation in this subject..."
+      ];
+      
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Thanks for your question! I'm here to help with your JEE preparation. This is a placeholder response - you can integrate with an AI service for real-time assistance.",
+        text: responses[Math.floor(Math.random() * responses.length)],
         sender: 'ai',
         timestamp: new Date()
       };
@@ -63,7 +81,7 @@ export function AIAssistant() {
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Sorry, I'm having trouble right now. Please try again later.",
+        text: "Sorry, I'm facing some technical difficulties. Please try asking your doubt again!",
         sender: 'ai',
         timestamp: new Date()
       };
@@ -81,90 +99,124 @@ export function AIAssistant() {
   };
 
   return (
-    <Card className="h-[600px] flex flex-col shadow-elegant">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Bot className="h-5 w-5 text-primary" />
-          AI Study Assistant
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="flex-1 flex flex-col gap-4 p-4">
-        {/* Messages Area */}
-        <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex gap-3 animate-fade-in",
-                  message.sender === 'user' ? 'justify-end' : 'justify-start'
-                )}
-              >
-                {message.sender === 'ai' && (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="h-4 w-4 text-primary" />
-                  </div>
-                )}
-                
-                <div
-                  className={cn(
-                    "max-w-[80%] rounded-lg p-3 text-sm",
-                    message.sender === 'user'
-                      ? "bg-primary text-primary-foreground ml-auto"
-                      : "bg-muted/50"
-                  )}
-                >
-                  {message.text}
-                </div>
-                
-                {message.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                    <User className="h-4 w-4 text-secondary" />
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {isLoading && (
-              <div className="flex gap-3 animate-fade-in">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="h-4 w-4 text-primary" />
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3 text-sm flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Thinking...
-                </div>
-              </div>
-            )}
+    <div className="fixed bottom-6 right-6 z-50">
+      {/* Welcome Message */}
+      {showWelcome && !isExpanded && (
+        <div className="mb-3 mr-16 animate-fade-in">
+          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap">
+            Hi, I am Harshit Your Personal JEE Doubt Solver
+            <div className="absolute right-[-8px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-8 border-l-primary border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
           </div>
-        </ScrollArea>
-
-        {/* Input Area */}
-        <div className="flex gap-2">
-          <Input
-            ref={inputRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask about JEE concepts..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isLoading}
-            size="icon"
-            className="shrink-0"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {/* Collapsed State - Floating Icon */}
+      {!isExpanded && (
+        <Button
+          onClick={() => setIsExpanded(true)}
+          className="w-14 h-14 rounded-full shadow-elegant bg-primary hover:bg-primary/90 text-primary-foreground"
+          size="icon"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </Button>
+      )}
+
+      {/* Expanded State - Full Chat */}
+      {isExpanded && (
+        <Card className="w-80 h-[500px] flex flex-col shadow-elegant animate-scale-in">
+          <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Bot className="h-5 w-5 text-primary" />
+              Harshit - AI Tutor
+            </CardTitle>
+            <Button
+              onClick={() => setIsExpanded(false)}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+          
+          <CardContent className="flex-1 flex flex-col gap-4 p-4">
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={cn(
+                      "flex gap-3 animate-fade-in",
+                      message.sender === 'user' ? 'justify-end' : 'justify-start'
+                    )}
+                  >
+                    {message.sender === 'ai' && (
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Bot className="h-4 w-4 text-primary" />
+                      </div>
+                    )}
+                    
+                    <div
+                      className={cn(
+                        "max-w-[80%] rounded-lg p-3 text-sm",
+                        message.sender === 'user'
+                          ? "bg-primary text-primary-foreground ml-auto"
+                          : "bg-muted/50"
+                      )}
+                    >
+                      {message.text}
+                    </div>
+                    
+                    {message.sender === 'user' && (
+                      <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                        <User className="h-4 w-4 text-secondary" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {isLoading && (
+                  <div className="flex gap-3 animate-fade-in">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3 text-sm flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Harshit is thinking...
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+
+            {/* Input Area */}
+            <div className="flex gap-2">
+              <Input
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask Harshit about JEE concepts..."
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || isLoading}
+                size="icon"
+                className="shrink-0"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

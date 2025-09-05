@@ -294,12 +294,8 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Right Sidebar - AI Assistant */}
-      <aside className="w-80 hidden lg:block">
-        <div className="sticky top-24">
-          <AIAssistant />
-        </div>
-      </aside>
+      {/* AI Assistant - Now floating */}
+      <AIAssistant />
         
     </div>
       </div>
