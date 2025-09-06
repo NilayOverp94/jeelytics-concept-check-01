@@ -63,111 +63,40 @@ export default function Quiz() {
       return;
     }
 
-    // Fetch questions - either from AI or database
+    // Fetch AI-generated questions
     const fetchQuestions = async () => {
       try {
-        if (useAI) {
-          console.log('Quiz: Generating AI questions for', subject, topic);
-          const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
-            body: { subject, topic }
+        console.log('Quiz: Generating AI questions for', subject, topic);
+        const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
+          body: { subject, topic }
+        });
+
+        if (error) {
+          console.error('Quiz: AI question generation error:', error);
+          toast({
+            title: "Error",
+            description: "Failed to generate AI questions. Please try again.",
+            variant: "destructive",
           });
-
-          if (error) {
-            console.error('Quiz: AI question generation error:', error);
-            toast({
-              title: "Error",
-              description: "Failed to generate AI questions. Please try again.",
-              variant: "destructive",
-            });
-            navigate('/');
-            return;
-          }
-
-          const aiQuestions = data.questions;
-          if (!aiQuestions || aiQuestions.length === 0) {
-            toast({
-              title: "No Questions Generated",
-              description: "Failed to generate questions. Please try again.",
-              variant: "destructive",
-            });
-            navigate('/');
-            return;
-          }
-
-          console.log('Quiz: Received AI questions:', aiQuestions.length);
-          setQuestions(aiQuestions);
-          setUserAnswers(new Array(aiQuestions.length).fill(''));
-          setLabelMaps({}); // AI questions don't need label mapping
-        } else {
-          console.log('Quiz: Fetching questions via Supabase RPC for', subject, topic);
-          const { data, error } = await supabase.rpc('fetch_random_questions_public', {
-            p_subject: subject,
-            p_topic: topic,
-            p_limit: 5,
-          });
-
-          if (error) {
-            console.error('Quiz: RPC error fetching questions:', error);
-            toast({
-              title: "Error",
-              description: "Failed to load questions. Please try again.",
-              variant: "destructive",
-            });
-            navigate('/');
-            return;
-          }
-
-          if (!data || data.length === 0) {
-            console.log('Quiz: No questions found for topic:', topic);
-            toast({
-              title: "No Questions Available",
-              description: `No questions found for ${topic}. Please try a different topic.`,
-              variant: "destructive",
-            });
-            navigate('/');
-            return;
-          }
-
-          // Map RPC rows to MCQQuestion shape (without answers/explanations)
-          const mapped: MCQQuestion[] = data.map((row: any) => ({
-            id: String(row.id),
-            question: row.question,
-            options: Array.isArray(row.options) ? row.options : [],
-            // Fill placeholders (answers fetched after submission)
-            correctAnswer: '',
-            explanation: '',
-            topic: row.topic,
-            subject: row.subject,
-          }));
-
-          // Randomize options and re-label A/B/C/D so correct isn't always the same letter
-          const letters = ['A', 'B', 'C', 'D'];
-          const newLabelMaps: Record<string, Record<string, string>> = {};
-          const shuffledQuestions: MCQQuestion[] = mapped.map((q) => {
-            const original = q.options;
-            // Fisher–Yates shuffle (pure)
-            const shuffled = [...original];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            // Build mapping from original label -> new label based on shuffled order
-            const labelMap: Record<string, string> = {};
-            const relabeled = shuffled.map((opt, idx) => {
-              const newLabel = letters[idx] ?? String.fromCharCode(65 + idx);
-              labelMap[opt.label] = newLabel;
-              return { label: newLabel, text: opt.text };
-            });
-            newLabelMaps[q.id] = labelMap;
-            return { ...q, options: relabeled };
-          });
-
-          console.log('Quiz: Applied option shuffling and relabeling with maps:', newLabelMaps);
-          setLabelMaps(newLabelMaps);
-          console.log('Quiz: Received questions:', shuffledQuestions.length);
-          setQuestions(shuffledQuestions);
-          setUserAnswers(new Array(shuffledQuestions.length).fill(''));
+          navigate('/');
+          return;
         }
+
+        const aiQuestions = data.questions;
+        if (!aiQuestions || aiQuestions.length === 0) {
+          toast({
+            title: "No Questions Generated",
+            description: "Failed to generate questions. Please try again.",
+            variant: "destructive",
+          });
+          navigate('/');
+          return;
+        }
+
+        console.log('Quiz: Received AI questions:', aiQuestions.length);
+        setQuestions(aiQuestions);
+        setUserAnswers(new Array(aiQuestions.length).fill(''));
+        setLabelMaps({}); // AI questions don't need label mapping
       } catch (e) {
         console.error('Quiz: Unexpected error fetching questions:', e);
         toast({
@@ -220,55 +149,9 @@ export default function Quiz() {
       });
     }
 
-    let correctAnswers: string[];
-    let questionsWithExplanations: MCQQuestion[];
-
-    if (useAI) {
-      // For AI questions, correct answers and explanations are already available
-      correctAnswers = questions.map(q => q.correctAnswer);
-      questionsWithExplanations = questions;
-    } else {
-      // Fetch correct answers and explanations securely for served question IDs
-      const questionIds = questions.map(q => q.id);
-      console.log('Quiz: Fetching answers for question IDs:', questionIds);
-
-      const { data: answersData, error: answersError } = await supabase.rpc('get_question_answers_public', {
-        p_question_ids: questionIds,
-      });
-
-      if (answersError) {
-        console.error('Quiz: Error fetching answers:', answersError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch answers. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const answerMap = new Map<string, { correct_answer: string; explanation: string }>();
-      (answersData || []).forEach((row: any) => {
-        console.log('Processing answer row:', row);
-        answerMap.set(String(row.id), {
-          correct_answer: row.correct_answer,
-          explanation: row.explanation ?? '',
-        });
-      });
-
-      console.log('Answer map created:', Array.from(answerMap.entries()));
-
-      const correctAnswersOriginal = questionIds.map(id => answerMap.get(id)?.correct_answer || '');
-      correctAnswers = questionIds.map((id, idx) => {
-        const orig = correctAnswersOriginal[idx];
-        const map = labelMaps[id];
-        const translated = map && orig ? (map[orig] ?? '') : orig;
-        return translated || '';
-      });
-      questionsWithExplanations = questions.map(q => ({
-        ...q,
-        explanation: answerMap.get(q.id)?.explanation || 'No explanation available',
-      }));
-    }
+    // For AI questions, correct answers and explanations are already available
+    const correctAnswers = questions.map(q => q.correctAnswer);
+    const questionsWithExplanations = questions;
 
     console.log('Questions with explanations:', questionsWithExplanations.map(q => ({ id: q.id, explanation: q.explanation })));
 
@@ -381,16 +264,10 @@ export default function Quiz() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Question */}
-            {useAI ? (
-              <div 
-                className="text-lg leading-relaxed"
-                dangerouslySetInnerHTML={createSafeMarkup(currentQ.question)}
-              />
-            ) : (
-              <div className="text-lg leading-relaxed">
-                {currentQ.question}
-              </div>
-            )}
+            <div 
+              className="text-lg leading-relaxed"
+              dangerouslySetInnerHTML={createSafeMarkup(currentQ.question)}
+            />
 
             {/* Options */}
             <RadioGroup
@@ -408,11 +285,7 @@ export default function Quiz() {
                     <span className="font-semibold text-primary mr-2">
                       {option.label}.
                     </span>
-                    {useAI ? (
-                      <span dangerouslySetInnerHTML={createSafeMarkup(option.text)} />
-                    ) : (
-                      option.text
-                    )}
+                    <span dangerouslySetInnerHTML={createSafeMarkup(option.text)} />
                   </Label>
                 </div>
               ))}
