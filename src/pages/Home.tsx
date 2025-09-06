@@ -140,8 +140,8 @@ export default function Home() {
               JEElytics
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <StreakDisplay streak={userStats.streak} />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <StreakDisplay streak={userStats.streak} className="hidden sm:flex" />
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
