@@ -37,13 +37,13 @@ export function AIAssistant() {
     }
   }, [messages]);
 
-  // Hide welcome message after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Keep welcome message visible (no auto-hide)
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowWelcome(false);
+  //   }, 5000);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
