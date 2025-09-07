@@ -128,37 +128,39 @@ export default function Home() {
   return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <img
-              src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
-              alt="JEElytics logo"
-              className="h-8 w-8 rounded"
-              loading="eager"
-            />
-            <h1 className="text-2xl font-bold text-gradient-primary">
-              JEElytics
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <StreakDisplay streak={userStats.streak} className="hidden sm:flex" />
-            <ThemeToggle />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover border border-border">
-                <DropdownMenuItem disabled className="font-medium">
-                  {user?.user_metadata?.name || user?.email}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        <div className="container mx-auto px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+            <div className="flex items-center gap-3">
+              <img
+                src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
+                alt="JEElytics logo"
+                className="h-8 w-8 rounded"
+                loading="eager"
+              />
+              <h1 className="text-2xl font-bold text-gradient-primary">
+                JEElytics
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <StreakDisplay streak={userStats.streak} />
+              <ThemeToggle />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-popover border border-border">
+                  <DropdownMenuItem disabled className="font-medium">
+                    {user?.user_metadata?.name || user?.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
