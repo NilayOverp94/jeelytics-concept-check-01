@@ -37,13 +37,13 @@ export function AIAssistant() {
     }
   }, [messages]);
 
-  // Keep welcome message visible (no auto-hide)
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setShowWelcome(false);
-  //   }, 5000);
-  //   return () => clearTimeout(timer);
-  // }, []);
+  // Hide welcome message after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -101,7 +101,7 @@ export function AIAssistant() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]">
+    <div className="fixed bottom-16 right-4 z-50 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]">
       {/* Welcome Message */}
       {showWelcome && !isExpanded && (
         <div className="mb-3 mr-16 hidden sm:block">
