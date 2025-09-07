@@ -14,16 +14,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIAssistant } from '@/components/AIAssistant';
+
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
   Mathematics: Calculator
 };
+
 const SUBJECT_COLORS: Record<Subject, string> = {
   Physics: 'from-primary to-primary-glow',
   Chemistry: 'from-secondary to-secondary-glow',
   Mathematics: 'from-accent to-accent-glow'
 };
+
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,6 +47,7 @@ export default function Home() {
     totalTests: 0,
     totalScore: 0
   });
+
   useEffect(() => {
     if (user) {
       fetchUserStats();
@@ -69,6 +73,7 @@ export default function Home() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user]);
+
   const fetchUserStats = async () => {
     if (!user) return;
     console.log('🏠 Fetching user stats for user:', user.id);
@@ -98,6 +103,7 @@ export default function Home() {
       console.error('💥 Unexpected error fetching user stats:', error);
     }
   };
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -113,6 +119,7 @@ export default function Home() {
       });
     }
   };
+
   const handleStartTest = () => {
     if (selectedSubject && selectedTopic) {
       navigate('/quiz', {
@@ -124,8 +131,11 @@ export default function Home() {
       });
     }
   };
+
   const isStartDisabled = !selectedSubject || !selectedTopic;
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 sm:py-4">
@@ -167,136 +177,161 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8 max-w-7xl mx-auto">
-          {/* Left Content - Main Quiz Area */}
-          <main className="flex-1 max-w-4xl">
-        {/* Hero Section */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
-            Your Concept Strength Checker
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8">Master JEE concepts with AI-powered assessments. Get instant feedback and personalized study tips!</p>
-          
-          {/* Stats */}
-          {userStats.totalTests > 0 && <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <Card className="card-jee">
-                <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-primary">{userStats.totalTests}</div>
-                  <div className="text-sm text-muted-foreground">Tests Taken</div>
-                </CardContent>
-              </Card>
-              <Card className="card-jee">
-                <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-secondary">
-                    {userStats.totalTests > 0 ? Math.round(userStats.totalScore / (userStats.totalTests * 5) * 100) : 0}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Average Score</div>
-                </CardContent>
-              </Card>
-              <Card className="card-jee">
-                <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-accent">{userStats.streak}</div>
-                  <div className="text-sm text-muted-foreground">Day Streak</div>
-                </CardContent>
-              </Card>
-            </div>}
-        </div>
-
-        {/* Test Configuration */}
-        <Card className="card-jee animate-scale-in">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Start Your Assessment</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Subject Selection */}
-            <div className="space-y-4">
-              <label className="text-sm font-medium">Select Subject</label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {Object.keys(SUBJECTS).map(subject => {
-                const SubjectIcon = SUBJECT_ICONS[subject as Subject];
-                const isSelected = selectedSubject === subject;
-                return <Button key={subject} variant={isSelected ? "default" : "outline"} className={`h-20 flex-col gap-2 ${isSelected ? `bg-gradient-to-r ${SUBJECT_COLORS[subject as Subject]} text-white shadow-glow` : 'hover:shadow-card'}`} onClick={() => {
-                  setSelectedSubject(subject as Subject);
-                  setSelectedTopic('');
-                }}>
-                      <SubjectIcon className="h-8 w-8" />
-                      <span className="font-semibold">{subject}</span>
-                    </Button>;
-              })}
+        <div className="max-w-4xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
+              Your Concept Strength Checker
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">Master JEE concepts with AI-powered assessments. Get instant feedback and personalized study tips!</p>
+            
+            {/* Stats */}
+            {userStats.totalTests > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <Card className="card-jee">
+                  <CardContent className="pt-6">
+                    <div className="text-3xl font-bold text-primary">{userStats.totalTests}</div>
+                    <div className="text-sm text-muted-foreground">Tests Taken</div>
+                  </CardContent>
+                </Card>
+                <Card className="card-jee">
+                  <CardContent className="pt-6">
+                    <div className="text-3xl font-bold text-secondary">
+                      {userStats.totalTests > 0 ? Math.round(userStats.totalScore / (userStats.totalTests * 5) * 100) : 0}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">Average Score</div>
+                  </CardContent>
+                </Card>
+                <Card className="card-jee">
+                  <CardContent className="pt-6">
+                    <div className="text-3xl font-bold text-accent">{userStats.streak}</div>
+                    <div className="text-sm text-muted-foreground">Day Streak</div>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
+            )}
+          </div>
 
-            {/* Topic Selection */}
-            {selectedSubject && <div className="space-y-4 animate-fade-in">
-                <label className="text-sm font-medium">Select Topic</label>
-                <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                  <SelectTrigger className="w-full h-12">
-                    <SelectValue placeholder="Choose a topic to practice" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border border-border">
-                    {SUBJECTS[selectedSubject].map(topic => <SelectItem key={topic} value={topic} className="hover:bg-muted">
-                        {topic}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>}
-
-            {/* AI Questions Info */}
-            {selectedSubject && selectedTopic && <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg animate-fade-in">
-                <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-primary" />
-                  <label className="text-sm font-medium text-primary">AI Generated Questions</label>
+          {/* Test Configuration */}
+          <Card className="card-jee animate-scale-in">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Start Your Assessment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Subject Selection */}
+              <div className="space-y-4">
+                <label className="text-sm font-medium">Select Subject</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {Object.keys(SUBJECTS).map(subject => {
+                    const SubjectIcon = SUBJECT_ICONS[subject as Subject];
+                    const isSelected = selectedSubject === subject;
+                    return (
+                      <Button
+                        key={subject}
+                        variant={isSelected ? "default" : "outline"}
+                        className={`h-20 flex-col gap-2 ${
+                          isSelected 
+                            ? `bg-gradient-to-r ${SUBJECT_COLORS[subject as Subject]} text-white shadow-glow` 
+                            : 'hover:shadow-card'
+                        }`}
+                        onClick={() => {
+                          setSelectedSubject(subject as Subject);
+                          setSelectedTopic('');
+                        }}
+                      >
+                        <SubjectIcon className="h-8 w-8" />
+                        <span className="font-semibold">{subject}</span>
+                      </Button>
+                    );
+                  })}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  All questions are freshly generated by AI for each test
-                </p>
-              </div>}
+              </div>
 
-            <div className="pt-4">
-              <Button variant={isStartDisabled ? "outline" : "gradient"} className={`w-full h-14 text-lg font-semibold ${isStartDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transform transition-all'}`} onClick={handleStartTest} disabled={isStartDisabled}>
-                {isStartDisabled ? 'Select Subject & Topic' : 'Start Test 🚀'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              {/* Topic Selection */}
+              {selectedSubject && (
+                <div className="space-y-4 animate-fade-in">
+                  <label className="text-sm font-medium">Select Topic</label>
+                  <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                    <SelectTrigger className="w-full h-12">
+                      <SelectValue placeholder="Choose a topic to practice" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border border-border">
+                      {SUBJECTS[selectedSubject].map(topic => (
+                        <SelectItem key={topic} value={topic} className="hover:bg-muted">
+                          {topic}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-        {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-          <Card className="card-jee hover:scale-105 transition-transform">
-            <CardContent className="pt-6 text-center">
-              <Brain className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">AI-Powered</h3>
-              <p className="text-sm text-muted-foreground">Smart question generation and analysis</p>
+              {/* AI Questions Info */}
+              {selectedSubject && selectedTopic && (
+                <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg animate-fade-in">
+                  <div className="flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-primary" />
+                    <label className="text-sm font-medium text-primary">AI Generated Questions</label>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    All questions are freshly generated by AI for each test
+                  </p>
+                </div>
+              )}
+
+              <div className="pt-4">
+                <Button
+                  variant={isStartDisabled ? "outline" : "gradient"}
+                  className={`w-full h-14 text-lg font-semibold ${
+                    isStartDisabled 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:scale-105 transform transition-all'
+                  }`}
+                  onClick={handleStartTest}
+                  disabled={isStartDisabled}
+                >
+                  {isStartDisabled ? 'Select Subject & Topic' : 'Start Test 🚀'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
-          <Card className="card-jee hover:scale-105 transition-transform">
-            <CardContent className="pt-6 text-center">
-              <Zap className="h-12 w-12 text-secondary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Instant Results</h3>
-              <p className="text-sm text-muted-foreground">Get immediate feedback and tips</p>
-            </CardContent>
-          </Card>
-          <Card className="card-jee hover:scale-105 transition-transform">
-            <CardContent className="pt-6 text-center">
-              <BookOpen className="h-12 w-12 text-accent mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Track Progress</h3>
-              <p className="text-sm text-muted-foreground">Monitor your improvement over time</p>
-            </CardContent>
-          </Card>
-          <Card className="card-jee hover:scale-105 transition-transform">
-            <CardContent className="pt-6 text-center">
-              <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">JEE Focused</h3>
-              <p className="text-sm text-muted-foreground">Questions aligned with JEE patterns</p>
-            </CardContent>
-          </Card>
+
+          {/* Features */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+            <Card className="card-jee hover:scale-105 transition-transform">
+              <CardContent className="pt-6 text-center">
+                <Brain className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">AI-Powered</h3>
+                <p className="text-sm text-muted-foreground">Smart question generation and analysis</p>
+              </CardContent>
+            </Card>
+            <Card className="card-jee hover:scale-105 transition-transform">
+              <CardContent className="pt-6 text-center">
+                <Zap className="h-12 w-12 text-secondary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Instant Results</h3>
+                <p className="text-sm text-muted-foreground">Get immediate feedback and tips</p>
+              </CardContent>
+            </Card>
+            <Card className="card-jee hover:scale-105 transition-transform">
+              <CardContent className="pt-6 text-center">
+                <BookOpen className="h-12 w-12 text-accent mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Track Progress</h3>
+                <p className="text-sm text-muted-foreground">Monitor your improvement over time</p>
+              </CardContent>
+            </Card>
+            <Card className="card-jee hover:scale-105 transition-transform">
+              <CardContent className="pt-6 text-center">
+                <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">JEE Focused</h3>
+                <p className="text-sm text-muted-foreground">Questions aligned with JEE patterns</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </main>
-
-      {/* AI Assistant - Now floating */}
-      <AIAssistant />
-        
-    </div>
       </div>
-    </div>;
+
+      {/* AI Assistant - Floating */}
+      <AIAssistant />
+    </div>
+  );
 }

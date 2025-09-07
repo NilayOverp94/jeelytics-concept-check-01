@@ -104,8 +104,8 @@ export function AIAssistant() {
     <div className="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]">
       {/* Welcome Message */}
       {showWelcome && !isExpanded && (
-        <div className="mb-3 mr-16 animate-fade-in hidden sm:block">
-          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap">
+        <div className="mb-3 mr-16 hidden sm:block">
+          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap relative">
             Hi, I am Harshit Your Personal JEE Doubt Solver
             <div className="absolute right-[-8px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-8 border-l-primary border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
           </div>
