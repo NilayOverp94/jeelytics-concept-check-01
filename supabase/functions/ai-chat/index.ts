@@ -19,9 +19,9 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-    if (!geminiApiKey) {
-      throw new Error('GEMINI_API_KEY not found');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY not found');
     }
 
     const systemPrompt = `You are Harshit, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver. You specialize in Physics, Chemistry, and Mathematics concepts that are relevant to JEE preparation.
@@ -43,40 +43,57 @@ Guidelines:
 
 Remember: You're here to help students succeed in their JEE preparation.`;
 
-    const prompt = `${systemPrompt}
+    console.log('Calling Lovable AI with message:', message);
 
-Student Question: ${message}
-
-Please provide a helpful response as Harshit, the JEE doubt solver.`;
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
       })
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Gemini API Error:', response.status, errorData);
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Lovable AI Error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limits exceeded',
+          response: "I'm receiving too many questions right now. Please try again in a moment!"
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ 
+          error: 'Payment required',
+          response: "The AI service needs more credits. Please contact support!"
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      throw new Error(`Lovable AI error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Gemini API Response:', JSON.stringify(data, null, 2));
+    console.log('Lovable AI Response:', JSON.stringify(data, null, 2));
     
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      throw new Error('Invalid response format from Gemini API');
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from Lovable AI');
     }
 
-    const aiResponse = data.candidates[0].content.parts[0].text;
+    const aiResponse = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

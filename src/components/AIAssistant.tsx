@@ -125,7 +125,7 @@ export function AIAssistant() {
 
       {/* Expanded State - Full Chat */}
       {isExpanded && (
-        <Card className="w-full sm:w-80 h-[400px] sm:h-[500px] max-h-[calc(100vh-6rem)] flex flex-col shadow-elegant animate-scale-in">
+        <Card className="w-full sm:w-96 h-[500px] sm:h-[600px] max-h-[calc(100vh-6rem)] flex flex-col shadow-elegant animate-scale-in">
           <CardHeader className="pb-3 flex-row items-center justify-between space-y-0 flex-shrink-0">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Bot className="h-5 w-5 text-primary" />
