@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -125,7 +126,7 @@ export function AIAssistant() {
 
       {/* Expanded State - Full Chat */}
       {isExpanded && (
-        <Card className="w-full sm:w-96 h-[500px] sm:h-[600px] max-h-[calc(100vh-6rem)] flex flex-col shadow-elegant animate-scale-in">
+        <Card className="w-full sm:w-96 h-[calc(100vh-8rem)] sm:h-[600px] max-h-[calc(100vh-6rem)] flex flex-col shadow-elegant animate-scale-in">
           <CardHeader className="pb-3 flex-row items-center justify-between space-y-0 flex-shrink-0">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Bot className="h-5 w-5 text-primary" />
@@ -168,7 +169,21 @@ export function AIAssistant() {
                           : "bg-muted/50"
                       )}
                     >
-                      <div className="break-words">{message.text}</div>
+                      <div className="break-words prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown
+                          components={{
+                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                            ul: ({ children }) => <ul className="mb-2 list-disc pl-4">{children}</ul>,
+                            ol: ({ children }) => <ol className="mb-2 list-decimal pl-4">{children}</ol>,
+                            li: ({ children }) => <li className="mb-1">{children}</li>,
+                            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                            em: ({ children }) => <em className="italic">{children}</em>,
+                            code: ({ children }) => <code className="bg-muted px-1 py-0.5 rounded text-xs">{children}</code>,
+                          }}
+                        >
+                          {message.text}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                     
                     {message.sender === 'user' && (
