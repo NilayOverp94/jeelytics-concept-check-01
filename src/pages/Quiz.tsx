@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import DOMPurify from 'dompurify';
+import katex from 'katex';
 
 export default function Quiz() {
   const location = useLocation();
@@ -36,11 +37,34 @@ export default function Quiz() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [labelMaps, setLabelMaps] = useState<Record<string, Record<string, string>>>({});
 
-  // Helper function to safely render HTML content for AI questions
-  const createSafeMarkup = (html: string) => {
-    return { __html: DOMPurify.sanitize(html) };
+  // Convert simple LaTeX ($...$, \( ... \), $$...$$, \[ ... \]) to KaTeX HTML, then sanitize
+  const renderMathToHTML = (input: string) => {
+    try {
+      let out = input ?? '';
+      const render = (expr: string, displayMode: boolean) => {
+        try {
+          return katex.renderToString(expr, { displayMode, throwOnError: false, output: 'html' });
+        } catch {
+          return expr;
+        }
+      };
+      // Display math first
+      out = out.replace(/\\\[([\s\S]+?)\\\]/g, (_, expr) => render(expr, true));
+      out = out.replace(/\$\$([\s\S]+?)\$\$/g, (_, expr) => render(expr, true));
+      // Inline math
+      out = out.replace(/\\\(([^]*?)\\\)/g, (_, expr) => render(expr, false));
+      out = out.replace(/\$([^$]+?)\$/g, (_, expr) => render(expr, false));
+      return out;
+    } catch {
+      return input ?? '';
+    }
   };
 
+  // Helper function to safely render HTML content for AI questions
+  const createSafeMarkup = (html: string) => {
+    const withMath = renderMathToHTML(html);
+    return { __html: DOMPurify.sanitize(withMath) } as const;
+  };
   // Check authentication first
   useEffect(() => {
     if (loading) return; // Wait for auth to load
