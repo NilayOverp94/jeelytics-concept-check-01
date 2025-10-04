@@ -75,14 +75,26 @@ export default function Quiz() {
           console.error('Quiz: AI question generation error:', error);
           toast({
             title: "Error",
-            description: "Failed to generate AI questions. Please try again.",
+            description: (error as any)?.message || "Failed to generate AI questions. Please try again.",
             variant: "destructive",
           });
           navigate('/');
           return;
         }
 
-        const aiQuestions = data.questions;
+        // Edge function may return a 200 with an error payload in some scenarios
+        if (data && (data as any).error) {
+          console.error('Quiz: AI function returned error payload:', (data as any).error);
+          toast({
+            title: "Error",
+            description: (data as any).error,
+            variant: "destructive",
+          });
+          navigate('/');
+          return;
+        }
+
+        const aiQuestions = (data as any).questions;
         if (!aiQuestions || aiQuestions.length === 0) {
           toast({
             title: "No Questions Generated",
