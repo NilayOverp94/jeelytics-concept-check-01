@@ -87,9 +87,28 @@ export default function Quiz() {
       return;
     }
 
-    // Fetch AI-generated questions
+    const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+    const cacheKey = `ai-questions:${subject}:${topic}`;
+
+    // Fetch AI-generated questions (with local cache)
     const fetchQuestions = async () => {
       try {
+        // Try cache first
+        const cachedRaw = localStorage.getItem(cacheKey);
+        if (cachedRaw) {
+          try {
+            const cached = JSON.parse(cachedRaw) as { ts: number; questions: MCQQuestion[] };
+            if (cached?.questions?.length && Date.now() - cached.ts < CACHE_TTL_MS) {
+              console.log('Quiz: Using cached AI questions for', subject, topic);
+              setQuestions(cached.questions);
+              setUserAnswers(new Array(cached.questions.length).fill(''));
+              setLabelMaps({});
+              return;
+            }
+          } catch {}
+        }
+
+        // No valid cache → call edge function
         console.log('Quiz: Generating AI questions for', subject, topic);
         const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
           body: { subject, topic }
@@ -118,7 +137,7 @@ export default function Quiz() {
           return;
         }
 
-        const aiQuestions = (data as any).questions;
+        const aiQuestions = (data as any).questions as MCQQuestion[];
         if (!aiQuestions || aiQuestions.length === 0) {
           toast({
             title: "No Questions Generated",
@@ -133,6 +152,11 @@ export default function Quiz() {
         setQuestions(aiQuestions);
         setUserAnswers(new Array(aiQuestions.length).fill(''));
         setLabelMaps({}); // AI questions don't need label mapping
+
+        // Save to cache
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), questions: aiQuestions }));
+        } catch {}
       } catch (e) {
         console.error('Quiz: Unexpected error fetching questions:', e);
         toast({
