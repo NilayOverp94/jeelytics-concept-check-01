@@ -28,7 +28,12 @@ export default function Quiz() {
     return null;
   }
   
-  const { subject, topic, useAI } = location.state as { subject: Subject; topic: string; useAI?: boolean };
+  const { subject, topic, useAI, questionCount = 5 } = location.state as { 
+    subject: Subject; 
+    topic: string; 
+    useAI?: boolean;
+    questionCount?: number;
+  };
 
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
@@ -88,7 +93,7 @@ export default function Quiz() {
     }
 
     const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
-    const cacheKey = `ai-questions:${subject}:${topic}`;
+    const cacheKey = `ai-questions:${subject}:${topic}:${questionCount}`;
 
     // Fetch AI-generated questions (with local cache)
     const fetchQuestions = async () => {
@@ -109,9 +114,9 @@ export default function Quiz() {
         }
 
         // No valid cache → call edge function
-        console.log('Quiz: Generating AI questions for', subject, topic);
+        console.log('Quiz: Generating AI questions for', subject, topic, 'count:', questionCount);
         const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
-          body: { subject, topic }
+          body: { subject, topic, questionCount }
         });
 
         if (error) {

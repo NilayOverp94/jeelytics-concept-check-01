@@ -39,6 +39,7 @@ export default function Home() {
   } = useToast();
   const [selectedSubject, setSelectedSubject] = useState<Subject | ''>('');
   const [selectedTopic, setSelectedTopic] = useState('');
+  const [questionCount, setQuestionCount] = useState<3 | 5 | 25>(5);
   // Removed useAIQuestions state - all questions are now AI-generated
   const [userStats, setUserStats] = useState<UserStats>({
     streak: 0,
@@ -126,7 +127,8 @@ export default function Home() {
         state: {
           subject: selectedSubject,
           topic: selectedTopic,
-          useAI: true // Always use AI-generated questions
+          useAI: true, // Always use AI-generated questions
+          questionCount
         }
       });
     }
@@ -263,6 +265,29 @@ export default function Home() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+
+              {/* Question Count Selection */}
+              {selectedSubject && selectedTopic && (
+                <div className="space-y-4 animate-fade-in">
+                  <label className="text-sm font-medium">Number of Questions</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {([3, 5, 25] as const).map((count) => (
+                      <Button
+                        key={count}
+                        variant={questionCount === count ? "default" : "outline"}
+                        className={`h-12 ${
+                          questionCount === count
+                            ? 'bg-gradient-to-r from-primary to-primary-glow text-white shadow-glow'
+                            : 'hover:shadow-card'
+                        }`}
+                        onClick={() => setQuestionCount(count)}
+                      >
+                        {count} Questions
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               )}
 

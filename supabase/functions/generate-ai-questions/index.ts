@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { subject, topic } = await req.json();
+    const { subject, topic, questionCount = 5 } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -32,7 +32,7 @@ serve(async (req) => {
 - Avoid LaTeX delimiters; prefer plain text or simple HTML for math; use x^2 and H2O or a<sup>2</sup> where needed.
 - Explanations should be concise, accurate, and contrast correct vs incorrect options.`;
 
-    const userPrompt = `Create 5 multiple-choice questions for Subject: ${subject} | Topic: ${topic}.
+    const userPrompt = `Create ${questionCount} multiple-choice questions for Subject: ${subject} | Topic: ${topic}.
 Requirements:
 - Exactly 4 options labeled A, B, C, D
 - Exactly 1 correct answer
@@ -50,14 +50,14 @@ Requirements:
           type: "function",
           function: {
             name: "return_questions",
-            description: "Return 5 JEE MCQ questions with 4 options each and explanations.",
+            description: `Return ${questionCount} JEE MCQ questions with 4 options each and explanations.`,
             parameters: {
               type: "object",
               properties: {
                 questions: {
                   type: "array",
-                  minItems: 5,
-                  maxItems: 5,
+                  minItems: questionCount,
+                  maxItems: questionCount,
                   items: {
                     type: "object",
                     additionalProperties: false,
