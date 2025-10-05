@@ -56,36 +56,31 @@ Requirements:
               properties: {
                 questions: {
                   type: "array",
-                  minItems: questionCount,
-                  maxItems: questionCount,
+                  description: `Array of exactly ${questionCount} questions`,
                   items: {
                     type: "object",
-                    additionalProperties: false,
                     required: ["question", "options", "correctAnswer", "explanation"],
                     properties: {
                       question: { type: "string" },
                       options: {
                         type: "array",
-                        minItems: 4,
-                        maxItems: 4,
+                        description: "Array of 4 options labeled A, B, C, D",
                         items: {
                           type: "object",
-                          additionalProperties: false,
                           required: ["label", "text"],
                           properties: {
-                            label: { type: "string", enum: ["A", "B", "C", "D"] },
+                            label: { type: "string" },
                             text: { type: "string" },
                           },
                         },
                       },
-                      correctAnswer: { type: "string", enum: ["A", "B", "C", "D"] },
+                      correctAnswer: { type: "string" },
                       explanation: { type: "string" },
                     },
                   },
                 },
               },
               required: ["questions"],
-              additionalProperties: false,
             },
           },
         },

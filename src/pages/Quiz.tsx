@@ -109,6 +109,8 @@ export default function Quiz() {
               setQuestions(cached.questions);
               setUserAnswers(new Array(cached.questions.length).fill(''));
               setLabelMaps({});
+              // Scroll to top when using cached questions
+              window.scrollTo({ top: 0, behavior: 'smooth' });
               return;
             }
           } catch {}
@@ -186,6 +188,9 @@ export default function Quiz() {
           setQuestions(aiQuestions);
           setUserAnswers(new Array(aiQuestions.length).fill(''));
           setLabelMaps({}); // AI questions don't need label mapping
+
+          // Scroll to top when questions are loaded
+          window.scrollTo({ top: 0, behavior: 'smooth' });
 
           // Save to cache
           try {
