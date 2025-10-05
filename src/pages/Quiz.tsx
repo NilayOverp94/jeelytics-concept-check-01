@@ -41,6 +41,7 @@ export default function Quiz() {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [labelMaps, setLabelMaps] = useState<Record<string, Record<string, string>>>({});
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Convert simple LaTeX ($...$, \( ... \), $$...$$, \[ ... \]) to KaTeX HTML, then sanitize
   const renderMathToHTML = (input: string) => {
@@ -114,55 +115,105 @@ export default function Quiz() {
         }
 
         // No valid cache → call edge function
+        setIsGenerating(true);
         console.log('Quiz: Generating AI questions for', subject, topic, 'count:', questionCount);
-        const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
-          body: { subject, topic, questionCount }
-        });
+        
+        // Use longer timeout for 25 questions (150s, which is max edge function timeout)
+        const timeoutMs = questionCount >= 25 ? 140000 : 50000;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-        if (error) {
-          console.error('Quiz: AI question generation error:', error);
-          toast({
-            title: "Error",
-            description: (error as any)?.message || "Failed to generate AI questions. Please try again.",
-            variant: "destructive",
-          });
-          navigate('/');
-          return;
-        }
-
-        // Edge function may return a 200 with an error payload in some scenarios
-        if (data && (data as any).error) {
-          console.error('Quiz: AI function returned error payload:', (data as any).error);
-          toast({
-            title: "Error",
-            description: (data as any).error,
-            variant: "destructive",
-          });
-          navigate('/');
-          return;
-        }
-
-        const aiQuestions = (data as any).questions as MCQQuestion[];
-        if (!aiQuestions || aiQuestions.length === 0) {
-          toast({
-            title: "No Questions Generated",
-            description: "Failed to generate questions. Please try again.",
-            variant: "destructive",
-          });
-          navigate('/');
-          return;
-        }
-
-        console.log('Quiz: Received AI questions:', aiQuestions.length);
-        setQuestions(aiQuestions);
-        setUserAnswers(new Array(aiQuestions.length).fill(''));
-        setLabelMaps({}); // AI questions don't need label mapping
-
-        // Save to cache
         try {
-          localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), questions: aiQuestions }));
-        } catch {}
+          const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
+            body: { subject, topic, questionCount }
+          });
+
+          clearTimeout(timeoutId);
+          setIsGenerating(false);
+
+          if (error) {
+            console.error('Quiz: AI question generation error:', error);
+            const errorMsg = (error as any)?.message || "Failed to generate AI questions";
+            
+            // Check for specific error types
+            if (errorMsg.includes('429') || errorMsg.includes('rate limit')) {
+              toast({
+                title: "Rate Limit Exceeded",
+                description: "Too many requests. Please wait a moment and try again.",
+                variant: "destructive",
+              });
+            } else if (errorMsg.includes('402') || errorMsg.includes('credits')) {
+              toast({
+                title: "Credits Exhausted",
+                description: "AI credits exhausted. Please add funds to your workspace.",
+                variant: "destructive",
+              });
+            } else {
+              toast({
+                title: "Error",
+                description: errorMsg,
+                variant: "destructive",
+              });
+            }
+            navigate('/');
+            return;
+          }
+
+          // Edge function may return a 200 with an error payload in some scenarios
+          if (data && (data as any).error) {
+            console.error('Quiz: AI function returned error payload:', (data as any).error);
+            toast({
+              title: "Error",
+              description: (data as any).error,
+              variant: "destructive",
+            });
+            navigate('/');
+            return;
+          }
+
+          const aiQuestions = (data as any).questions as MCQQuestion[];
+          if (!aiQuestions || aiQuestions.length === 0) {
+            toast({
+              title: "No Questions Generated",
+              description: "Failed to generate questions. Please try again.",
+              variant: "destructive",
+            });
+            navigate('/');
+            return;
+          }
+
+          console.log('Quiz: Received AI questions:', aiQuestions.length);
+          setQuestions(aiQuestions);
+          setUserAnswers(new Array(aiQuestions.length).fill(''));
+          setLabelMaps({}); // AI questions don't need label mapping
+
+          // Save to cache
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), questions: aiQuestions }));
+          } catch {}
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          setIsGenerating(false);
+          
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            console.error('Quiz: Request timeout');
+            toast({
+              title: "Request Timeout",
+              description: `Generating ${questionCount} questions took too long. Try with fewer questions or try again.`,
+              variant: "destructive",
+            });
+          } else {
+            console.error('Quiz: Fetch error:', fetchError);
+            toast({
+              title: "Network Error",
+              description: "Failed to reach the server. Please check your connection.",
+              variant: "destructive",
+            });
+          }
+          navigate('/');
+        }
       } catch (e) {
+        setIsGenerating(false);
         console.error('Quiz: Unexpected error fetching questions:', e);
         toast({
           title: "Unexpected Error",
@@ -265,12 +316,19 @@ export default function Quiz() {
     );
   }
 
-  if (questions.length === 0) {
+  if (questions.length === 0 || isGenerating) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading questions...</p>
+        <div className="text-center space-y-4 max-w-md px-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground text-lg">Generating your quiz...</p>
+          {questionCount >= 25 && (
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Generating {questionCount} questions may take up to 2 minutes. Please wait...
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
