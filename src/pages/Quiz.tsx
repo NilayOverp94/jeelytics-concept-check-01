@@ -28,11 +28,12 @@ export default function Quiz() {
     return null;
   }
   
-  const { subject, topic, useAI, questionCount = 5 } = location.state as { 
+  const { subject, topic, useAI, questionCount = 5, difficulty = 'jee-mains' } = location.state as { 
     subject: Subject; 
     topic: string; 
     useAI?: boolean;
     questionCount?: number;
+    difficulty?: 'cbse' | 'jee-mains' | 'jee-advanced';
   };
 
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
@@ -94,7 +95,7 @@ export default function Quiz() {
     }
 
     const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
-    const cacheKey = `ai-questions:${subject}:${topic}:${questionCount}`;
+    const cacheKey = `ai-questions:${subject}:${topic}:${questionCount}:${difficulty}`;
 
     // Fetch AI-generated questions (with local cache)
     const fetchQuestions = async () => {
@@ -127,7 +128,7 @@ export default function Quiz() {
 
         try {
           const { data, error } = await supabase.functions.invoke('generate-ai-questions', {
-            body: { subject, topic, questionCount }
+            body: { subject, topic, questionCount, difficulty }
           });
 
           clearTimeout(timeoutId);

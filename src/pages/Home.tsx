@@ -40,6 +40,7 @@ export default function Home() {
   const [selectedSubject, setSelectedSubject] = useState<Subject | ''>('');
   const [selectedTopic, setSelectedTopic] = useState('');
   const [questionCount, setQuestionCount] = useState<3 | 5 | 25>(5);
+  const [difficulty, setDifficulty] = useState<'cbse' | 'jee-mains' | 'jee-advanced'>('jee-mains');
   // Removed useAIQuestions state - all questions are now AI-generated
   const [userStats, setUserStats] = useState<UserStats>({
     streak: 0,
@@ -128,7 +129,8 @@ export default function Home() {
           subject: selectedSubject,
           topic: selectedTopic,
           useAI: true, // Always use AI-generated questions
-          questionCount
+          questionCount,
+          difficulty
         }
       });
     }
@@ -287,6 +289,48 @@ export default function Home() {
                         {count} Questions
                       </Button>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Difficulty Level Selection */}
+              {selectedSubject && selectedTopic && (
+                <div className="space-y-4 animate-fade-in">
+                  <label className="text-sm font-medium">Difficulty Level</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Button
+                      variant={difficulty === 'cbse' ? "default" : "outline"}
+                      className={`h-12 ${
+                        difficulty === 'cbse'
+                          ? 'bg-gradient-to-r from-secondary to-secondary-glow text-white shadow-glow'
+                          : 'hover:shadow-card'
+                      }`}
+                      onClick={() => setDifficulty('cbse')}
+                    >
+                      CBSE
+                    </Button>
+                    <Button
+                      variant={difficulty === 'jee-mains' ? "default" : "outline"}
+                      className={`h-12 ${
+                        difficulty === 'jee-mains'
+                          ? 'bg-gradient-to-r from-accent to-accent-glow text-white shadow-glow'
+                          : 'hover:shadow-card'
+                      }`}
+                      onClick={() => setDifficulty('jee-mains')}
+                    >
+                      JEE Mains
+                    </Button>
+                    <Button
+                      variant={difficulty === 'jee-advanced' ? "default" : "outline"}
+                      className={`h-12 ${
+                        difficulty === 'jee-advanced'
+                          ? 'bg-gradient-to-r from-primary to-primary-glow text-white shadow-glow'
+                          : 'hover:shadow-card'
+                      }`}
+                      onClick={() => setDifficulty('jee-advanced')}
+                    >
+                      JEE Advanced
+                    </Button>
                   </div>
                 </div>
               )}

@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { subject, topic, questionCount = 5 } = await req.json();
+    const { subject, topic, questionCount = 5, difficulty = 'jee-mains' } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -26,18 +26,41 @@ serve(async (req) => {
       });
     }
 
+    // Define difficulty-specific instructions
+    const difficultyInstructions: Record<string, string> = {
+      'cbse': `- Questions should be at CBSE Class 11-12 board exam level
+- Focus on direct application of concepts and standard formulas
+- Include straightforward numerical problems
+- Avoid complex multi-step reasoning
+- Suitable for board exam preparation`,
+      'jee-mains': `- Questions should be at JEE Mains level
+- Include moderate difficulty with some conceptual depth
+- Mix of direct application and reasoning-based questions
+- Include numerical problems with moderate calculations
+- Test understanding beyond rote learning`,
+      'jee-advanced': `- Questions should be at JEE Advanced level
+- High difficulty with deep conceptual understanding required
+- Include multi-concept integration and complex reasoning
+- Challenging numerical problems with intricate calculations
+- Test analytical thinking and problem-solving skills`
+    };
+
     const systemPrompt = `You are an expert JEE (Joint Entrance Examination) item writer.
-- Always produce conceptually sound, unique, JEE-level multiple-choice questions.
+- Always produce conceptually sound, unique questions at the specified difficulty level.
 - Use simple inline HTML tags only when necessary (<sub>, <sup>, <em>, <strong>).
 - Avoid LaTeX delimiters; prefer plain text or simple HTML for math; use x^2 and H2O or a<sup>2</sup> where needed.
 - Explanations should be concise, accurate, and contrast correct vs incorrect options.`;
 
     const userPrompt = `Create ${questionCount} multiple-choice questions for Subject: ${subject} | Topic: ${topic}.
+Difficulty Level: ${difficulty.toUpperCase().replace('-', ' ')}
+
+${difficultyInstructions[difficulty]}
+
 Requirements:
 - Exactly 4 options labeled A, B, C, D
 - Exactly 1 correct answer
 - Provide a clear explanation for the correct answer
-- Vary the sub-topics and difficulty within JEE standards`;
+- Vary the sub-topics within the specified difficulty level`;
 
     const body: any = {
       model: "google/gemini-2.5-flash",
