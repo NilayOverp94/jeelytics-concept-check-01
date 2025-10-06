@@ -28,39 +28,59 @@ serve(async (req) => {
 
     // Define difficulty-specific instructions
     const difficultyInstructions: Record<string, string> = {
-      'cbse': `- Questions should be at CBSE Class 11-12 board exam level
-- Focus on direct application of concepts and standard formulas
-- Include straightforward numerical problems
-- Avoid complex multi-step reasoning
-- Suitable for board exam preparation`,
-      'jee-mains': `- Questions should be at JEE Mains level
-- Include moderate difficulty with some conceptual depth
-- Mix of direct application and reasoning-based questions
-- Include numerical problems with moderate calculations
-- Test understanding beyond rote learning`,
-      'jee-advanced': `- Questions should be at JEE Advanced level
-- High difficulty with deep conceptual understanding required
-- Include multi-concept integration and complex reasoning
-- Challenging numerical problems with intricate calculations
-- Test analytical thinking and problem-solving skills`
+      'cbse': `CBSE CLASS 11-12 BOARD LEVEL (EASY):
+- Very straightforward questions testing basic concept recall
+- Direct formula application with simple numbers (e.g., F=ma with given values)
+- Single-step problems with clear, obvious answers
+- Questions similar to NCERT textbook exercises
+- No tricky scenarios or concept integration required
+- Example: "What is the SI unit of force?" or "Calculate speed if distance=100m and time=10s"`,
+      
+      'jee-mains': `JEE MAINS LEVEL (MODERATE):
+- Moderate difficulty requiring 2-3 step reasoning
+- Some conceptual depth beyond direct formula application
+- Mix of numerical and concept-based questions
+- May require choosing correct formula or approach
+- Moderate calculations with standard values
+- Example: Problems involving multiple concepts but standard approach`,
+      
+      'jee-advanced': `JEE ADVANCED LEVEL (EXTREMELY DIFFICULT):
+- MUST be highly challenging and require advanced problem-solving
+- Integrate 3+ concepts from different topics simultaneously
+- Include non-standard scenarios that require creative thinking
+- Use complex multi-step calculations with unusual conditions
+- Include limiting cases, approximations, or advanced calculus where applicable
+- Require deep conceptual understanding and analytical reasoning
+- Should make students think for 3-5 minutes minimum
+- Example: "A variable force F(x)=kx^2 acts on a particle of mass m in a viscous medium with drag coefficient b. Find work done when particle moves from x=0 to x=a if particle starts from rest"
+- NO simple plug-and-play formulas allowed
+- Must test ability to derive, analyze, and synthesize concepts`
     };
 
-    const systemPrompt = `You are an expert JEE (Joint Entrance Examination) item writer.
-- Always produce conceptually sound, unique questions at the specified difficulty level.
+    const systemPrompt = `You are an expert JEE (Joint Entrance Examination) item writer with 20+ years of experience.
+- You MUST generate EXACTLY ${questionCount} questions - no more, no less.
+- Each question must match the specified difficulty level precisely.
+- For JEE Advanced: Create truly challenging olympiad-level questions that integrate multiple advanced concepts.
+- For CBSE: Create simple, straightforward questions testing basic understanding.
 - Use simple inline HTML tags only when necessary (<sub>, <sup>, <em>, <strong>).
 - Avoid LaTeX delimiters; prefer plain text or simple HTML for math; use x^2 and H2O or a<sup>2</sup> where needed.
-- Explanations should be concise, accurate, and contrast correct vs incorrect options.`;
+- Explanations should be detailed, accurate, and contrast correct vs incorrect options.`;
 
-    const userPrompt = `Create ${questionCount} multiple-choice questions for Subject: ${subject} | Topic: ${topic}.
+    const userPrompt = `CRITICAL: You MUST create EXACTLY ${questionCount} questions. Not ${questionCount-1}, not ${questionCount+1}, but EXACTLY ${questionCount} questions.
+
+Subject: ${subject}
+Topic: ${topic}
 Difficulty Level: ${difficulty.toUpperCase().replace('-', ' ')}
 
 ${difficultyInstructions[difficulty]}
 
-Requirements:
-- Exactly 4 options labeled A, B, C, D
-- Exactly 1 correct answer
-- Provide a clear explanation for the correct answer
-- Vary the sub-topics within the specified difficulty level`;
+STRICT Requirements:
+- Generate EXACTLY ${questionCount} distinct questions
+- Each question must have exactly 4 options labeled A, B, C, D
+- Exactly 1 correct answer per question
+- Provide a clear, detailed explanation for the correct answer
+- Vary the sub-topics and question types within the specified difficulty level
+- Match the difficulty level precisely - especially for JEE Advanced (make it VERY hard)`;
 
     const body: any = {
       model: "google/gemini-2.5-flash",
@@ -167,7 +187,19 @@ Requirements:
 
     const questions = parsed?.questions;
     if (!Array.isArray(questions) || questions.length === 0) {
+      console.error("No questions returned by AI");
       return new Response(JSON.stringify({ error: "No questions returned by AI" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate question count
+    if (questions.length !== questionCount) {
+      console.error(`Wrong number of questions: Expected ${questionCount}, got ${questions.length}`);
+      return new Response(JSON.stringify({ 
+        error: `AI generated ${questions.length} questions instead of ${questionCount}. Please try again.` 
+      }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
