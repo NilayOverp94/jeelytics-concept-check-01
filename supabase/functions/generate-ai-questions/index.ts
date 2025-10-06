@@ -17,6 +17,12 @@ serve(async (req) => {
   try {
     const { subject, topic, questionCount = 5, difficulty = 'jee-mains' } = await req.json();
 
+    // Determine question mix: for 25 questions in JEE levels, split into 20 MCQ + 5 integer
+    const isJEE = difficulty === 'jee-mains' || difficulty === 'jee-advanced';
+    const shouldMixTypes = questionCount === 25 && isJEE;
+    const mcqCount = shouldMixTypes ? 20 : questionCount;
+    const integerCount = shouldMixTypes ? 5 : 0;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY not configured");
@@ -58,15 +64,19 @@ serve(async (req) => {
     };
 
     const systemPrompt = `You are an expert JEE (Joint Entrance Examination) item writer with 20+ years of experience.
-- You MUST generate EXACTLY ${questionCount} questions - no more, no less.
+- You MUST generate EXACTLY the requested number of questions - no more, no less.
 - Each question must match the specified difficulty level precisely.
 - For JEE Advanced: Create truly challenging olympiad-level questions that integrate multiple advanced concepts.
 - For CBSE: Create simple, straightforward questions testing basic understanding.
 - Use simple inline HTML tags only when necessary (<sub>, <sup>, <em>, <strong>).
 - Avoid LaTeX delimiters; prefer plain text or simple HTML for math; use x^2 and H2O or a<sup>2</sup> where needed.
-- Explanations should be detailed, accurate, and contrast correct vs incorrect options.`;
+- Explanations should be detailed, accurate, and contrast correct vs incorrect options.
+- For integer type questions: Answer must be a single integer (no decimals, no ranges). Question should clearly state "Answer is an integer".`;
 
-    const userPrompt = `CRITICAL: You MUST create EXACTLY ${questionCount} questions. Not ${questionCount-1}, not ${questionCount+1}, but EXACTLY ${questionCount} questions.
+    let userPrompt: string;
+    
+    if (shouldMixTypes) {
+      userPrompt = `CRITICAL: You MUST create EXACTLY ${mcqCount} MCQ questions AND ${integerCount} INTEGER type questions (total ${questionCount} questions).
 
 Subject: ${subject}
 Topic: ${topic}
@@ -75,12 +85,29 @@ Difficulty Level: ${difficulty.toUpperCase().replace('-', ' ')}
 ${difficultyInstructions[difficulty]}
 
 STRICT Requirements:
-- Generate EXACTLY ${questionCount} distinct questions
+- First ${mcqCount} questions MUST be MCQ type with exactly 4 options labeled A, B, C, D
+- Last ${integerCount} questions MUST be INTEGER type (no options, answer is a single integer from 0-9999)
+- For integer questions: Include "The answer is an integer" or similar phrase in the question text
+- For integer questions: correctAnswer should be the integer as a string (e.g., "42")
+- Provide clear, detailed explanations for all answers
+- Vary sub-topics and match difficulty level precisely`;
+    } else {
+      userPrompt = `CRITICAL: You MUST create EXACTLY ${questionCount} MCQ questions.
+
+Subject: ${subject}
+Topic: ${topic}
+Difficulty Level: ${difficulty.toUpperCase().replace('-', ' ')}
+
+${difficultyInstructions[difficulty]}
+
+STRICT Requirements:
+- Generate EXACTLY ${questionCount} distinct MCQ questions
 - Each question must have exactly 4 options labeled A, B, C, D
 - Exactly 1 correct answer per question
 - Provide a clear, detailed explanation for the correct answer
 - Vary the sub-topics and question types within the specified difficulty level
 - Match the difficulty level precisely - especially for JEE Advanced (make it VERY hard)`;
+    }
 
     const body: any = {
       model: "google/gemini-2.5-flash",
@@ -93,7 +120,9 @@ STRICT Requirements:
           type: "function",
           function: {
             name: "return_questions",
-            description: `Return ${questionCount} JEE MCQ questions with 4 options each and explanations.`,
+            description: shouldMixTypes 
+              ? `Return ${mcqCount} MCQ questions and ${integerCount} integer type questions.`
+              : `Return ${questionCount} MCQ questions with 4 options each and explanations.`,
             parameters: {
               type: "object",
               properties: {
@@ -102,12 +131,16 @@ STRICT Requirements:
                   description: `Array of exactly ${questionCount} questions`,
                   items: {
                     type: "object",
-                    required: ["question", "options", "correctAnswer", "explanation"],
+                    required: ["question", "correctAnswer", "explanation"],
                     properties: {
                       question: { type: "string" },
+                      questionType: { 
+                        type: "string",
+                        description: "Type of question: 'mcq' or 'integer'"
+                      },
                       options: {
                         type: "array",
-                        description: "Array of 4 options labeled A, B, C, D",
+                        description: "Array of 4 options labeled A, B, C, D (only for MCQ type)",
                         items: {
                           type: "object",
                           required: ["label", "text"],
@@ -208,12 +241,28 @@ STRICT Requirements:
     // Validate and enrich
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q?.question || !Array.isArray(q?.options) || q.options.length !== 4 || !q?.correctAnswer || !q?.explanation) {
-        console.error(`Invalid question structure at index ${i}:`, q);
+      const qType = q?.questionType || 'mcq';
+      
+      if (!q?.question || !q?.correctAnswer || !q?.explanation) {
+        console.error(`Invalid question structure at index ${i}: missing required fields`, q);
         return new Response(JSON.stringify({ error: `Question ${i + 1} has invalid structure` }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      }
+      
+      // For MCQ, validate options
+      if (qType === 'mcq' && (!Array.isArray(q?.options) || q.options.length !== 4)) {
+        console.error(`Invalid MCQ structure at index ${i}: missing or invalid options`, q);
+        return new Response(JSON.stringify({ error: `MCQ Question ${i + 1} must have exactly 4 options` }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      // For integer type, ensure no options
+      if (qType === 'integer') {
+        q.options = []; // Clear options for integer type
       }
     }
 
@@ -222,6 +271,7 @@ STRICT Requirements:
       id: `ai_${Date.now()}_${idx}`,
       subject,
       topic,
+      questionType: q.questionType || 'mcq', // Ensure questionType is set
     }));
 
     return new Response(JSON.stringify({ questions: withIds }), {

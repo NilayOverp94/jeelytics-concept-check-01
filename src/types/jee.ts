@@ -11,6 +11,7 @@ export interface MCQQuestion {
   explanation: string;
   topic: string;
   subject: string;
+  questionType?: 'mcq' | 'integer'; // integer type has no options, answer is a number
 }
 
 export interface TestResult {

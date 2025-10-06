@@ -25,8 +25,9 @@ export function QuestionReview({ questions, userAnswers, correctAnswers, useAI =
           const userAnswer = userAnswers[index];
           const correctAnswer = correctAnswers[index];
           const isCorrect = userAnswer && userAnswer === correctAnswer;
-          const userOption = question.options.find(opt => opt.label === userAnswer);
-          const correctOption = question.options.find(opt => opt.label === correctAnswer);
+          const isIntegerType = question.questionType === 'integer';
+          const userOption = isIntegerType ? null : question.options?.find(opt => opt.label === userAnswer);
+          const correctOption = isIntegerType ? null : question.options?.find(opt => opt.label === correctAnswer);
 
           return (
             <div key={`question-${index}-${question.id || question.question.slice(0,10)}`} className="border border-border rounded-lg p-4 space-y-3">
@@ -50,7 +51,9 @@ export function QuestionReview({ questions, userAnswers, correctAnswers, useAI =
                   <div className="space-y-1 text-sm">
                     <div className={`${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       Your answer: {userAnswer ? (
-                        useAI ? (
+                        isIntegerType ? (
+                          <span className="font-semibold">{userAnswer}</span>
+                        ) : useAI ? (
                           <span>
                             {userAnswer}. <span dangerouslySetInnerHTML={createSafeMarkup(userOption?.text || '')} />
                           </span>
@@ -61,10 +64,16 @@ export function QuestionReview({ questions, userAnswers, correctAnswers, useAI =
                     </div>
                     {!isCorrect && (
                       <div className="text-green-600 dark:text-green-400">
-                        Correct answer: {correctAnswer}. {useAI ? (
-                          <span dangerouslySetInnerHTML={createSafeMarkup(correctOption?.text || '')} />
+                        Correct answer: {isIntegerType ? (
+                          <span className="font-semibold">{correctAnswer}</span>
                         ) : (
-                          correctOption?.text
+                          <>
+                            {correctAnswer}. {useAI ? (
+                              <span dangerouslySetInnerHTML={createSafeMarkup(correctOption?.text || '')} />
+                            ) : (
+                              correctOption?.text
+                            )}
+                          </>
                         )}
                       </div>
                     )}

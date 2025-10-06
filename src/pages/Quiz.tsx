@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import { MCQQuestion, Subject } from '@/types/jee';
 // Removed local generator; we now fetch from Supabase
 // import { generateMCQs } from '@/data/questionBank';
@@ -398,27 +399,48 @@ export default function Quiz() {
               dangerouslySetInnerHTML={createSafeMarkup(currentQ.question)}
             />
 
-            {/* Options */}
-            <RadioGroup
-              value={userAnswers[currentQuestion]}
-              onValueChange={handleAnswerSelect}
-              className="space-y-3"
-            >
-              {currentQ.options.map((option) => (
-                <div key={option.label} className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
-                  <RadioGroupItem value={option.label} id={option.label} />
-                  <Label 
-                    htmlFor={option.label} 
-                    className="flex-1 cursor-pointer text-base"
-                  >
-                    <span className="font-semibold text-primary mr-2">
-                      {option.label}.
-                    </span>
-                    <span dangerouslySetInnerHTML={createSafeMarkup(option.text)} />
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
+            {/* Options - MCQ or Integer Input */}
+            {currentQ.questionType === 'integer' ? (
+              <div className="space-y-3">
+                <Label htmlFor="integer-answer" className="text-base font-medium">
+                  Enter your answer (single integer value):
+                </Label>
+                <Input
+                  id="integer-answer"
+                  type="number"
+                  placeholder="e.g., 42"
+                  value={userAnswers[currentQuestion] || ''}
+                  onChange={(e) => handleAnswerSelect(e.target.value)}
+                  className="text-lg p-3 max-w-xs"
+                  min="0"
+                  step="1"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Note: Answer should be a single integer (whole number)
+                </p>
+              </div>
+            ) : (
+              <RadioGroup
+                value={userAnswers[currentQuestion]}
+                onValueChange={handleAnswerSelect}
+                className="space-y-3"
+              >
+                {currentQ.options?.map((option) => (
+                  <div key={option.label} className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                    <RadioGroupItem value={option.label} id={option.label} />
+                    <Label 
+                      htmlFor={option.label} 
+                      className="flex-1 cursor-pointer text-base"
+                    >
+                      <span className="font-semibold text-primary mr-2">
+                        {option.label}.
+                      </span>
+                      <span dangerouslySetInnerHTML={createSafeMarkup(option.text)} />
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
 
             {/* Navigation */}
             <div className="flex justify-between pt-6">
