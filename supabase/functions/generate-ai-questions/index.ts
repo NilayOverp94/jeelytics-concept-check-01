@@ -274,17 +274,15 @@ const apiKey = LOVABLE_API_KEY!;
 let mcqQuestions: any[] = [];
 let integerQuestions: any[] = [];
 
-if (${Boolean.toString(true)}) {
-  if (shouldMixTypes) {
-    const [mcqRes, intRes] = await Promise.all([
-      generateWithRetries({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
-      generateWithRetries({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
-    ]);
-    mcqQuestions = mcqRes;
-    integerQuestions = intRes;
-  } else {
-    mcqQuestions = await generateWithRetries({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
-  }
+if (shouldMixTypes) {
+  const [mcqRes, intRes] = await Promise.all([
+    generateWithRetries({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
+    generateWithRetries({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
+  ]);
+  mcqQuestions = mcqRes;
+  integerQuestions = intRes;
+} else {
+  mcqQuestions = await generateWithRetries({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
 }
 
 const combined = [...mcqQuestions, ...integerQuestions];
