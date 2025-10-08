@@ -58,23 +58,47 @@ export function AIAssistant() {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
     const currentInput = inputValue.trim();
     setInputValue('');
     setIsLoading(true);
 
+    // Add user message immediately for better UX
+    setMessages(prev => [...prev, userMessage]);
+
     try {
+      // Build conversation history (exclude the welcome message)
+      const conversationHistory = messages
+        .filter(msg => msg.id !== '1') // Skip welcome message
+        .map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text
+        }));
+
+      // Add current user message
+      conversationHistory.push({
+        role: 'user',
+        content: currentInput
+      });
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { message: currentInput }
+        body: { 
+          message: currentInput,
+          conversationHistory: conversationHistory
+        }
       });
 
       if (error) {
+        console.error('Supabase function error:', error);
         throw error;
+      }
+
+      if (!data || !data.response) {
+        throw new Error('Invalid response from AI');
       }
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: data.response || "I'm sorry, I couldn't process your question. Please try again!",
+        text: data.response,
         sender: 'ai',
         timestamp: new Date()
       };
@@ -93,6 +117,8 @@ export function AIAssistant() {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      // Focus input after message is sent
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 

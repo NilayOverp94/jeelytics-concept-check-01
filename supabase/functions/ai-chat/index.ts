@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    const { message, conversationHistory } = await req.json();
     
     if (!message) {
       throw new Error('Message is required');
@@ -43,7 +43,20 @@ Guidelines:
 
 Remember: You're here to help students succeed in their JEE preparation.`;
 
-    console.log('Calling Lovable AI with message:', message);
+    // Build messages array with conversation history
+    const messages = [
+      { role: 'system', content: systemPrompt }
+    ];
+
+    // Add conversation history if provided
+    if (conversationHistory && Array.isArray(conversationHistory)) {
+      messages.push(...conversationHistory);
+    } else {
+      // Fallback to single message if no history
+      messages.push({ role: 'user', content: message });
+    }
+
+    console.log('Calling Lovable AI with conversation history, message count:', messages.length);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -53,10 +66,7 @@ Remember: You're here to help students succeed in their JEE preparation.`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
+        messages: messages,
       })
     });
 
