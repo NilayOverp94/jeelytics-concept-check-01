@@ -213,7 +213,13 @@ STRICT requirements:
     throw new Error('AI generation failed');
   }
 
-  const json = await resp.json();
+  let json: any;
+  try {
+    json = await resp.json();
+  } catch (e) {
+    console.error('AI gateway parse error:', e);
+    throw new Error('Malformed AI output');
+  }
   const toolCall = json.choices?.[0]?.message?.tool_calls?.[0];
   const argsStr: string | undefined = toolCall?.function?.arguments;
   if (!argsStr) throw new Error('Invalid AI response format');
@@ -252,19 +258,42 @@ STRICT requirements:
   return validated.slice(0, count);
 };
 
-// Retry wrapper to ensure exact counts, topping up remainder if needed
+// Retry wrapper with batching and resilience
+const perCallLimit = (difficulty: string, type: 'mcq' | 'integer') => {
+  if (difficulty === 'jee-advanced') return 5; // keep batches small for complex outputs
+  if (difficulty === 'jee-mains') return type === 'integer' ? 6 : 8;
+  return 10;
+};
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 const generateWithRetries = async (
   args: Parameters<typeof callAIForQuestions>[0],
-  maxAttempts = 3
+  maxAttempts = 50 // allow many small batches within function time limit
 ): Promise<any[]> => {
   let collected: any[] = [];
-  let attempt = 0;
-  while (collected.length < args.count && attempt < maxAttempts) {
+  let attempts = 0;
+  let consecutiveErrors = 0;
+
+  while (collected.length < args.count && attempts < maxAttempts) {
     const remaining = args.count - collected.length;
-    const batch = await callAIForQuestions({ ...args, count: remaining });
-    collected = collected.concat(batch);
-    attempt++;
+    const toFetch = Math.min(remaining, perCallLimit(args.difficulty, args.type));
+
+    try {
+      const batch = await callAIForQuestions({ ...args, count: toFetch });
+      collected = collected.concat(batch);
+      consecutiveErrors = 0; // reset on success
+    } catch (err) {
+      console.error('Batch generation error:', err);
+      consecutiveErrors++;
+      if (consecutiveErrors >= 5) break; // avoid infinite failures
+    }
+
+    attempts++;
+    // small backoff to avoid rate limits and model thrashing
+    await sleep(300);
   }
+
   return collected.slice(0, args.count);
 };
 
