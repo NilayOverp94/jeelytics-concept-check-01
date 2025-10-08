@@ -214,10 +214,21 @@ STRICT requirements:
   }
 
   let json: any;
+  let raw: string;
   try {
-    json = await resp.json();
+    raw = await resp.text();
   } catch (e) {
-    console.error('AI gateway parse error:', e);
+    console.error('AI gateway read error:', e);
+    throw new Error('AI response read failed');
+  }
+  if (!raw || !raw.trim()) {
+    console.error('AI gateway returned empty body');
+    throw new Error('Empty AI response from AI gateway');
+  }
+  try {
+    json = JSON.parse(raw);
+  } catch (e) {
+    console.error('AI gateway parse error. Raw (first 500 chars):', raw.slice(0, 500));
     throw new Error('Malformed AI output');
   }
   const toolCall = json.choices?.[0]?.message?.tool_calls?.[0];
@@ -260,7 +271,7 @@ STRICT requirements:
 
 // Retry wrapper with batching and resilience
 const perCallLimit = (difficulty: string, type: 'mcq' | 'integer') => {
-  if (difficulty === 'jee-advanced') return 5; // keep batches small for complex outputs
+  if (difficulty === 'jee-advanced') return 4; // keep batches smaller for complex outputs
   if (difficulty === 'jee-mains') return type === 'integer' ? 6 : 8;
   return 10;
 };
