@@ -32,13 +32,12 @@ export function AIAssistant() {
   const [showWelcome, setShowWelcome] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll to bottom when new messages arrive
+  // Auto scroll to bottom when new messages or loading state changes
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, isLoading]);
 
   // Hide welcome message after 5 seconds
   useEffect(() => {
@@ -200,7 +199,7 @@ export function AIAssistant() {
                       <div className="break-words prose prose-sm dark:prose-invert max-w-none">
                         <ReactMarkdown
                           remarkPlugins={[remarkMath]}
-                          rehypePlugins={[rehypeKatex]}
+                          rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
                           components={{
                             p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                             ul: ({ children }) => <ul className="mb-2 list-disc pl-4">{children}</ul>,
@@ -236,6 +235,7 @@ export function AIAssistant() {
                     </div>
                   </div>
                 )}
+                <div ref={bottomRef} />
               </div>
             </ScrollArea>
 
