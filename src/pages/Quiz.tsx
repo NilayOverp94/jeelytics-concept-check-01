@@ -176,6 +176,8 @@ export default function Quiz() {
           }
 
           const aiQuestions = (data as any).questions as MCQQuestion[];
+          const warning = (data as any).warning;
+          
           if (!aiQuestions || aiQuestions.length === 0) {
             toast({
               title: "No Questions Generated",
@@ -184,6 +186,16 @@ export default function Quiz() {
             });
             navigate('/');
             return;
+          }
+
+          // Show warning if partial results but allow proceeding
+          if (warning) {
+            console.warn('Quiz: Partial generation:', warning);
+            toast({
+              title: "Partial Question Set",
+              description: warning,
+              variant: "default",
+            });
           }
 
           console.log('Quiz: Received AI questions:', aiQuestions.length);
