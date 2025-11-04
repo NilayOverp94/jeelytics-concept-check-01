@@ -207,6 +207,12 @@ export type Database = {
           topic: string
           updated_at: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "questions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       fetch_random_questions_public: {
         Args: { p_limit?: number; p_subject: string; p_topic: string }
@@ -216,14 +222,6 @@ export type Database = {
           question: string
           subject: string
           topic: string
-        }[]
-      }
-      get_question_answers_public: {
-        Args: { p_question_ids: string[] }
-        Returns: {
-          correct_answer: string
-          explanation: string
-          id: string
         }[]
       }
     }
