@@ -36,11 +36,6 @@ export function AIAssistant() {
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Don't show AI assistant if user is not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
-
   // Auto scroll to bottom when new messages or loading state changes
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -53,6 +48,11 @@ export function AIAssistant() {
     }, 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Don't show AI assistant if user is not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
