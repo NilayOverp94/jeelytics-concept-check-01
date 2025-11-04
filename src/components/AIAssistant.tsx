@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -18,6 +19,7 @@ interface Message {
 }
 
 export function AIAssistant() {
+  const { user, isAuthenticated } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -33,6 +35,11 @@ export function AIAssistant() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Don't show AI assistant if user is not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Auto scroll to bottom when new messages or loading state changes
   useEffect(() => {
@@ -79,7 +86,17 @@ export function AIAssistant() {
         content: currentInput
       });
 
+      // Get current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: { 
           message: currentInput,
           conversationHistory: conversationHistory
