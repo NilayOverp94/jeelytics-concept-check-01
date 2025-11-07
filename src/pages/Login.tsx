@@ -7,7 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import useSEO from '@/hooks/useSEO';
+
 export default function Login() {
+  useSEO({
+    title: "Login | JEElytics - AI-Powered JEE Concept Checker",
+    description: "Sign in to JEElytics to access AI-powered JEE practice tests and track your progress in Physics, Chemistry, and Mathematics.",
+    canonical: "https://jeelytics.lovable.app/login"
+  });
   const navigate = useNavigate();
   const {
     toast
@@ -39,7 +46,7 @@ export default function Login() {
           title: "Welcome back!",
           description: "Successfully logged in."
         });
-        navigate('/');
+        navigate('/home');
       }
     } catch (error) {
       toast({
@@ -64,7 +71,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/home`,
         },
       });
       if (error) {

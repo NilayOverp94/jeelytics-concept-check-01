@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
+import useSEO from '@/hooks/useSEO';
 
 const signupSchema = z.object({
   name: z.string()
@@ -32,6 +33,12 @@ const signupSchema = z.object({
 });
 
 export default function Signup() {
+  useSEO({
+    title: "Sign Up | JEElytics - Start Your JEE Preparation Journey",
+    description: "Create a free JEElytics account to access AI-powered JEE practice tests for Physics, Chemistry, and Mathematics.",
+    canonical: "https://jeelytics.lovable.app/signup"
+  });
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);

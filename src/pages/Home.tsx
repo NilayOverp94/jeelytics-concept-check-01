@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIAssistant } from '@/components/AIAssistant';
+import useSEO from '@/hooks/useSEO';
 
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
@@ -28,6 +29,12 @@ const SUBJECT_COLORS: Record<Subject, string> = {
 };
 
 export default function Home() {
+  useSEO({
+    title: "Dashboard | JEElytics - Your JEE Practice Hub",
+    description: "Start your AI-powered JEE practice test. Choose from Physics, Chemistry, and Mathematics topics at your preferred difficulty level.",
+    canonical: "https://jeelytics.lovable.app/home"
+  });
+
   const navigate = useNavigate();
   const location = useLocation();
   const {

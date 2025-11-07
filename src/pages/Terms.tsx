@@ -2,8 +2,9 @@ import useSEO from "@/hooks/useSEO";
 
 export default function Terms() {
   useSEO({
-    title: "Terms of Use | JEE Prep",
-    description: "Terms and conditions for using the JEE Prep app.",
+    title: "Terms of Use | JEElytics - Usage Terms & Conditions",
+    description: "Terms and conditions for using JEElytics AI-powered JEE practice platform. Educational use guidelines and user responsibilities.",
+    canonical: "https://jeelytics.lovable.app/terms"
   });
 
   return (

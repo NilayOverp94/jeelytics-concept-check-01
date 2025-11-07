@@ -2,8 +2,9 @@ import useSEO from "@/hooks/useSEO";
 
 export default function Disclaimer() {
   useSEO({
-    title: "Disclaimer | JEE Prep",
-    description: "Educational practice app for JEE. Not affiliated with NTA/JEE. Read our disclaimer.",
+    title: "Disclaimer | JEElytics - Independent JEE Practice Platform",
+    description: "JEElytics is an independent educational practice platform. Not affiliated with NTA or JEE organizing bodies. Read our disclaimer.",
+    canonical: "https://jeelytics.lovable.app/disclaimer"
   });
 
   return (
