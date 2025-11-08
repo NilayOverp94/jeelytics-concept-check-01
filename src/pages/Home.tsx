@@ -32,7 +32,7 @@ export default function Home() {
   useSEO({
     title: "Dashboard | JEElytics - Your JEE Practice Hub",
     description: "Start your AI-powered JEE practice test. Choose from Physics, Chemistry, and Mathematics topics at your preferred difficulty level.",
-    canonical: "https://jeelytics.lovable.app/home"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/home"
   });
 
   const navigate = useNavigate();

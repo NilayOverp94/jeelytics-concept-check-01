@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://jeelytics.lovable.app/sitemap.xml
+Sitemap: https://jeelytics-concept-check-01.lovable.app/sitemap.xml

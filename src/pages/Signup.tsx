@@ -36,7 +36,7 @@ export default function Signup() {
   useSEO({
     title: "Sign Up | JEElytics - Start Your JEE Preparation Journey",
     description: "Create a free JEElytics account to access AI-powered JEE practice tests for Physics, Chemistry, and Mathematics.",
-    canonical: "https://jeelytics.lovable.app/signup"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/signup"
   });
 
   const navigate = useNavigate();

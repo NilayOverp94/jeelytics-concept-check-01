@@ -4,7 +4,7 @@ export default function Disclaimer() {
   useSEO({
     title: "Disclaimer | JEElytics - Independent JEE Practice Platform",
     description: "JEElytics is an independent educational practice platform. Not affiliated with NTA or JEE organizing bodies. Read our disclaimer.",
-    canonical: "https://jeelytics.lovable.app/disclaimer"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/disclaimer"
   });
 
   return (

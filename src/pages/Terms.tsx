@@ -4,7 +4,7 @@ export default function Terms() {
   useSEO({
     title: "Terms of Use | JEElytics - Usage Terms & Conditions",
     description: "Terms and conditions for using JEElytics AI-powered JEE practice platform. Educational use guidelines and user responsibilities.",
-    canonical: "https://jeelytics.lovable.app/terms"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/terms"
   });
 
   return (

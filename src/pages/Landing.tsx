@@ -11,7 +11,7 @@ export default function Landing() {
   useSEO({
     title: "JEElytics - AI-Powered JEE Concept Strength Checker | Master Physics, Chemistry & Maths",
     description: "Master JEE concepts with AI-powered assessments. Get instant feedback, track progress, and improve with personalized study tips for Physics, Chemistry, and Mathematics.",
-    canonical: "https://jeelytics.lovable.app/"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/"
   });
 
   return (

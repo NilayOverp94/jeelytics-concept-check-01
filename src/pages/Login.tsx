@@ -13,7 +13,7 @@ export default function Login() {
   useSEO({
     title: "Login | JEElytics - AI-Powered JEE Concept Checker",
     description: "Sign in to JEElytics to access AI-powered JEE practice tests and track your progress in Physics, Chemistry, and Mathematics.",
-    canonical: "https://jeelytics.lovable.app/login"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/login"
   });
   const navigate = useNavigate();
   const {

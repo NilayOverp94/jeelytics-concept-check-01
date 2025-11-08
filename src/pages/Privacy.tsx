@@ -4,7 +4,7 @@ export default function Privacy() {
   useSEO({
     title: "Privacy Policy | JEElytics - Your Data & Privacy",
     description: "Learn how JEElytics handles your data and privacy. We collect minimal information to deliver personalized JEE practice features.",
-    canonical: "https://jeelytics.lovable.app/privacy"
+    canonical: "https://jeelytics-concept-check-01.lovable.app/privacy"
   });
 
   return (
