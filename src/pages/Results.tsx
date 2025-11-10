@@ -12,6 +12,7 @@ import { MotivationalQuote } from '@/components/results/MotivationalQuote';
 import { ActionButtons } from '@/components/results/ActionButtons';
 import { useResultsHandlers } from '@/hooks/useResultsHandlers';
 import { MOTIVATIONAL_QUOTES } from '@/components/results/constants';
+import AdSense from '@/components/AdSense';
 
 export default function Results() {
   const location = useLocation();
@@ -351,11 +352,25 @@ export default function Results() {
           timeSpent={timeSpent}
         />
 
+        {/* Ad after Score Card */}
+        <AdSense 
+          slot="4444444444" 
+          format="auto"
+          className="my-8"
+        />
+
         <QuestionReview
           questions={questions}
           userAnswers={userAnswers}
           correctAnswers={correctAnswers}
           useAI={useAI}
+        />
+
+        {/* Ad after Question Review */}
+        <AdSense 
+          slot="5555555555" 
+          format="auto"
+          className="my-8"
         />
 
         <MotivationalQuote quote={randomQuote} />
