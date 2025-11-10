@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import useSEO from '@/hooks/useSEO';
+import AdSense from '@/components/AdSense';
 
 export default function Login() {
   useSEO({
@@ -160,6 +161,15 @@ Sign in to continue your JEE preparation journey</p>
             </div>
           </CardContent>
         </Card>
+
+        {/* Ad Placement */}
+        <div className="mt-8">
+          <AdSense 
+            slot="1111111111" 
+            format="horizontal"
+            className="max-w-md mx-auto"
+          />
+        </div>
       </div>
     </div>;
 }

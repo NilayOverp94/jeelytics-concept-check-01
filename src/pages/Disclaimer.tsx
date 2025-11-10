@@ -1,4 +1,5 @@
 import useSEO from "@/hooks/useSEO";
+import AdSense from "@/components/AdSense";
 
 export default function Disclaimer() {
   useSEO({
@@ -28,6 +29,14 @@ export default function Disclaimer() {
             For any concerns, reach us at <a className="underline hover:text-foreground" href="mailto:nilayraj712@gmail.com">nilayraj712@gmail.com</a>.
           </p>
         </section>
+
+        {/* Ad Placement */}
+        <div className="mt-12">
+          <AdSense 
+            slot="3333333333" 
+            format="horizontal"
+          />
+        </div>
       </article>
     </main>
   );

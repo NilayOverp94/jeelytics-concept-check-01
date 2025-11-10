@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import useSEO from '@/hooks/useSEO';
+import AdSense from '@/components/AdSense';
 
 const signupSchema = z.object({
   name: z.string()
@@ -231,6 +232,15 @@ export default function Signup() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Ad Placement */}
+        <div className="mt-8">
+          <AdSense 
+            slot="2222222222" 
+            format="horizontal"
+            className="max-w-md mx-auto"
+          />
+        </div>
       </div>
     </div>
   );

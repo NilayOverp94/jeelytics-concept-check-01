@@ -1,4 +1,5 @@
 import useSEO from "@/hooks/useSEO";
+import AdSense from "@/components/AdSense";
 
 export default function Privacy() {
   useSEO({
@@ -29,6 +30,14 @@ export default function Privacy() {
             <li>You can choose light/dark themes and opt out of non-essential features.</li>
           </ul>
         </section>
+
+        {/* Ad Placement */}
+        <div className="mt-12">
+          <AdSense 
+            slot="4444444444" 
+            format="horizontal"
+          />
+        </div>
       </article>
     </main>
   );

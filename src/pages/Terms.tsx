@@ -1,4 +1,5 @@
 import useSEO from "@/hooks/useSEO";
+import AdSense from "@/components/AdSense";
 
 export default function Terms() {
   useSEO({
@@ -28,6 +29,14 @@ export default function Terms() {
             We are not liable for any outcomes arising from the use of this app, including exam performance.
           </p>
         </section>
+
+        {/* Ad Placement */}
+        <div className="mt-12">
+          <AdSense 
+            slot="5555555555" 
+            format="horizontal"
+          />
+        </div>
       </article>
     </main>
   );
