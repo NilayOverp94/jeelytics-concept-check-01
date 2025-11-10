@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import useSEO from '@/hooks/useSEO';
+import AdSense from '@/components/AdSense';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -119,6 +120,15 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Ad Placement 1 */}
+      <div className="container mx-auto px-4 py-8">
+        <AdSense 
+          slot="1234567890" 
+          format="auto"
+          className="max-w-4xl mx-auto"
+        />
+      </div>
+
       {/* How It Works Section */}
       <section className="container mx-auto px-4 py-16">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gradient-primary">
@@ -207,6 +217,15 @@ export default function Landing() {
           </Card>
         </div>
       </section>
+
+      {/* Ad Placement 2 */}
+      <div className="container mx-auto px-4 py-8">
+        <AdSense 
+          slot="0987654321" 
+          format="auto"
+          className="max-w-4xl mx-auto"
+        />
+      </div>
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-16">
