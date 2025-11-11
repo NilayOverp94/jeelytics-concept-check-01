@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Brain, Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -118,8 +119,8 @@ export default function Signup() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-lg gradient-hero flex items-center justify-center mx-auto mb-4">
-            <Brain className="h-8 w-8 text-white" />
+          <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <img src={logo} alt="JEElytics Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-gradient-primary mb-2">
             Join JEElytics
