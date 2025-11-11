@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Brain, BookOpen, Calculator, Zap, TrendingUp, Target, Clock, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,9 +7,18 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import useSEO from '@/hooks/useSEO';
 import AdSense from '@/components/AdSense';
 import logo from '@/assets/logo.png';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  // Redirect authenticated users to home
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/home');
+    }
+  }, [user, loading, navigate]);
 
   useSEO({
     title: "JEElytics - AI-Powered JEE Concept Strength Checker | Master Physics, Chemistry & Maths",

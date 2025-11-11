@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Brain, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,23 +9,33 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import useSEO from '@/hooks/useSEO';
 import AdSense from '@/components/AdSense';
+import logo from '@/assets/logo.png';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Login() {
-  useSEO({
-    title: "Login | JEElytics - AI-Powered JEE Concept Checker",
-    description: "Sign in to JEElytics to access AI-powered JEE practice tests and track your progress in Physics, Chemistry, and Mathematics.",
-    canonical: "https://jeelytics-concept-check-01.lovable.app/login"
-  });
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/home');
+    }
+  }, [user, authLoading, navigate]);
+
+  useSEO({
+    title: "Login | JEElytics - AI-Powered JEE Concept Checker",
+    description: "Sign in to JEElytics to access AI-powered JEE practice tests and track your progress in Physics, Chemistry, and Mathematics.",
+    canonical: "https://jeelytics-concept-check-01.lovable.app/login"
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -97,7 +107,7 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-8">
           <img
-            src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
+            src={logo}
             alt="JEElytics logo"
             className="w-16 h-16 rounded-lg mx-auto mb-4"
             loading="eager"

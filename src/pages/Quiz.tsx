@@ -92,7 +92,7 @@ export default function Quiz() {
 
   useEffect(() => {
     if (!subject || !topic) {
-      navigate('/');
+      navigate('/home');
       return;
     }
 
@@ -160,7 +160,7 @@ export default function Quiz() {
                 variant: "destructive",
               });
             }
-            navigate('/');
+            navigate('/home');
             return;
           }
 
@@ -172,7 +172,7 @@ export default function Quiz() {
               description: (data as any).error,
               variant: "destructive",
             });
-            navigate('/');
+            navigate('/home');
             return;
           }
 
@@ -185,7 +185,7 @@ export default function Quiz() {
               description: "Failed to generate questions. Please try again.",
               variant: "destructive",
             });
-            navigate('/');
+            navigate('/home');
             return;
           }
 
@@ -230,7 +230,7 @@ export default function Quiz() {
               variant: "destructive",
             });
           }
-          navigate('/');
+          navigate('/home');
         }
       } catch (e) {
         setIsGenerating(false);
@@ -240,7 +240,7 @@ export default function Quiz() {
           description: "Failed to load questions. Please try again.",
           variant: "destructive",
         });
-        navigate('/');
+        navigate('/home');
       }
     };
 
@@ -366,7 +366,7 @@ export default function Quiz() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/home')}}
+                onClick={() => navigate('/home')}
                 className="hover:bg-muted"
               >
                 <ArrowLeft className="h-5 w-5" />

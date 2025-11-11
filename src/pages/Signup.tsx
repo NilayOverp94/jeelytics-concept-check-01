@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import logo from '@/assets/logo.png';
@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import useSEO from '@/hooks/useSEO';
 import AdSense from '@/components/AdSense';
+import { useAuth } from '@/hooks/useAuth';
 
 const signupSchema = z.object({
   name: z.string()
@@ -35,14 +36,9 @@ const signupSchema = z.object({
 });
 
 export default function Signup() {
-  useSEO({
-    title: "Sign Up | JEElytics - Start Your JEE Preparation Journey",
-    description: "Create a free JEElytics account to access AI-powered JEE practice tests for Physics, Chemistry, and Mathematics.",
-    canonical: "https://jeelytics-concept-check-01.lovable.app/signup"
-  });
-
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -50,6 +46,19 @@ export default function Signup() {
     email: '',
     password: '',
     confirmPassword: ''
+  });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/home');
+    }
+  }, [user, authLoading, navigate]);
+
+  useSEO({
+    title: "Sign Up | JEElytics - Start Your JEE Preparation Journey",
+    description: "Create a free JEElytics account to access AI-powered JEE practice tests for Physics, Chemistry, and Mathematics.",
+    canonical: "https://jeelytics-concept-check-01.lovable.app/signup"
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

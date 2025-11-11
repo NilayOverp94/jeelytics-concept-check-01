@@ -331,7 +331,7 @@ export default function Results() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/home')}}
+              onClick={() => navigate('/home')}
               className="hover:bg-muted"
             >
               <Home className="h-5 w-5" />
