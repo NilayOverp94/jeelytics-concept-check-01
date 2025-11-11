@@ -33,7 +33,7 @@ export function useResultsHandlers({
 
   const handlePickAnother = () => {
     // Navigate to home and trigger stats refresh
-    navigate('/', { state: { refresh: Date.now() } });
+    navigate('/home', { state: { refresh: Date.now() } });
   };
 
   const handleShare = () => {
@@ -75,7 +75,7 @@ Check your concept strength at JEElytics! 🚀`;
   };
 
   const handleGoHome = () => {
-    navigate('/', { state: { refresh: Date.now() } });
+    navigate('/home', { state: { refresh: Date.now() } });
   };
 
   return {

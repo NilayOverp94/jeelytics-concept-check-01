@@ -43,7 +43,7 @@ export default function Results() {
   // Check if we have the required data
   if (!locationState) {
     console.log('❌ No location state found, redirecting to home');
-    navigate('/');
+    navigate('/home');
     return null;
   }
 
@@ -72,7 +72,7 @@ export default function Results() {
 
     if (!subject || score === undefined) {
       console.log('❌ Missing required data, redirecting to home');
-      navigate('/');
+      navigate('/home');
       return;
     }
 
@@ -331,7 +331,7 @@ export default function Results() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}}
               className="hover:bg-muted"
             >
               <Home className="h-5 w-5" />

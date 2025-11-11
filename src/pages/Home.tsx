@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIAssistant } from '@/components/AIAssistant';
 import useSEO from '@/hooks/useSEO';
+import logo from '@/assets/logo.png';
 
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
@@ -153,7 +154,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
             <div className="flex items-center gap-3">
               <img
-                src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
+                src={logo}
                 alt="JEElytics logo"
                 className="h-8 w-8 rounded"
                 loading="eager"

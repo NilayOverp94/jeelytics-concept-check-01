@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import useSEO from '@/hooks/useSEO';
 import AdSense from '@/components/AdSense';
+import logo from '@/assets/logo.png';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -23,8 +24,8 @@ export default function Landing() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img
-                src="/lovable-uploads/fee96b45-bf5f-4bee-8f30-d9b112d26dd9.png"
-                alt="JEElytics logo - AI-powered JEE preparation platform"
+                src={logo}
+                alt="JEElytics logo"
                 className="h-8 w-8 rounded"
                 loading="eager"
               />

@@ -26,7 +26,7 @@ export default function Quiz() {
   
   // Safely handle location state - redirect if missing
   if (!location.state) {
-    navigate('/');
+    navigate('/home');
     return null;
   }
   
@@ -366,7 +366,7 @@ export default function Quiz() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}}
                 className="hover:bg-muted"
               >
                 <ArrowLeft className="h-5 w-5" />
