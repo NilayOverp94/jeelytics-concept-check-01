@@ -446,7 +446,6 @@ export default function Quiz() {
             <AdSense 
               slot="3333333333" 
               format="auto"
-              className="my-2"
             />
 
             {/* Navigation */}
