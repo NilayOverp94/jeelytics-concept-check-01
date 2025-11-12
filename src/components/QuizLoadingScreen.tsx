@@ -54,7 +54,7 @@ export function QuizLoadingScreen({ questionCount }: QuizLoadingScreenProps) {
             <img 
               src={logo} 
               alt="JEE Logo" 
-              className="h-24 w-24 relative animate-[spin_3s_ease-in-out_infinite]"
+              className="h-24 w-24 relative"
             />
             <Sparkles className="absolute -top-2 -right-2 h-8 w-8 text-primary animate-pulse" />
           </div>
