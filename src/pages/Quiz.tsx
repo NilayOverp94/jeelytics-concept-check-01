@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
 import AdSense from '@/components/AdSense';
+import { QuizLoadingScreen } from '@/components/QuizLoadingScreen';
 
 export default function Quiz() {
   const location = useLocation();
@@ -337,21 +338,7 @@ export default function Quiz() {
   }
 
   if (questions.length === 0 || isGenerating) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-md px-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground text-lg">Generating your quiz...</p>
-          {questionCount >= 25 && (
-            <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                Generating {questionCount} questions may take up to 2 minutes. Please wait...
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    return <QuizLoadingScreen questionCount={questionCount} />;
   }
 
   const currentQ = questions[currentQuestion];
@@ -459,7 +446,7 @@ export default function Quiz() {
             <AdSense 
               slot="3333333333" 
               format="auto"
-              className="my-6"
+              className="my-2"
             />
 
             {/* Navigation */}
