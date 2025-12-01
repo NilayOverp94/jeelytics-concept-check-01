@@ -1,8 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// We now use Lovable AI Gateway with Google Gemini 2.5 (flash) for reliable JSON via tool-calling
-// LOVABLE_API_KEY is provided as a Supabase secret automatically
+// Using direct Google Gemini API with user's API key
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -23,9 +22,9 @@ serve(async (req) => {
     const mcqCount = shouldMixTypes ? 20 : questionCount;
     const integerCount = shouldMixTypes ? 5 : 0;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY not configured");
       return new Response(JSON.stringify({ error: "AI key not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -109,7 +108,7 @@ STRICT Requirements:
 - Match the difficulty level precisely - especially for JEE Advanced (make it VERY hard)`;
     }
 
-// Helper to call Lovable AI tool function and return parsed questions
+// Helper to call Google Gemini API with function calling and return parsed questions
 const callAIForQuestions = async (
   {
     count,
@@ -151,69 +150,83 @@ STRICT requirements:
 - Use simple inline HTML if needed (<sub>, <sup>). Avoid LaTeX fences.`;
 
   const toolName = type === 'mcq' ? 'return_mcq_questions' : 'return_integer_questions';
+  
+  const model = useProModel ? 'gemini-2.0-flash-exp' : 'gemini-2.0-flash-exp';
 
+  // Build Gemini API request body with function declarations
   const body: any = {
-    model: useProModel ? 'google/gemini-2.5-pro' : 'google/gemini-2.5-flash',
-    temperature: 0.5,
-    top_p: 0.9,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: specificPrompt },
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { text: `${systemPrompt}\n\n${specificPrompt}` }
+        ]
+      }
     ],
     tools: [
       {
-        type: 'function',
-        function: {
-          name: toolName,
-          description: `Return ${type === 'mcq' ? `${count} MCQ` : `${count} integer`} questions as structured JSON`,
-          parameters: {
-            type: 'object',
-            properties: {
-              questions: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  required: ['question', 'correctAnswer', 'explanation'],
-                  properties: {
-                    question: { type: 'string' },
-                    questionType: { type: 'string', enum: [type] },
-                    options: {
-                      type: 'array',
-                      description: 'Only present for MCQ; exactly 4 items labeled A-D',
-                      items: {
-                        type: 'object',
-                        required: ['label', 'text'],
-                        properties: {
-                          label: { type: 'string', enum: ['A', 'B', 'C', 'D'] },
-                          text: { type: 'string' },
+        functionDeclarations: [
+          {
+            name: toolName,
+            description: `Return ${type === 'mcq' ? `${count} MCQ` : `${count} integer`} questions as structured JSON`,
+            parameters: {
+              type: 'object',
+              properties: {
+                questions: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    required: ['question', 'correctAnswer', 'explanation'],
+                    properties: {
+                      question: { type: 'string' },
+                      questionType: { type: 'string', enum: [type] },
+                      options: {
+                        type: 'array',
+                        description: 'Only present for MCQ; exactly 4 items labeled A-D',
+                        items: {
+                          type: 'object',
+                          required: ['label', 'text'],
+                          properties: {
+                            label: { type: 'string', enum: ['A', 'B', 'C', 'D'] },
+                            text: { type: 'string' },
+                          },
                         },
                       },
+                      correctAnswer: { type: 'string' },
+                      explanation: { type: 'string' },
                     },
-                    correctAnswer: { type: 'string' },
-                    explanation: { type: 'string' },
                   },
                 },
               },
+              required: ['questions'],
             },
-            required: ['questions'],
-          },
-        },
-      },
+          }
+        ]
+      }
     ],
-    tool_choice: { type: 'function', function: { name: toolName } },
+    toolConfig: {
+      functionCallingConfig: {
+        mode: 'ANY',
+        allowedFunctionNames: [toolName]
+      }
+    },
+    generationConfig: {
+      temperature: 0.5,
+      topP: 0.9,
+    }
   };
 
-  const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 
   if (!resp.ok) {
     const t = await resp.text();
-    console.error('AI gateway error (segment):', resp.status, t);
+    console.error('Gemini API error (segment):', resp.status, t);
     if (resp.status === 429) throw new Error('Rate limit exceeded');
-    if (resp.status === 402) throw new Error('Credits exhausted');
+    if (resp.status === 402 || resp.status === 403) throw new Error('API key issue or quota exceeded');
     throw new Error('AI generation failed');
   }
 
@@ -222,40 +235,39 @@ STRICT requirements:
   try {
     raw = await resp.text();
   } catch (e) {
-    console.error('AI gateway read error:', e);
+    console.error('Gemini API read error:', e);
     throw new Error('AI response read failed');
   }
   if (!raw || !raw.trim()) {
-    console.error('AI gateway returned empty body');
-    throw new Error('Empty AI response from AI gateway');
+    console.error('Gemini API returned empty body');
+    throw new Error('Empty AI response from Gemini API');
   }
   try {
     json = JSON.parse(raw);
   } catch (e) {
-    console.error('AI gateway parse error. Raw (first 500 chars):', raw.slice(0, 500));
+    console.error('Gemini API parse error. Raw (first 500 chars):', raw.slice(0, 500));
     throw new Error('Malformed AI output');
   }
-  const toolCall = json.choices?.[0]?.message?.tool_calls?.[0];
-  const argsStr: string | undefined = toolCall?.function?.arguments;
+
+  // Parse Gemini response format
+  const candidate = json.candidates?.[0];
+  const functionCall = candidate?.content?.parts?.[0]?.functionCall;
   
-  // Fallback: if tool_calls missing, try to extract JSON from message content
-  if (!argsStr) {
-    console.warn('No tool_calls in response, attempting content fallback');
-    const messageContent = json.choices?.[0]?.message?.content;
-    if (messageContent) {
-      // Try to extract JSON block from markdown code fence or raw JSON
-      const jsonMatch = messageContent.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || messageContent.match(/(\{[\s\S]*\})/);
+  if (!functionCall || functionCall.name !== toolName) {
+    console.warn('No function call in response, attempting text fallback');
+    const textPart = candidate?.content?.parts?.[0]?.text;
+    if (textPart) {
+      const jsonMatch = textPart.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || textPart.match(/(\{[\s\S]*\})/);
       if (jsonMatch) {
         try {
           const parsed = JSON.parse(jsonMatch[1]);
           if (Array.isArray(parsed?.questions)) {
-            console.log('Fallback: Extracted JSON from content');
+            console.log('Fallback: Extracted JSON from text content');
             let qs = parsed.questions.map((q: any) => ({
               ...q,
               questionType: type,
               options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
             }));
-            // Post-validate and return
             return validateQuestions(qs, type, count);
           }
         } catch {}
@@ -264,10 +276,9 @@ STRICT requirements:
     throw new Error('Invalid AI response format');
   }
 
-  let parsed: any;
-  try { parsed = JSON.parse(argsStr); } catch { throw new Error('Malformed AI output'); }
-
-  let qs: any[] = Array.isArray(parsed?.questions) ? parsed.questions : [];
+  const argsObj = functionCall.args;
+  let qs: any[] = Array.isArray(argsObj?.questions) ? argsObj.questions : [];
+  
   // Ensure type & structure
   qs = qs.map((q: any) => ({
     ...q,
@@ -341,7 +352,7 @@ const generateWithRetries = async (
       
       // After 2 consecutive errors, escalate to pro model for stability
       if (consecutiveErrors >= 2 && !useProModel) {
-        console.log('Escalating to google/gemini-2.5-pro after consecutive failures');
+        console.log('Escalating to gemini-pro after consecutive failures');
         useProModel = true;
       }
       
@@ -362,7 +373,7 @@ const generateWithRetries = async (
 };
 
 // Build segments (MCQ and/or Integer) and combine
-const apiKey = LOVABLE_API_KEY!;
+const apiKey = GEMINI_API_KEY!;
 
 let mcqQuestions: any[] = [];
 let integerQuestions: any[] = [];
@@ -434,6 +445,7 @@ if (shouldMixTypes) {
   });
 }
 
+// Success: return all questions with IDs
 const withIds = combined.map((q: any, idx: number) => ({
   ...q,
   id: `ai_${Date.now()}_${idx}`,
@@ -444,11 +456,14 @@ const withIds = combined.map((q: any, idx: number) => ({
 return new Response(JSON.stringify({ questions: withIds }), {
   headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 });
-  } catch (e) {
-    console.error("generate-ai-questions error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+
+  } catch (error) {
+    console.error('Error in generate-ai-questions function:', error);
+    return new Response(JSON.stringify({ 
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
