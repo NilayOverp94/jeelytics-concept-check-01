@@ -208,23 +208,45 @@ STRICT requirements:
       if (!toolCall || toolCall.function?.name !== toolName) {
         console.warn('No tool call in response, attempting content fallback');
         const content = choice?.message?.content;
+        console.log('Content preview:', content?.slice(0, 300));
+        
         if (content) {
-          const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || content.match(/(\{[\s\S]*\})/);
-          if (jsonMatch) {
-            try {
-              const parsed = JSON.parse(jsonMatch[1]);
-              if (Array.isArray(parsed?.questions)) {
-                console.log('Fallback: Extracted JSON from text content');
-                let qs = parsed.questions.map((q: any) => ({
-                  ...q,
-                  questionType: type,
-                  options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
-                }));
-                return validateQuestions(qs, type, count);
-              }
-            } catch {}
+          // Try multiple parsing approaches
+          let parsed: any = null;
+          
+          // Approach 1: JSON code block
+          const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+          if (codeBlockMatch) {
+            try { parsed = JSON.parse(codeBlockMatch[1]); } catch {}
+          }
+          
+          // Approach 2: Find JSON array directly
+          if (!parsed) {
+            const arrayMatch = content.match(/\[\s*\{[\s\S]*\}\s*\]/);
+            if (arrayMatch) {
+              try { parsed = { questions: JSON.parse(arrayMatch[0]) }; } catch {}
+            }
+          }
+          
+          // Approach 3: Find JSON object with questions
+          if (!parsed) {
+            const objMatch = content.match(/\{[\s\S]*"questions"\s*:\s*\[[\s\S]*\][\s\S]*\}/);
+            if (objMatch) {
+              try { parsed = JSON.parse(objMatch[0]); } catch {}
+            }
+          }
+          
+          if (parsed && Array.isArray(parsed?.questions)) {
+            console.log('Fallback: Extracted', parsed.questions.length, 'questions from content');
+            let qs = parsed.questions.map((q: any) => ({
+              ...q,
+              questionType: type,
+              options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
+            }));
+            return validateQuestions(qs, type, count);
           }
         }
+        console.error('Could not parse AI response content');
         throw new Error('Invalid AI response format');
       }
 
