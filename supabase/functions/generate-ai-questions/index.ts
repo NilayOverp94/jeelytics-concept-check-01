@@ -69,7 +69,7 @@ serve(async (req) => {
 - For CBSE: Create simple, straightforward questions testing basic understanding.
 - Use simple inline HTML tags only when necessary (<sub>, <sup>, <em>, <strong>).
 - Avoid LaTeX delimiters; prefer plain text or simple HTML for math; use x^2 and H2O or a<sup>2</sup> where needed.
-- Explanations should be detailed, accurate, and contrast correct vs incorrect options.
+- IMPORTANT: Keep explanations SHORT and CONCISE (2-4 sentences max). Just state the key concept/formula used and the solution steps briefly.
 - For integer type questions: Answer must be a single integer (no decimals, no ranges). Question should clearly state "Answer is an integer".`;
 
     // Helper to call Lovable AI Gateway with tool calling and return parsed questions
@@ -108,7 +108,7 @@ ${difficultyInstructions[difficulty]}
 STRICT requirements:
 - Generate EXACTLY ${count} ${type === 'mcq' ? 'MCQ' : 'INTEGER'} questions.
 - ${type === 'mcq' ? 'Each MCQ has exactly 4 options labeled A, B, C, D. Exactly 1 correctAnswer among A-D.' : 'Integer questions have NO options. correctAnswer must be a single integer string (e.g., "42"). Include a hint like "Answer is an integer" in the question text.'}
-- Provide a clear and detailed explanation for the correctAnswer.
+- Keep explanation SHORT (2-4 sentences). State the formula/concept and key steps only.
 - Use simple inline HTML if needed (<sub>, <sup>). Avoid LaTeX fences.`;
 
       const toolName = type === 'mcq' ? 'return_mcq_questions' : 'return_integer_questions';
@@ -318,14 +318,16 @@ STRICT requirements:
     let integerQuestions: any[] = [];
 
     if (shouldMixTypes) {
-      // Generate MCQs and integers in parallel for speed
-      console.log('Generating MCQs and integers in parallel');
-      const [mcqs, ints] = await Promise.all([
-        generateQuestions({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
+      // Generate MCQs in 2 batches of 10 + integers in parallel for reliability
+      console.log('Generating MCQs (2 batches) and integers in parallel');
+      const [mcqs1, mcqs2, ints] = await Promise.all([
+        generateQuestions({ count: 10, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
+        generateQuestions({ count: 10, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
         generateQuestions({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey })
       ]);
-      mcqQuestions = mcqs;
+      mcqQuestions = [...mcqs1, ...mcqs2];
       integerQuestions = ints;
+      console.log(`MCQ batches: ${mcqs1.length} + ${mcqs2.length}, Integers: ${ints.length}`);
     } else {
       mcqQuestions = await generateQuestions({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
     }
