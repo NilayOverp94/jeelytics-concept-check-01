@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Using direct Google Gemini API with user's API key
+// Using Lovable AI Gateway
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -22,9 +22,9 @@ serve(async (req) => {
     const mcqCount = shouldMixTypes ? 20 : questionCount;
     const integerCount = shouldMixTypes ? 5 : 0;
 
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY not configured");
       return new Response(JSON.stringify({ error: "AI key not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -72,71 +72,33 @@ serve(async (req) => {
 - Explanations should be detailed, accurate, and contrast correct vs incorrect options.
 - For integer type questions: Answer must be a single integer (no decimals, no ranges). Question should clearly state "Answer is an integer".`;
 
-    let userPrompt: string;
-    
-    if (shouldMixTypes) {
-      userPrompt = `CRITICAL: You MUST create EXACTLY ${mcqCount} MCQ questions AND ${integerCount} INTEGER type questions (total ${questionCount} questions).
+    // Helper to call Lovable AI Gateway with tool calling and return parsed questions
+    const callAIForQuestions = async (
+      {
+        count,
+        type,
+        subject,
+        topic,
+        difficulty,
+        systemPrompt,
+        difficultyInstructions,
+        apiKey,
+      }: {
+        count: number;
+        type: 'mcq' | 'integer';
+        subject: string;
+        topic: string;
+        difficulty: string;
+        systemPrompt: string;
+        difficultyInstructions: Record<string, string>;
+        apiKey: string;
+      }
+    ): Promise<any[]> => {
+      if (count <= 0) return [];
 
-Subject: ${subject}
-Topic: ${topic}
-Difficulty Level: ${difficulty.toUpperCase().replace('-', ' ')}
+      const typeLine = type === 'mcq' ? `${count} MCQ questions (4 options A-D)` : `${count} INTEGER-type questions (answer is a single integer string, no options)`;
 
-${difficultyInstructions[difficulty]}
-
-STRICT Requirements:
-- First ${mcqCount} questions MUST be MCQ type with exactly 4 options labeled A, B, C, D
-- Last ${integerCount} questions MUST be INTEGER type (no options, answer is a single integer from 0-9999)
-- For integer questions: Include "The answer is an integer" or similar phrase in the question text
-- For integer questions: correctAnswer should be the integer as a string (e.g., "42")
-- Provide clear, detailed explanations for all answers
-- Vary sub-topics and match difficulty level precisely`;
-    } else {
-      userPrompt = `CRITICAL: You MUST create EXACTLY ${questionCount} MCQ questions.
-
-Subject: ${subject}
-Topic: ${topic}
-Difficulty Level: ${difficulty.toUpperCase().replace('-', ' ')}
-
-${difficultyInstructions[difficulty]}
-
-STRICT Requirements:
-- Generate EXACTLY ${questionCount} distinct MCQ questions
-- Each question must have exactly 4 options labeled A, B, C, D
-- Exactly 1 correct answer per question
-- Provide a clear, detailed explanation for the correct answer
-- Vary the sub-topics and question types within the specified difficulty level
-- Match the difficulty level precisely - especially for JEE Advanced (make it VERY hard)`;
-    }
-
-// Helper to call Google Gemini API with function calling and return parsed questions
-const callAIForQuestions = async (
-  {
-    count,
-    type,
-    subject,
-    topic,
-    difficulty,
-    systemPrompt,
-    difficultyInstructions,
-    apiKey,
-    useProModel = false,
-  }: {
-    count: number;
-    type: 'mcq' | 'integer';
-    subject: string;
-    topic: string;
-    difficulty: string;
-    systemPrompt: string;
-    difficultyInstructions: Record<string, string>;
-    apiKey: string;
-    useProModel?: boolean;
-  }
-): Promise<any[]> => {
-  if (count <= 0) return [];
-
-  const typeLine = type === 'mcq' ? `${count} MCQ questions (4 options A-D)` : `${count} INTEGER-type questions (answer is a single integer string, no options)`;
-
-  const specificPrompt = `Create EXACTLY ${typeLine} for:
+      const specificPrompt = `Create EXACTLY ${typeLine} for:
 Subject: ${subject}
 Topic: ${topic}
 Difficulty: ${difficulty.toUpperCase().replace('-', ' ')}
@@ -149,318 +111,305 @@ STRICT requirements:
 - Provide a clear and detailed explanation for the correctAnswer.
 - Use simple inline HTML if needed (<sub>, <sup>). Avoid LaTeX fences.`;
 
-  const toolName = type === 'mcq' ? 'return_mcq_questions' : 'return_integer_questions';
-  
-  const model = useProModel ? 'gemini-2.0-flash-exp' : 'gemini-2.0-flash-exp';
+      const toolName = type === 'mcq' ? 'return_mcq_questions' : 'return_integer_questions';
 
-  // Build Gemini API request body with function declarations
-  const body: any = {
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          { text: `${systemPrompt}\n\n${specificPrompt}` }
-        ]
-      }
-    ],
-    tools: [
-      {
-        functionDeclarations: [
+      // Build OpenAI-compatible request body with tool calling
+      const body: any = {
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: specificPrompt }
+        ],
+        tools: [
           {
-            name: toolName,
-            description: `Return ${type === 'mcq' ? `${count} MCQ` : `${count} integer`} questions as structured JSON`,
-            parameters: {
-              type: 'object',
-              properties: {
-                questions: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    required: ['question', 'correctAnswer', 'explanation'],
-                    properties: {
-                      question: { type: 'string' },
-                      questionType: { type: 'string', enum: [type] },
-                      options: {
-                        type: 'array',
-                        description: 'Only present for MCQ; exactly 4 items labeled A-D',
-                        items: {
-                          type: 'object',
-                          required: ['label', 'text'],
-                          properties: {
-                            label: { type: 'string', enum: ['A', 'B', 'C', 'D'] },
-                            text: { type: 'string' },
+            type: 'function',
+            function: {
+              name: toolName,
+              description: `Return ${type === 'mcq' ? `${count} MCQ` : `${count} integer`} questions as structured JSON`,
+              parameters: {
+                type: 'object',
+                properties: {
+                  questions: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['question', 'correctAnswer', 'explanation'],
+                      properties: {
+                        question: { type: 'string' },
+                        questionType: { type: 'string', enum: [type] },
+                        options: {
+                          type: 'array',
+                          description: 'Only present for MCQ; exactly 4 items labeled A-D',
+                          items: {
+                            type: 'object',
+                            required: ['label', 'text'],
+                            properties: {
+                              label: { type: 'string', enum: ['A', 'B', 'C', 'D'] },
+                              text: { type: 'string' },
+                            },
                           },
                         },
+                        correctAnswer: { type: 'string' },
+                        explanation: { type: 'string' },
                       },
-                      correctAnswer: { type: 'string' },
-                      explanation: { type: 'string' },
                     },
                   },
                 },
+                required: ['questions'],
               },
-              required: ['questions'],
-            },
+            }
           }
-        ]
+        ],
+        tool_choice: { type: 'function', function: { name: toolName } },
+        temperature: 0.5,
+        top_p: 0.9,
+      };
+
+      const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!resp.ok) {
+        const t = await resp.text();
+        console.error('Lovable AI Gateway error (segment):', resp.status, t);
+        if (resp.status === 429) throw new Error('Rate limit exceeded');
+        if (resp.status === 402) throw new Error('Payment required - please add credits');
+        throw new Error('AI generation failed');
       }
-    ],
-    toolConfig: {
-      functionCallingConfig: {
-        mode: 'ANY',
-        allowedFunctionNames: [toolName]
+
+      let json: any;
+      let raw: string;
+      try {
+        raw = await resp.text();
+      } catch (e) {
+        console.error('Lovable AI Gateway read error:', e);
+        throw new Error('AI response read failed');
       }
-    },
-    generationConfig: {
-      temperature: 0.5,
-      topP: 0.9,
-    }
-  };
+      if (!raw || !raw.trim()) {
+        console.error('Lovable AI Gateway returned empty body');
+        throw new Error('Empty AI response');
+      }
+      try {
+        json = JSON.parse(raw);
+      } catch (e) {
+        console.error('Lovable AI Gateway parse error. Raw (first 500 chars):', raw.slice(0, 500));
+        throw new Error('Malformed AI output');
+      }
 
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  if (!resp.ok) {
-    const t = await resp.text();
-    console.error('Gemini API error (segment):', resp.status, t);
-    if (resp.status === 429) throw new Error('Rate limit exceeded');
-    if (resp.status === 402 || resp.status === 403) throw new Error('API key issue or quota exceeded');
-    throw new Error('AI generation failed');
-  }
-
-  let json: any;
-  let raw: string;
-  try {
-    raw = await resp.text();
-  } catch (e) {
-    console.error('Gemini API read error:', e);
-    throw new Error('AI response read failed');
-  }
-  if (!raw || !raw.trim()) {
-    console.error('Gemini API returned empty body');
-    throw new Error('Empty AI response from Gemini API');
-  }
-  try {
-    json = JSON.parse(raw);
-  } catch (e) {
-    console.error('Gemini API parse error. Raw (first 500 chars):', raw.slice(0, 500));
-    throw new Error('Malformed AI output');
-  }
-
-  // Parse Gemini response format
-  const candidate = json.candidates?.[0];
-  const functionCall = candidate?.content?.parts?.[0]?.functionCall;
-  
-  if (!functionCall || functionCall.name !== toolName) {
-    console.warn('No function call in response, attempting text fallback');
-    const textPart = candidate?.content?.parts?.[0]?.text;
-    if (textPart) {
-      const jsonMatch = textPart.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || textPart.match(/(\{[\s\S]*\})/);
-      if (jsonMatch) {
-        try {
-          const parsed = JSON.parse(jsonMatch[1]);
-          if (Array.isArray(parsed?.questions)) {
-            console.log('Fallback: Extracted JSON from text content');
-            let qs = parsed.questions.map((q: any) => ({
-              ...q,
-              questionType: type,
-              options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
-            }));
-            return validateQuestions(qs, type, count);
+      // Parse OpenAI-compatible response format
+      const choice = json.choices?.[0];
+      const toolCall = choice?.message?.tool_calls?.[0];
+      
+      if (!toolCall || toolCall.function?.name !== toolName) {
+        console.warn('No tool call in response, attempting content fallback');
+        const content = choice?.message?.content;
+        if (content) {
+          const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || content.match(/(\{[\s\S]*\})/);
+          if (jsonMatch) {
+            try {
+              const parsed = JSON.parse(jsonMatch[1]);
+              if (Array.isArray(parsed?.questions)) {
+                console.log('Fallback: Extracted JSON from text content');
+                let qs = parsed.questions.map((q: any) => ({
+                  ...q,
+                  questionType: type,
+                  options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
+                }));
+                return validateQuestions(qs, type, count);
+              }
+            } catch {}
           }
-        } catch {}
+        }
+        throw new Error('Invalid AI response format');
       }
-    }
-    throw new Error('Invalid AI response format');
-  }
 
-  const argsObj = functionCall.args;
-  let qs: any[] = Array.isArray(argsObj?.questions) ? argsObj.questions : [];
-  
-  // Ensure type & structure
-  qs = qs.map((q: any) => ({
-    ...q,
-    questionType: type,
-    options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
-  }));
-
-  return validateQuestions(qs, type, count);
-};
-
-// Validation helper extracted for reuse
-const validateQuestions = (qs: any[], type: 'mcq' | 'integer', count: number): any[] => {
-  const validated: any[] = [];
-  for (const q of qs) {
-    if (!q?.question || !q?.correctAnswer || !q?.explanation) continue;
-    if (type === 'mcq') {
-      // Normalize options to exactly 4 A-D
-      let opts = (q.options || []).slice(0, 4);
-      if (opts.length < 4) continue;
-      const labels = ['A', 'B', 'C', 'D'];
-      opts = opts.map((o: any, i: number) => ({ label: labels[i], text: String(o?.text ?? o) }));
-      // Ensure correctAnswer is one of A-D
-      if (!labels.includes(String(q.correctAnswer).trim())) continue;
-      validated.push({ ...q, options: opts, questionType: 'mcq' });
-    } else {
-      // Integer question: ensure correctAnswer is integer string
-      if (!/^[-]?\d+$/.test(String(q.correctAnswer).trim())) continue;
-      validated.push({ ...q, options: [], questionType: 'integer' });
-    }
-  }
-  return validated.slice(0, count);
-};
-
-// Retry wrapper with batching and resilience
-const perCallLimit = (difficulty: string, type: 'mcq' | 'integer') => {
-  if (difficulty === 'jee-advanced') return 3; // smaller batches for stability
-  if (difficulty === 'jee-mains') return type === 'integer' ? 6 : 8;
-  return 10;
-};
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-const generateWithRetries = async (
-  args: Parameters<typeof callAIForQuestions>[0],
-  maxAttempts = 50 // allow many small batches within function time limit
-): Promise<any[]> => {
-  let collected: any[] = [];
-  let attempts = 0;
-  let consecutiveErrors = 0;
-  let useProModel = false;
-
-  console.log(`Starting generation: ${args.count} ${args.type} questions for ${args.subject}/${args.topic} (${args.difficulty})`);
-
-  while (collected.length < args.count && attempts < maxAttempts) {
-    const remaining = args.count - collected.length;
-    const toFetch = Math.min(remaining, perCallLimit(args.difficulty, args.type));
-
-    try {
-      const batch = await callAIForQuestions({ ...args, count: toFetch, useProModel });
-      console.log(`Batch ${attempts + 1}: Requested ${toFetch}, got ${batch.length} ${args.type} questions. Total so far: ${collected.length + batch.length}/${args.count}`);
-      collected = collected.concat(batch);
-      consecutiveErrors = 0; // reset on success
-      
-      // If we used pro model and succeeded, log it
-      if (useProModel) {
-        console.log('Pro model succeeded after flash failures');
-      }
-    } catch (err) {
-      console.error(`Batch ${attempts + 1} generation error:`, err);
-      consecutiveErrors++;
-      
-      // After 2 consecutive errors, escalate to pro model for stability
-      if (consecutiveErrors >= 2 && !useProModel) {
-        console.log('Escalating to gemini-pro after consecutive failures');
-        useProModel = true;
+      let argsObj: any;
+      try {
+        argsObj = typeof toolCall.function.arguments === 'string' 
+          ? JSON.parse(toolCall.function.arguments) 
+          : toolCall.function.arguments;
+      } catch (e) {
+        console.error('Failed to parse tool arguments:', e);
+        throw new Error('Invalid tool arguments format');
       }
       
-      if (consecutiveErrors >= 5) {
-        console.error('Too many consecutive failures, stopping generation');
-        break;
-      }
-    }
-
-    attempts++;
-    // Randomized backoff with jitter to avoid bursts
-    const backoffMs = 300 + Math.random() * 400; // 300-700ms
-    await sleep(backoffMs);
-  }
-
-  console.log(`Generation complete: ${collected.length}/${args.count} ${args.type} questions after ${attempts} attempts`);
-  return collected.slice(0, args.count);
-};
-
-// Build segments (MCQ and/or Integer) and combine
-const apiKey = GEMINI_API_KEY!;
-
-let mcqQuestions: any[] = [];
-let integerQuestions: any[] = [];
-
-if (shouldMixTypes) {
-  // Sequential generation with backoff to reduce load
-  console.log('Sequential generation: MCQs first, then integers');
-  mcqQuestions = await generateWithRetries({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
-  await sleep(500); // brief pause between segments
-  integerQuestions = await generateWithRetries({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
-} else {
-  mcqQuestions = await generateWithRetries({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
-}
-
-const combined = [...mcqQuestions, ...integerQuestions];
-
-// Final validation: return partial results with warning instead of hard failure
-if (shouldMixTypes) {
-  const mcqs = combined.filter(q => q.questionType === 'mcq').length;
-  const ints = combined.filter(q => q.questionType === 'integer').length;
-  if (mcqs !== mcqCount || ints !== integerCount) {
-    console.error(`Final mix mismatch: MCQ ${mcqs}/${mcqCount}, INT ${ints}/${integerCount}`);
-    
-    // Return partial results with warning
-    if (combined.length > 0) {
-      const withIds = combined.map((q: any, idx: number) => ({
+      let qs: any[] = Array.isArray(argsObj?.questions) ? argsObj.questions : [];
+      
+      // Ensure type & structure
+      qs = qs.map((q: any) => ({
         ...q,
-        id: `ai_${Date.now()}_${idx}`,
-        subject,
-        topic,
+        questionType: type,
+        options: type === 'mcq' ? (Array.isArray(q?.options) ? q.options : []) : [],
       }));
+
+      return validateQuestions(qs, type, count);
+    };
+
+    // Validation helper extracted for reuse
+    const validateQuestions = (qs: any[], type: 'mcq' | 'integer', count: number): any[] => {
+      const validated: any[] = [];
+      for (const q of qs) {
+        if (!q?.question || !q?.correctAnswer || !q?.explanation) continue;
+        if (type === 'mcq') {
+          // Normalize options to exactly 4 A-D
+          let opts = (q.options || []).slice(0, 4);
+          if (opts.length < 4) continue;
+          const labels = ['A', 'B', 'C', 'D'];
+          opts = opts.map((o: any, i: number) => ({ label: labels[i], text: String(o?.text ?? o) }));
+          // Ensure correctAnswer is one of A-D
+          if (!labels.includes(String(q.correctAnswer).trim())) continue;
+          validated.push({ ...q, options: opts, questionType: 'mcq' });
+        } else {
+          // Integer question: ensure correctAnswer is integer string
+          if (!/^[-]?\d+$/.test(String(q.correctAnswer).trim())) continue;
+          validated.push({ ...q, options: [], questionType: 'integer' });
+        }
+      }
+      return validated.slice(0, count);
+    };
+
+    // Retry wrapper with batching and resilience
+    const perCallLimit = (difficulty: string, type: 'mcq' | 'integer') => {
+      if (difficulty === 'jee-advanced') return 3; // smaller batches for stability
+      if (difficulty === 'jee-mains') return type === 'integer' ? 6 : 8;
+      return 10;
+    };
+
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    const generateWithRetries = async (
+      args: Parameters<typeof callAIForQuestions>[0],
+      maxAttempts = 50 // allow many small batches within function time limit
+    ): Promise<any[]> => {
+      let collected: any[] = [];
+      let attempts = 0;
+      let consecutiveErrors = 0;
+
+      console.log(`Starting generation: ${args.count} ${args.type} questions for ${args.subject}/${args.topic} (${args.difficulty})`);
+
+      while (collected.length < args.count && attempts < maxAttempts) {
+        const remaining = args.count - collected.length;
+        const toFetch = Math.min(remaining, perCallLimit(args.difficulty, args.type));
+
+        try {
+          const batch = await callAIForQuestions({ ...args, count: toFetch });
+          console.log(`Batch ${attempts + 1}: Requested ${toFetch}, got ${batch.length} ${args.type} questions. Total so far: ${collected.length + batch.length}/${args.count}`);
+          collected = collected.concat(batch);
+          consecutiveErrors = 0; // reset on success
+        } catch (err) {
+          console.error(`Batch ${attempts + 1} generation error:`, err);
+          consecutiveErrors++;
+          
+          if (consecutiveErrors >= 5) {
+            console.error('Too many consecutive failures, stopping generation');
+            break;
+          }
+        }
+
+        attempts++;
+        // Randomized backoff with jitter to avoid bursts
+        const backoffMs = 300 + Math.random() * 400; // 300-700ms
+        await sleep(backoffMs);
+      }
+
+      console.log(`Generation complete: ${collected.length}/${args.count} ${args.type} questions after ${attempts} attempts`);
+      return collected.slice(0, args.count);
+    };
+
+    // Build segments (MCQ and/or Integer) and combine
+    const apiKey = LOVABLE_API_KEY!;
+
+    let mcqQuestions: any[] = [];
+    let integerQuestions: any[] = [];
+
+    if (shouldMixTypes) {
+      // Sequential generation with backoff to reduce load
+      console.log('Sequential generation: MCQs first, then integers');
+      mcqQuestions = await generateWithRetries({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
+      await sleep(500); // brief pause between segments
+      integerQuestions = await generateWithRetries({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
+    } else {
+      mcqQuestions = await generateWithRetries({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
+    }
+
+    const combined = [...mcqQuestions, ...integerQuestions];
+
+    // Final validation: return partial results with warning instead of hard failure
+    if (shouldMixTypes) {
+      const mcqs = combined.filter(q => q.questionType === 'mcq').length;
+      const ints = combined.filter(q => q.questionType === 'integer').length;
+      if (mcqs !== mcqCount || ints !== integerCount) {
+        console.error(`Final mix mismatch: MCQ ${mcqs}/${mcqCount}, INT ${ints}/${integerCount}`);
+        
+        // Return partial results with warning
+        if (combined.length > 0) {
+          const withIds = combined.map((q: any, idx: number) => ({
+            ...q,
+            id: `ai_${Date.now()}_${idx}`,
+            subject,
+            topic,
+          }));
+          
+          return new Response(JSON.stringify({ 
+            questions: withIds,
+            warning: `Generated ${mcqs} MCQ and ${ints} integer questions (requested ${mcqCount} + ${integerCount}). Please retry for full set.`
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        return new Response(JSON.stringify({ error: 'Failed to generate required mix (20 MCQ + 5 integer). Please try again.' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    } else if (combined.length !== questionCount) {
+      console.error(`Final count mismatch: got ${combined.length}, expected ${questionCount}`);
       
-      return new Response(JSON.stringify({ 
-        questions: withIds,
-        warning: `Generated ${mcqs} MCQ and ${ints} integer questions (requested ${mcqCount} + ${integerCount}). Please retry for full set.`
-      }), {
+      // Return partial results with warning
+      if (combined.length > 0) {
+        const withIds = combined.map((q: any, idx: number) => ({
+          ...q,
+          id: `ai_${Date.now()}_${idx}`,
+          subject,
+          topic,
+        }));
+        
+        return new Response(JSON.stringify({ 
+          questions: withIds,
+          warning: `Generated ${combined.length} of ${questionCount} questions. Please retry for full set.`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      return new Response(JSON.stringify({ error: `Failed to generate ${questionCount} questions. Please try again.` }), {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    
-    return new Response(JSON.stringify({ error: 'Failed to generate required mix (20 MCQ + 5 integer). Please try again.' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-} else if (combined.length !== questionCount) {
-  console.error(`Final count mismatch: got ${combined.length}, expected ${questionCount}`);
-  
-  // Return partial results with warning
-  if (combined.length > 0) {
+
+    // Success path
     const withIds = combined.map((q: any, idx: number) => ({
       ...q,
       id: `ai_${Date.now()}_${idx}`,
       subject,
       topic,
     }));
-    
-    return new Response(JSON.stringify({ 
-      questions: withIds,
-      warning: `Generated ${combined.length} of ${questionCount} questions. Please retry for full set.`
-    }), {
+
+    return new Response(JSON.stringify({ questions: withIds }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  }
-  
-  return new Response(JSON.stringify({ error: `Failed to generate ${questionCount} questions. Please try again.` }), {
-    status: 500,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
-// Success: return all questions with IDs
-const withIds = combined.map((q: any, idx: number) => ({
-  ...q,
-  id: `ai_${Date.now()}_${idx}`,
-  subject,
-  topic,
-}));
-
-return new Response(JSON.stringify({ questions: withIds }), {
-  headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-});
-
   } catch (error) {
-    console.error('Error in generate-ai-questions function:', error);
+    console.error('Error generating questions:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: 'Please try again or contact support if the issue persists.'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
