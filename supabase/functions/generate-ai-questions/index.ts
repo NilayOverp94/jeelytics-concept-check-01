@@ -273,18 +273,20 @@ STRICT requirements:
       return validated.slice(0, count);
     };
 
-    // Retry wrapper with batching and resilience
+    // Optimized: Use larger batches to reduce API calls and avoid worker timeout
     const perCallLimit = (difficulty: string, type: 'mcq' | 'integer') => {
-      if (difficulty === 'jee-advanced') return 3; // smaller batches for stability
-      if (difficulty === 'jee-mains') return type === 'integer' ? 6 : 8;
-      return 10;
+      // Larger batches = fewer API calls = faster completion
+      if (type === 'integer') return 5; // Integer questions in one batch
+      if (difficulty === 'jee-advanced') return 10; // Increased from 3
+      if (difficulty === 'jee-mains') return 10;
+      return 12; // CBSE can handle larger batches
     };
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     const generateWithRetries = async (
       args: Parameters<typeof callAIForQuestions>[0],
-      maxAttempts = 50 // allow many small batches within function time limit
+      maxAttempts = 10 // Reduced - we need fewer attempts with larger batches
     ): Promise<any[]> => {
       let collected: any[] = [];
       let attempts = 0;
@@ -300,21 +302,22 @@ STRICT requirements:
           const batch = await callAIForQuestions({ ...args, count: toFetch });
           console.log(`Batch ${attempts + 1}: Requested ${toFetch}, got ${batch.length} ${args.type} questions. Total so far: ${collected.length + batch.length}/${args.count}`);
           collected = collected.concat(batch);
-          consecutiveErrors = 0; // reset on success
+          consecutiveErrors = 0;
         } catch (err) {
           console.error(`Batch ${attempts + 1} generation error:`, err);
           consecutiveErrors++;
           
-          if (consecutiveErrors >= 5) {
-            console.error('Too many consecutive failures, stopping generation');
+          if (consecutiveErrors >= 3) {
+            console.error('Too many consecutive failures, returning partial results');
             break;
           }
         }
 
         attempts++;
-        // Randomized backoff with jitter to avoid bursts
-        const backoffMs = 300 + Math.random() * 400; // 300-700ms
-        await sleep(backoffMs);
+        // Minimal delay between batches
+        if (collected.length < args.count) {
+          await sleep(100); // Reduced from 300-700ms
+        }
       }
 
       console.log(`Generation complete: ${collected.length}/${args.count} ${args.type} questions after ${attempts} attempts`);
