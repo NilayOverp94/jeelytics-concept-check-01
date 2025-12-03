@@ -54,9 +54,9 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-    if (!geminiApiKey) {
-      throw new Error('GEMINI_API_KEY not found');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY not found');
     }
 
     const systemPrompt = `You are Harshit, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver. You specialize in Physics, Chemistry, and Mathematics concepts that are relevant to JEE preparation.
@@ -78,47 +78,46 @@ Guidelines:
 
 Remember: You're here to help students succeed in their JEE preparation.`;
 
-    // Build Gemini API contents array with conversation history
-    const contents: any[] = [];
+    // Build messages array for OpenAI-compatible API
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt }
+    ];
     
     // Add conversation history if provided
     if (conversationHistory && Array.isArray(conversationHistory)) {
       for (const msg of conversationHistory) {
-        contents.push({
-          role: msg.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: msg.content }]
+        messages.push({
+          role: msg.role,
+          content: msg.content
         });
       }
     }
     
     // Add current message
-    contents.push({
+    messages.push({
       role: 'user',
-      parts: [{ text: message }]
+      content: message
     });
 
-    console.log('Calling Gemini API with conversation history, message count:', contents.length);
+    console.log('Calling Lovable AI Gateway, message count:', messages.length);
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: contents,
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.9,
-        }
+        model: 'google/gemini-2.5-flash',
+        messages: messages,
+        temperature: 0.7,
+        top_p: 0.9,
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API Error:', response.status, errorText);
+      console.error('Lovable AI Gateway Error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ 
@@ -129,26 +128,26 @@ Remember: You're here to help students succeed in their JEE preparation.`;
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
-      if (response.status === 402 || response.status === 403) {
+      if (response.status === 402) {
         return new Response(JSON.stringify({ 
-          error: 'API key issue',
-          response: "There's an issue with the API key or quota. Please contact support!"
+          error: 'Payment required',
+          response: "AI credits have been exhausted. Please add funds to continue using this feature."
         }), {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
       
-      throw new Error(`Gemini API error: ${response.status}`);
+      throw new Error(`Lovable AI Gateway error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Gemini API Response:', JSON.stringify(data, null, 2));
+    console.log('Lovable AI Gateway Response received');
     
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const aiResponse = data.choices?.[0]?.message?.content;
     
     if (!aiResponse) {
-      throw new Error('Invalid response format from Gemini API');
+      throw new Error('Invalid response format from Lovable AI Gateway');
     }
 
     return new Response(JSON.stringify({ response: aiResponse }), {
