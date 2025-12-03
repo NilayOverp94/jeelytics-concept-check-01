@@ -273,55 +273,20 @@ STRICT requirements:
       return validated.slice(0, count);
     };
 
-    // Optimized: Use larger batches to reduce API calls and avoid worker timeout
-    const perCallLimit = (difficulty: string, type: 'mcq' | 'integer') => {
-      // Larger batches = fewer API calls = faster completion
-      if (type === 'integer') return 5; // Integer questions in one batch
-      if (difficulty === 'jee-advanced') return 10; // Increased from 3
-      if (difficulty === 'jee-mains') return 10;
-      return 12; // CBSE can handle larger batches
-    };
-
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-    const generateWithRetries = async (
-      args: Parameters<typeof callAIForQuestions>[0],
-      maxAttempts = 10 // Reduced - we need fewer attempts with larger batches
+    // Simplified: Generate all questions in a single API call to avoid worker timeout
+    const generateQuestions = async (
+      args: Parameters<typeof callAIForQuestions>[0]
     ): Promise<any[]> => {
-      let collected: any[] = [];
-      let attempts = 0;
-      let consecutiveErrors = 0;
+      console.log(`Generating ${args.count} ${args.type} questions for ${args.subject}/${args.topic} (${args.difficulty})`);
 
-      console.log(`Starting generation: ${args.count} ${args.type} questions for ${args.subject}/${args.topic} (${args.difficulty})`);
-
-      while (collected.length < args.count && attempts < maxAttempts) {
-        const remaining = args.count - collected.length;
-        const toFetch = Math.min(remaining, perCallLimit(args.difficulty, args.type));
-
-        try {
-          const batch = await callAIForQuestions({ ...args, count: toFetch });
-          console.log(`Batch ${attempts + 1}: Requested ${toFetch}, got ${batch.length} ${args.type} questions. Total so far: ${collected.length + batch.length}/${args.count}`);
-          collected = collected.concat(batch);
-          consecutiveErrors = 0;
-        } catch (err) {
-          console.error(`Batch ${attempts + 1} generation error:`, err);
-          consecutiveErrors++;
-          
-          if (consecutiveErrors >= 3) {
-            console.error('Too many consecutive failures, returning partial results');
-            break;
-          }
-        }
-
-        attempts++;
-        // Minimal delay between batches
-        if (collected.length < args.count) {
-          await sleep(100); // Reduced from 300-700ms
-        }
+      try {
+        const questions = await callAIForQuestions(args);
+        console.log(`Generated ${questions.length}/${args.count} ${args.type} questions`);
+        return questions;
+      } catch (err) {
+        console.error(`Generation error:`, err);
+        return [];
       }
-
-      console.log(`Generation complete: ${collected.length}/${args.count} ${args.type} questions after ${attempts} attempts`);
-      return collected.slice(0, args.count);
     };
 
     // Build segments (MCQ and/or Integer) and combine
@@ -331,13 +296,16 @@ STRICT requirements:
     let integerQuestions: any[] = [];
 
     if (shouldMixTypes) {
-      // Sequential generation with backoff to reduce load
-      console.log('Sequential generation: MCQs first, then integers');
-      mcqQuestions = await generateWithRetries({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
-      await sleep(500); // brief pause between segments
-      integerQuestions = await generateWithRetries({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
+      // Generate MCQs and integers in parallel for speed
+      console.log('Generating MCQs and integers in parallel');
+      const [mcqs, ints] = await Promise.all([
+        generateQuestions({ count: mcqCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey }),
+        generateQuestions({ count: integerCount, type: 'integer', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey })
+      ]);
+      mcqQuestions = mcqs;
+      integerQuestions = ints;
     } else {
-      mcqQuestions = await generateWithRetries({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
+      mcqQuestions = await generateQuestions({ count: questionCount, type: 'mcq', subject, topic, difficulty, systemPrompt, difficultyInstructions, apiKey });
     }
 
     const combined = [...mcqQuestions, ...integerQuestions];
