@@ -23,7 +23,7 @@ export function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm Harshit, your personal JEE doubt solver. Ask me anything about Physics, Chemistry, or Mathematics concepts!",
+      text: "Hi! I'm your personal JEE doubt solver. Ask me anything about Physics, Chemistry, or Mathematics concepts!",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -151,7 +151,7 @@ export function AIAssistant() {
       {showWelcome && !isExpanded && (
         <div className="mb-3 mr-16 hidden sm:block">
           <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap relative">
-            Hi, I am Harshit Your Personal JEE Doubt Solver
+            ASK AI - Your Personal JEE Doubt Solver
             <div className="absolute right-[-8px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-8 border-l-primary border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
           </div>
         </div>
@@ -174,8 +174,8 @@ export function AIAssistant() {
           <CardHeader className="pb-3 flex-row items-center justify-between space-y-0 flex-shrink-0">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Bot className="h-5 w-5 text-primary" />
-              <span className="hidden sm:inline">Harshit - AI Tutor</span>
-              <span className="sm:hidden">Harshit</span>
+              <span className="hidden sm:inline">ASK AI - JEE Tutor</span>
+              <span className="sm:hidden">ASK AI</span>
             </CardTitle>
             <Button
               onClick={() => setIsExpanded(false)}
@@ -247,7 +247,7 @@ export function AIAssistant() {
                     </div>
                     <div className="bg-muted/50 rounded-lg p-2 sm:p-3 text-sm flex items-center gap-2">
                       <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                      <span className="hidden sm:inline">Harshit is thinking...</span>
+                      <span className="hidden sm:inline">AI is thinking...</span>
                       <span className="sm:hidden">Thinking...</span>
                     </div>
                   </div>
@@ -263,7 +263,7 @@ export function AIAssistant() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask Harshit about JEE concepts..."
+                placeholder="Ask AI about JEE concepts..."
                 disabled={isLoading}
                 className="flex-1 text-sm"
               />
