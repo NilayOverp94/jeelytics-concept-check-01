@@ -59,7 +59,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not found');
     }
 
-    const systemPrompt = `You are Harshit, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver. You specialize in Physics, Chemistry, and Mathematics concepts that are relevant to JEE preparation.
+    const systemPrompt = `You are ASK AI, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver. You specialize in Physics, Chemistry, and Mathematics concepts that are relevant to JEE preparation.
 
 Your personality:
 - Friendly, encouraging, and patient

@@ -1,5 +1,5 @@
 import useSEO from "@/hooks/useSEO";
-import AdSense from "@/components/AdSense";
+
 
 export default function Terms() {
   useSEO({
@@ -221,13 +221,6 @@ export default function Terms() {
           </section>
         </div>
 
-        {/* Ad Placement */}
-        <div className="mt-16">
-          <AdSense 
-            slot="5555555555" 
-            format="horizontal"
-          />
-        </div>
       </article>
     </main>
   );
