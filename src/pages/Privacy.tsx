@@ -1,5 +1,5 @@
 import useSEO from "@/hooks/useSEO";
-import AdSense from "@/components/AdSense";
+
 
 export default function Privacy() {
   useSEO({
@@ -165,13 +165,6 @@ export default function Privacy() {
           </section>
         </div>
 
-        {/* Ad Placement */}
-        <div className="mt-16">
-          <AdSense 
-            slot="4444444444" 
-            format="horizontal"
-          />
-        </div>
       </article>
     </main>
   );

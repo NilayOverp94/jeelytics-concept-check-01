@@ -1,5 +1,5 @@
 import useSEO from "@/hooks/useSEO";
-import AdSense from "@/components/AdSense";
+
 
 export default function Disclaimer() {
   useSEO({
@@ -207,13 +207,6 @@ export default function Disclaimer() {
           </section>
         </div>
 
-        {/* Ad Placement */}
-        <div className="mt-16">
-          <AdSense 
-            slot="3333333333" 
-            format="horizontal"
-          />
-        </div>
       </article>
     </main>
   );

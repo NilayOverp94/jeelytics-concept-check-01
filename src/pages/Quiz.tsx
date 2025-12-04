@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
-import AdSense from '@/components/AdSense';
+
 import { QuizLoadingScreen } from '@/components/QuizLoadingScreen';
 
 export default function Quiz() {
@@ -442,12 +442,6 @@ export default function Quiz() {
               </RadioGroup>
             )}
 
-            {/* Ad Placement */}
-            <AdSense 
-              slot="3333333333" 
-              format="auto"
-              className="-my-3"
-            />
 
             {/* Navigation */}
             <div className="flex justify-between pt-6">

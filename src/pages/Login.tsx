@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import useSEO from '@/hooks/useSEO';
-import AdSense from '@/components/AdSense';
+
 import logo from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -172,14 +172,6 @@ Sign in to continue your JEE preparation journey</p>
           </CardContent>
         </Card>
 
-        {/* Ad Placement */}
-        <div className="mt-8">
-          <AdSense 
-            slot="1111111111" 
-            format="horizontal"
-            className="max-w-md mx-auto"
-          />
-        </div>
       </div>
     </div>;
 }
