@@ -39,10 +39,17 @@ export default function Quiz() {
     difficulty?: 'cbse' | 'jee-mains' | 'jee-advanced';
   };
 
+  // Calculate time limit based on question count
+  const getTimeLimit = (count: number) => {
+    if (count >= 25) return 3600; // 1 hour for 25 questions
+    if (count >= 5) return 600;   // 10 minutes for 5 questions
+    return 300;                   // 5 minutes for 3 questions
+  };
+
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(getTimeLimit(questionCount));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [labelMaps, setLabelMaps] = useState<Record<string, Record<string, string>>>({});
   const [isGenerating, setIsGenerating] = useState(false);
@@ -311,7 +318,7 @@ export default function Quiz() {
         correctAnswers,
         score,
         totalQuestions: questions.length,
-        timeSpent: 300 - timeLeft
+        timeSpent: getTimeLimit(questionCount) - timeLeft
       }
     });
   };

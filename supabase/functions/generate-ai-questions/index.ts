@@ -67,8 +67,11 @@ serve(async (req) => {
 - Each question must match the specified difficulty level precisely.
 - For JEE Advanced: Create truly challenging olympiad-level questions that integrate multiple advanced concepts.
 - For CBSE: Create simple, straightforward questions testing basic understanding.
-- Use simple inline HTML tags only when necessary (<sub>, <sup>, <em>, <strong>).
-- Avoid LaTeX delimiters; prefer plain text or simple HTML for math; use x^2 and H2O or a<sup>2</sup> where needed.
+- CRITICAL FOR MATH: ALL mathematical expressions MUST be wrapped in dollar signs for LaTeX rendering:
+  - Use $...$ for inline math (e.g., $\\lambda$, $\\Delta x$, $\\frac{a}{b}$, $x^2$)
+  - Use $$...$$ for display math (larger equations)
+  - NEVER write raw LaTeX like \\lambda_e or \\frac{} without wrapping in $ delimiters
+  - Examples: "If $E_0 = 2mc^2$" NOT "If E_0 = 2mc^2" or "If \\E_0 = 2mc^2"
 - IMPORTANT: Keep explanations SHORT and CONCISE (2-4 sentences max). Just state the key concept/formula used and the solution steps briefly.
 - For integer type questions: Answer must be a single integer (no decimals, no ranges). Question should clearly state "Answer is an integer".`;
 
