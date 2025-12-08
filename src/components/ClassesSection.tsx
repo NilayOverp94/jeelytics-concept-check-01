@@ -1,0 +1,112 @@
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Play, FileText, ClipboardList } from 'lucide-react';
+
+interface Lecture {
+  id: string;
+  title: string;
+  subject: 'Physics' | 'Chemistry' | 'Mathematics';
+  topic: string;
+  youtubeId: string;
+  notesLink?: string;
+}
+
+const LECTURES: Lecture[] = [
+  {
+    id: '1',
+    title: 'Vectors - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Vectors',
+    youtubeId: 'sFL2-NxYBsM',
+    notesLink: '' // Will be provided later
+  }
+];
+
+export function ClassesSection() {
+  const navigate = useNavigate();
+
+  const handleStartTest = (subject: string, topic: string) => {
+    navigate('/quiz', {
+      state: {
+        subject,
+        topic,
+        useAI: true,
+        questionCount: 5,
+        difficulty: 'jee-mains'
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold mb-2 text-gradient-primary">Video Lectures</h2>
+        <p className="text-muted-foreground">Watch recorded lectures and practice with related tests</p>
+      </div>
+
+      <div className="grid gap-6">
+        {LECTURES.map((lecture) => (
+          <Card key={lecture.id} className="card-jee overflow-hidden">
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  lecture.subject === 'Physics' ? 'bg-primary/20 text-primary' :
+                  lecture.subject === 'Chemistry' ? 'bg-secondary/20 text-secondary' :
+                  'bg-accent/20 text-accent'
+                }`}>
+                  {lecture.subject}
+                </span>
+                <span className="text-xs text-muted-foreground">{lecture.topic}</span>
+              </div>
+              <CardTitle className="text-xl mt-2">{lecture.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* YouTube Embed */}
+              <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                <iframe
+                  src={`https://www.youtube.com/embed/${lecture.youtubeId}`}
+                  title={lecture.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 h-12"
+                  disabled={!lecture.notesLink}
+                  onClick={() => lecture.notesLink && window.open(lecture.notesLink, '_blank')}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  {lecture.notesLink ? 'View Notes' : 'Notes Coming Soon'}
+                </Button>
+                <Button
+                  variant="gradient"
+                  className="flex-1 h-12"
+                  onClick={() => handleStartTest(lecture.subject, lecture.topic)}
+                >
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  Practice Test (5 Qs)
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {LECTURES.length === 0 && (
+        <Card className="card-jee">
+          <CardContent className="py-12 text-center">
+            <Play className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Lectures Yet</h3>
+            <p className="text-muted-foreground">Check back soon for video lectures!</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AIAssistant } from '@/components/AIAssistant';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
+import { ClassesSection } from '@/components/ClassesSection';
 
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
@@ -190,39 +192,53 @@ export default function Home() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
-              Your Concept Strength Checker
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">Master JEE concepts with AI-powered assessments. Get instant feedback and personalized study tips!</p>
-            
-            {/* Stats */}
-            {userStats.totalTests > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <Card className="card-jee">
-                  <CardContent className="pt-6">
-                    <div className="text-3xl font-bold text-primary">{userStats.totalTests}</div>
-                    <div className="text-sm text-muted-foreground">Tests Taken</div>
-                  </CardContent>
-                </Card>
-                <Card className="card-jee">
-                  <CardContent className="pt-6">
-                    <div className="text-3xl font-bold text-secondary">
-                      {userStats.totalTests > 0 ? Math.round(userStats.totalScore / (userStats.totalTests * 5) * 100) : 0}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">Average Score</div>
-                  </CardContent>
-                </Card>
-                <Card className="card-jee">
-                  <CardContent className="pt-6">
-                    <div className="text-3xl font-bold text-accent">{userStats.streak}</div>
-                    <div className="text-sm text-muted-foreground">Day Streak</div>
-                  </CardContent>
-                </Card>
+          {/* Tabs */}
+          <Tabs defaultValue="tests" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8 h-14">
+              <TabsTrigger value="tests" className="text-lg h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
+                <ClipboardList className="mr-2 h-5 w-5" />
+                Tests
+              </TabsTrigger>
+              <TabsTrigger value="classes" className="text-lg h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
+                <GraduationCap className="mr-2 h-5 w-5" />
+                Classes
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="tests">
+              {/* Hero Section */}
+              <div className="text-center mb-12 animate-fade-in">
+                <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
+                  Your Concept Strength Checker
+                </h2>
+                <p className="text-xl text-muted-foreground mb-8">Master JEE concepts with AI-powered assessments. Get instant feedback and personalized study tips!</p>
+                
+                {/* Stats */}
+                {userStats.totalTests > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <Card className="card-jee">
+                      <CardContent className="pt-6">
+                        <div className="text-3xl font-bold text-primary">{userStats.totalTests}</div>
+                        <div className="text-sm text-muted-foreground">Tests Taken</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="card-jee">
+                      <CardContent className="pt-6">
+                        <div className="text-3xl font-bold text-secondary">
+                          {userStats.totalTests > 0 ? Math.round(userStats.totalScore / (userStats.totalTests * 5) * 100) : 0}%
+                        </div>
+                        <div className="text-sm text-muted-foreground">Average Score</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="card-jee">
+                      <CardContent className="pt-6">
+                        <div className="text-3xl font-bold text-accent">{userStats.streak}</div>
+                        <div className="text-sm text-muted-foreground">Day Streak</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
           {/* Test Configuration */}
           <Card className="card-jee animate-scale-in">
@@ -415,6 +431,12 @@ export default function Home() {
               </CardContent>
             </Card>
           </div>
+            </TabsContent>
+
+            <TabsContent value="classes">
+              <ClassesSection />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
