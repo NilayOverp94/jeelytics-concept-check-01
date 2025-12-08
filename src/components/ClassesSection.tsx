@@ -124,7 +124,7 @@ export function ClassesSection() {
       </div>
 
       {/* Search Bar */}
-      <div className="relative max-w-md mx-auto">
+      <div className="relative max-w-md mx-auto mb-6">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
@@ -136,22 +136,22 @@ export function ClassesSection() {
       </div>
 
       {/* Subject Tabs */}
-      <Tabs value={activeSubject} onValueChange={(value) => setActiveSubject(value as Subject)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="Mathematics" value={activeSubject} onValueChange={(value) => setActiveSubject(value as Subject)} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="Physics">Physics</TabsTrigger>
           <TabsTrigger value="Chemistry">Chemistry</TabsTrigger>
           <TabsTrigger value="Mathematics">Maths</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="Physics" className="mt-6">
+        <TabsContent value="Physics">
           <ComingSoonCard />
         </TabsContent>
 
-        <TabsContent value="Chemistry" className="mt-6">
+        <TabsContent value="Chemistry">
           <ComingSoonCard />
         </TabsContent>
 
-        <TabsContent value="Mathematics" className="mt-6">
+        <TabsContent value="Mathematics">
           <div className="grid gap-6">
             {filteredLectures.length > 0 ? (
               filteredLectures.map((lecture) => (
