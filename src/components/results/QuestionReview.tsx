@@ -2,6 +2,7 @@ import { CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MCQQuestion } from '@/types/jee';
 import DOMPurify from 'dompurify';
+import katex from 'katex';
 
 interface QuestionReviewProps {
   questions: MCQQuestion[];
@@ -11,9 +12,33 @@ interface QuestionReviewProps {
 }
 
 export function QuestionReview({ questions, userAnswers, correctAnswers, useAI = false }: QuestionReviewProps) {
-  // Helper function to safely render HTML content for AI questions
+  // Convert LaTeX to KaTeX HTML
+  const renderMathToHTML = (input: string) => {
+    try {
+      let out = input ?? '';
+      const render = (expr: string, displayMode: boolean) => {
+        try {
+          return katex.renderToString(expr, { displayMode, throwOnError: false, output: 'html' });
+        } catch {
+          return expr;
+        }
+      };
+      // Display math first
+      out = out.replace(/\\\[([\s\S]+?)\\\]/g, (_, expr) => render(expr, true));
+      out = out.replace(/\$\$([\s\S]+?)\$\$/g, (_, expr) => render(expr, true));
+      // Inline math
+      out = out.replace(/\\\(([^]*?)\\\)/g, (_, expr) => render(expr, false));
+      out = out.replace(/\$([^$]+?)\$/g, (_, expr) => render(expr, false));
+      return out;
+    } catch {
+      return input ?? '';
+    }
+  };
+
+  // Helper function to safely render HTML content with LaTeX support
   const createSafeMarkup = (html: string) => {
-    return { __html: DOMPurify.sanitize(html) };
+    const withMath = renderMathToHTML(html);
+    return { __html: DOMPurify.sanitize(withMath) };
   };
   return (
     <Card className="card-jee mb-8 animate-scale-in">
