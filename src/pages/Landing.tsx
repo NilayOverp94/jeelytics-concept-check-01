@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Brain, BookOpen, Calculator, Zap, TrendingUp, Target, Clock, Award } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, TrendingUp, Target, Clock, Award, Play, FileText, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -86,7 +86,39 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* New Features Announcement */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto p-6 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 rounded-xl">
+          <div className="flex items-center gap-2 mb-4 justify-center">
+            <Sparkles className="h-6 w-6 text-primary" />
+            <h3 className="text-xl font-bold text-primary">New Features Available!</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg">
+              <Play className="h-10 w-10 text-secondary flex-shrink-0" />
+              <div>
+                <p className="font-semibold">Recorded Lectures</p>
+                <p className="text-sm text-muted-foreground">Video lessons from experts</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg">
+              <FileText className="h-10 w-10 text-accent flex-shrink-0" />
+              <div>
+                <p className="font-semibold">Notes & Resources</p>
+                <p className="text-sm text-muted-foreground">Study materials included</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg">
+              <Sparkles className="h-10 w-10 text-primary flex-shrink-0" />
+              <div>
+                <p className="font-semibold">More Coming Soon</p>
+                <p className="text-sm text-muted-foreground">Stay tuned for updates!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="container mx-auto px-4 py-16 bg-muted/30">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gradient-primary">
           Why Choose JEElytics?
