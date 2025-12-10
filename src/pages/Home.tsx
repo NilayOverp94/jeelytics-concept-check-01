@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -206,6 +206,40 @@ export default function Home() {
             </TabsList>
 
             <TabsContent value="tests">
+              {/* New Features Announcement */}
+              <div className="mb-8 p-4 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 rounded-xl animate-fade-in">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold text-primary">New Features Available!</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                    <Play className="h-8 w-8 text-secondary" />
+                    <div>
+                      <p className="font-medium text-sm">Recorded Lectures</p>
+                      <p className="text-xs text-muted-foreground">Video lessons from experts</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                    <FileText className="h-8 w-8 text-accent" />
+                    <div>
+                      <p className="font-medium text-sm">Notes & Resources</p>
+                      <p className="text-xs text-muted-foreground">Study materials coming soon</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                    <Sparkles className="h-8 w-8 text-primary" />
+                    <div>
+                      <p className="font-medium text-sm">More Coming Soon</p>
+                      <p className="text-xs text-muted-foreground">Stay tuned for updates!</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3 text-center">
+                  Check out the <span className="font-semibold text-secondary">Classes</span> tab to access recorded lectures!
+                </p>
+              </div>
+
               {/* Hero Section */}
               <div className="text-center mb-12 animate-fade-in">
                 <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
