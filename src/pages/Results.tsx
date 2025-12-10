@@ -38,6 +38,8 @@ export default function Results() {
     score: number;
     totalQuestions: number;
     timeSpent: number;
+    questionCount?: number;
+    difficulty?: 'cbse' | 'jee-mains' | 'jee-advanced';
   } | null;
 
   // Check if we have the required data
@@ -56,7 +58,9 @@ export default function Results() {
     correctAnswers,
     score,
     totalQuestions,
-    timeSpent
+    timeSpent,
+    questionCount = totalQuestions,
+    difficulty = 'jee-mains'
   } = locationState;
 
   useEffect(() => {
@@ -307,6 +311,8 @@ export default function Results() {
     conceptStrength,
     streak: userStats.streak,
     randomQuote,
+    questionCount,
+    difficulty,
   });
 
   // Early returns after all hooks

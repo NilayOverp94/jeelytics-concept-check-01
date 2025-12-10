@@ -12,6 +12,8 @@ interface UseResultsHandlersProps {
   conceptStrength: 'Strong' | 'Moderate' | 'Weak';
   streak: number;
   randomQuote: string;
+  questionCount?: number;
+  difficulty?: 'cbse' | 'jee-mains' | 'jee-advanced';
 }
 
 export function useResultsHandlers({
@@ -23,12 +25,17 @@ export function useResultsHandlers({
   conceptStrength,
   streak,
   randomQuote,
+  questionCount = 5,
+  difficulty = 'jee-mains',
 }: UseResultsHandlersProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleTryAgain = () => {
-    navigate('/quiz', { state: { subject, topic } });
+    // Clear cache to get fresh questions
+    const cacheKey = `ai-questions:${subject}:${topic}:${questionCount}:${difficulty}`;
+    localStorage.removeItem(cacheKey);
+    navigate('/quiz', { state: { subject, topic, questionCount, difficulty, useAI: true } });
   };
 
   const handlePickAnother = () => {

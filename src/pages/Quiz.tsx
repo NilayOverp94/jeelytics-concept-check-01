@@ -318,7 +318,9 @@ export default function Quiz() {
         correctAnswers,
         score,
         totalQuestions: questions.length,
-        timeSpent: getTimeLimit(questionCount) - timeLeft
+        timeSpent: getTimeLimit(questionCount) - timeLeft,
+        questionCount,
+        difficulty
       }
     });
   };
