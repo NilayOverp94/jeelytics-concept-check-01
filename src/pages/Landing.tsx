@@ -27,29 +27,30 @@ export default function Landing() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-safe">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 sm:py-4">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 pt-safe">
+        <div className="container mx-auto px-3 sm:px-4 py-3">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <img
                 src={logo}
                 alt="JEElytics logo"
                 className="h-8 w-8 rounded"
                 loading="eager"
               />
-              <h1 className="text-2xl font-bold text-gradient-primary">
+              <h1 className="text-xl sm:text-2xl font-bold text-gradient-primary">
                 JEElytics
               </h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <ThemeToggle />
-              <Button variant="outline" onClick={() => navigate('/login')}>
+              <Button variant="outline" size="sm" className="hidden sm:inline-flex" onClick={() => navigate('/login')}>
                 Log In
               </Button>
-              <Button variant="gradient" onClick={() => navigate('/signup')}>
-                Sign Up
+              <Button variant="gradient" size="sm" className="text-sm sm:text-base btn-mobile" onClick={() => navigate('/signup')}>
+                <span className="sm:hidden">Start</span>
+                <span className="hidden sm:inline">Sign Up</span>
               </Button>
             </div>
           </div>
@@ -57,19 +58,19 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
+      <section className="container mx-auto px-4 py-10 sm:py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-gradient-primary animate-fade-in">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 text-gradient-primary animate-fade-in leading-tight">
             Master JEE Concepts with AI
           </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 animate-fade-in">
-            Your intelligent JEE concept strength checker. Get AI-powered assessments, instant feedback, and personalized study recommendations for Physics, Chemistry, and Mathematics.
+          <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-8 animate-fade-in px-2">
+            Your intelligent JEE concept strength checker. Get AI-powered assessments, instant feedback, and personalized study recommendations.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center animate-scale-in px-4">
             <Button 
               size="lg" 
               variant="gradient" 
-              className="text-lg px-8 py-6 h-auto"
+              className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto btn-mobile w-full sm:w-auto"
               onClick={() => navigate('/signup')}
             >
               Start Free Practice 🚀
@@ -77,7 +78,7 @@ export default function Landing() {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-lg px-8 py-6 h-auto"
+              className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto btn-mobile w-full sm:w-auto"
               onClick={() => navigate('/login')}
             >
               I Have an Account
@@ -87,32 +88,32 @@ export default function Landing() {
       </section>
 
       {/* New Features Announcement */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto p-6 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 rounded-xl">
-          <div className="flex items-center gap-2 mb-4 justify-center">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <h3 className="text-xl font-bold text-primary">New Features Available!</h3>
+      <section className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 rounded-xl">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4 justify-center">
+            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <h3 className="text-lg sm:text-xl font-bold text-primary">New Features!</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg">
-              <Play className="h-10 w-10 text-secondary flex-shrink-0" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+            <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
+              <Play className="h-8 w-8 sm:h-10 sm:w-10 text-secondary flex-shrink-0" />
               <div>
-                <p className="font-semibold">Recorded Lectures</p>
-                <p className="text-sm text-muted-foreground">Video lessons from experts</p>
+                <p className="font-semibold text-sm sm:text-base">Recorded Lectures</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Video lessons from experts</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg">
-              <FileText className="h-10 w-10 text-accent flex-shrink-0" />
+            <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
+              <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-semibold">Notes & Resources</p>
-                <p className="text-sm text-muted-foreground">Study materials included</p>
+                <p className="font-semibold text-sm sm:text-base">Notes & Resources</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Study materials included</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg">
-              <Sparkles className="h-10 w-10 text-primary flex-shrink-0" />
+            <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
+              <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 text-primary flex-shrink-0" />
               <div>
-                <p className="font-semibold">More Coming Soon</p>
-                <p className="text-sm text-muted-foreground">Stay tuned for updates!</p>
+                <p className="font-semibold text-sm sm:text-base">More Coming Soon</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Stay tuned for updates!</p>
               </div>
             </div>
           </div>
