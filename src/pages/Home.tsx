@@ -149,19 +149,19 @@ export default function Home() {
   const isStartDisabled = !selectedSubject || !selectedTopic;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-safe">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
-            <div className="flex items-center gap-3">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 pt-safe">
+        <div className="container mx-auto px-3 sm:px-4 py-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 sm:gap-3">
               <img
                 src={logo}
                 alt="JEElytics logo"
                 className="h-8 w-8 rounded"
                 loading="eager"
               />
-              <h1 className="text-2xl font-bold text-gradient-primary">
+              <h1 className="text-xl sm:text-2xl font-bold text-gradient-primary">
                 JEElytics
               </h1>
             </div>
@@ -170,15 +170,15 @@ export default function Home() {
               <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
+                  <Button variant="ghost" size="icon" className="rounded-full touch-target">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-popover border border-border">
-                  <DropdownMenuItem disabled className="font-medium">
+                  <DropdownMenuItem disabled className="font-medium text-sm">
                     {user?.user_metadata?.name || user?.email}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive touch-target">
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>
@@ -190,17 +190,17 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-safe">
         <div className="max-w-4xl mx-auto">
           {/* Tabs */}
           <Tabs defaultValue="tests" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 h-14">
-              <TabsTrigger value="tests" className="text-lg h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
-                <ClipboardList className="mr-2 h-5 w-5" />
+            <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8 h-12 sm:h-14">
+              <TabsTrigger value="tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
+                <ClipboardList className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Tests
               </TabsTrigger>
-              <TabsTrigger value="classes" className="text-lg h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
-                <GraduationCap className="mr-2 h-5 w-5" />
+              <TabsTrigger value="classes" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
+                <GraduationCap className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Classes
               </TabsTrigger>
             </TabsList>
@@ -241,11 +241,11 @@ export default function Home() {
               </div>
 
               {/* Hero Section */}
-              <div className="text-center mb-12 animate-fade-in">
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-primary">
+              <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gradient-primary leading-tight">
                   Your Concept Strength Checker
                 </h2>
-                <p className="text-xl text-muted-foreground mb-8">Master JEE concepts with AI-powered assessments. Get instant feedback and personalized study tips!</p>
+                <p className="text-base sm:text-xl text-muted-foreground mb-6 sm:mb-8 px-2">Master JEE concepts with AI-powered assessments!</p>
                 
                 {/* Stats */}
                 {userStats.totalTests > 0 && (
@@ -420,10 +420,10 @@ export default function Home() {
               <div className="pt-4">
                 <Button
                   variant={isStartDisabled ? "outline" : "gradient"}
-                  className={`w-full h-14 text-lg font-semibold ${
+                  className={`w-full h-12 sm:h-14 text-base sm:text-lg font-semibold btn-mobile ${
                     isStartDisabled 
                       ? 'opacity-50 cursor-not-allowed' 
-                      : 'hover:scale-105 transform transition-all'
+                      : 'hover:scale-105 transform transition-all active:scale-[0.98]'
                   }`}
                   onClick={handleStartTest}
                   disabled={isStartDisabled}

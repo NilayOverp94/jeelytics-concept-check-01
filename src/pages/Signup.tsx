@@ -124,32 +124,32 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-safe pb-safe">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <img src={logo} alt="JEElytics Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-gradient-primary mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gradient-primary mb-2">
             Join JEElytics
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-4">
             Create your account and start your JEE preparation journey
           </p>
         </div>
 
         {/* Signup Form */}
-        <Card className="card-jee">
-          <CardHeader>
-            <CardTitle className="text-center">Create Account</CardTitle>
+        <Card className="card-jee mx-2 sm:mx-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-center text-lg sm:text-xl">Create Account</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name" className="text-sm">Full Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="name"
                     name="name"
@@ -157,16 +157,16 @@ export default function Signup() {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="pl-10"
+                    className="pl-10 h-12 text-base"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     name="email"
@@ -174,16 +174,16 @@ export default function Signup() {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="pl-10"
+                    className="pl-10 h-12 text-base"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     name="password"
@@ -191,13 +191,13 @@ export default function Signup() {
                     placeholder="Create a password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 h-12 text-base"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground touch-target"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -205,9 +205,9 @@ export default function Signup() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-sm">Confirm Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
@@ -215,7 +215,7 @@ export default function Signup() {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="pl-10"
+                    className="pl-10 h-12 text-base"
                     required
                   />
                 </div>
@@ -224,7 +224,7 @@ export default function Signup() {
               <Button
                 type="submit"
                 variant="gradient"
-                className="w-full"
+                className="w-full h-12 text-base btn-mobile"
                 disabled={loading}
               >
                 {loading ? "Creating Account..." : "Create Account"}
@@ -235,7 +235,7 @@ export default function Signup() {
               <span className="text-muted-foreground">Already have an account? </span>
               <Link
                 to="/login"
-                className="text-primary hover:text-primary-glow font-medium"
+                className="text-primary hover:text-primary-glow font-medium touch-target inline-block py-1"
               >
                 Sign in
               </Link>
