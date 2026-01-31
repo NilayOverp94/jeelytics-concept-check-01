@@ -21,7 +21,71 @@ const LECTURES: Lecture[] = [
     title: 'Vectors - Complete Lecture',
     subject: 'Mathematics',
     topic: 'Vectors',
-    youtubeId: 'sFL2-NxYBsM',
+    youtubeId: 'cS64-wAFDuI',
+    notesLink: ''
+  },
+  {
+    id: '2',
+    title: 'Matrices - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Matrices and Determinants',
+    youtubeId: 'ZtTDs2FZ2Qw',
+    notesLink: ''
+  },
+  {
+    id: '3',
+    title: 'Basic Math - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Algebra',
+    youtubeId: 'UCdxT4d8k5c',
+    notesLink: ''
+  },
+  {
+    id: '4',
+    title: 'Determinants - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Matrices and Determinants',
+    youtubeId: 'hEFge5SsIz0',
+    notesLink: ''
+  },
+  {
+    id: '5',
+    title: 'Quadratic Equations - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Algebra',
+    youtubeId: 'yejWh3kni-o',
+    notesLink: ''
+  },
+  {
+    id: '6',
+    title: 'Sequence and Series - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Sequences and Series',
+    youtubeId: 'zOdUhsMydtM',
+    notesLink: ''
+  },
+  {
+    id: '7',
+    title: '3D Geometry - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Coordinate Geometry',
+    youtubeId: '7v2vYv6Pl7g',
+    notesLink: ''
+  },
+  {
+    id: '8',
+    title: 'Binomial Theorem - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Binomial Theorem',
+    youtubeId: 'YiY0Z5sQ47U',
+    notesLink: ''
+  },
+  {
+    id: '9',
+    title: 'Relations & Functions - Complete Lecture',
+    subject: 'Mathematics',
+    topic: 'Functions',
+    youtubeId: 'NKth1h8pr7s',
     notesLink: ''
   }
 ];
