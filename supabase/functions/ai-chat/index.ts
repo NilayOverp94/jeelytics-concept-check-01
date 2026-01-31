@@ -7,6 +7,32 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Available lectures for reference
+const AVAILABLE_LECTURES = [
+  'Vectors', 'Matrices', 'Basic Math', 'Determinants', 'Quadratic Equations',
+  'Sequence and Series', '3D Geometry', 'Binomial Theorem', 'Relations & Functions',
+  'Permutation & Combination', 'Inverse Trigonometric Functions', 'Trigonometric Functions & Equations',
+  'Straight Lines', 'Definite Integration', 'Circles', 'Limits, Continuity & Differentiability',
+  'Parabola', 'Application of Derivatives', 'Hyperbola', 'Complex Numbers', 'Statistics',
+  'Differential Equations', 'Probability', 'Methods of Differentiation', 'Indefinite Integration',
+  'Ellipse', 'Area Under Curves', 'Sets'
+];
+
+// Available topics for tests
+const AVAILABLE_TOPICS = {
+  Physics: ['Mechanics', 'Thermodynamics', 'Waves & Oscillations', 'Optics', 
+    'Electricity & Magnetism', 'Modern Physics', 'Current Electricity',
+    'Electromagnetic Induction', 'AC Circuits', 'Atomic Physics', 'Semiconductors'],
+  Chemistry: ['Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry', 
+    'Chemical Bonding', 'Thermodynamics', 'Electrochemistry',
+    'Chemical Kinetics', 'Coordination Compounds', 'P-Block Elements',
+    'S-Block Elements', 'Hydrocarbons', 'Alcohols & Ethers'],
+  Mathematics: ['Algebra', 'Trigonometry', 'Calculus', 'Coordinate Geometry',
+    'Vectors', 'Probability', 'Statistics', 'Complex Numbers',
+    'Sequences & Series', 'Matrices & Determinants', 'Functions',
+    'Binomial Theorem', 'Permutations & Combinations']
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -59,7 +85,34 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not found');
     }
 
-    const systemPrompt = `You are ASK AI, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver. You specialize in Physics, Chemistry, and Mathematics concepts that are relevant to JEE preparation.
+    const systemPrompt = `You are ASK AI, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver and assistant. You specialize in Physics, Chemistry, and Mathematics concepts.
+
+IMPORTANT: You have special capabilities to help students:
+
+1. **OPEN LECTURES**: When a user asks to open/watch/show a video lecture, you MUST respond with a JSON command block.
+   Available lectures (Mathematics only for now): ${AVAILABLE_LECTURES.join(', ')}
+   
+   When user asks something like "open Sets lecture", "show me the video on Calculus", "play Vectors lecture":
+   Respond with:
+   \`\`\`command
+   {"type": "open_lecture", "lectureSearch": "Sets"}
+   \`\`\`
+   Then add a friendly message like "Opening the Sets lecture for you! 📺"
+
+2. **START TESTS**: When a user asks to generate/start a test/quiz, you MUST respond with a JSON command block.
+   Available subjects: Physics, Chemistry, Mathematics
+   Available topics: ${JSON.stringify(AVAILABLE_TOPICS)}
+   Difficulty levels: cbse, jee-mains, jee-advanced
+   Question count: 3 to 25 (default 5)
+   
+   When user asks something like "generate a test on semiconductors", "start a quiz on Mechanics", "give me 10 questions on Organic Chemistry JEE Advanced":
+   Respond with:
+   \`\`\`command
+   {"type": "start_test", "subject": "Physics", "topic": "Semiconductors", "difficulty": "jee-mains", "questionCount": 5}
+   \`\`\`
+   Then add a friendly message like "Starting your Semiconductors test! Good luck! 🎯"
+
+3. **REGULAR QUESTIONS**: For JEE concept doubts, provide helpful explanations as usual.
 
 Your personality:
 - Friendly, encouraging, and patient
@@ -68,15 +121,14 @@ Your personality:
 - Use simple language but maintain technical accuracy
 - Add motivational elements when appropriate
 
-Guidelines:
+Guidelines for regular questions:
 - For math problems, show step-by-step solutions
 - For physics concepts, explain the underlying principles
 - For chemistry, focus on reactions, mechanisms, and concepts
 - Always mention if a topic is frequently tested in JEE
 - Keep responses concise but complete
-- Use encouraging language like "Great question!" or "This is an important topic for JEE!"
 
-Remember: You're here to help students succeed in their JEE preparation.`;
+Remember: Always use the command blocks when users ask to open lectures or start tests. The command block MUST be wrapped in \`\`\`command ... \`\`\` tags for the system to recognize it.`;
 
     // Build messages array for OpenAI-compatible API
     const messages: any[] = [
@@ -150,7 +202,28 @@ Remember: You're here to help students succeed in their JEE preparation.`;
       throw new Error('Invalid response format from Lovable AI Gateway');
     }
 
-    return new Response(JSON.stringify({ response: aiResponse }), {
+    // Parse for command blocks
+    const commandRegex = /```command\s*([\s\S]*?)```/g;
+    const commandMatch = commandRegex.exec(aiResponse);
+    
+    let command = null;
+    let cleanResponse = aiResponse;
+    
+    if (commandMatch) {
+      try {
+        command = JSON.parse(commandMatch[1].trim());
+        // Remove the command block from the response shown to user
+        cleanResponse = aiResponse.replace(commandRegex, '').trim();
+        console.log('Detected command:', command);
+      } catch (e) {
+        console.error('Failed to parse command:', e);
+      }
+    }
+
+    return new Response(JSON.stringify({ 
+      response: cleanResponse,
+      command: command 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

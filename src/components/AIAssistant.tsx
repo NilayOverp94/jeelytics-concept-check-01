@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAICommand, AICommand } from '@/contexts/AICommandContext';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -20,10 +21,11 @@ interface Message {
 
 export function AIAssistant() {
   const { user, isAuthenticated } = useAuth();
+  const { executeCommand } = useAICommand();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm your personal JEE doubt solver. Ask me anything about Physics, Chemistry, or Mathematics concepts!",
+      text: "Hi! I'm ASK AI, your personal JEE assistant! 🎯\n\nI can help you with:\n- **Doubt solving** - Ask me anything about Physics, Chemistry, or Maths\n- **Open lectures** - Say \"open Sets lecture\" or \"show me Calculus video\"\n- **Start tests** - Say \"generate a test on Semiconductors JEE Mains\" or \"5 questions on Algebra\"",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -120,6 +122,16 @@ export function AIAssistant() {
       };
 
       setMessages(prev => [...prev, aiMessage]);
+
+      // Execute command if present
+      if (data.command) {
+        console.log('🤖 Received command from AI:', data.command);
+        // Collapse the chat and execute command after a short delay
+        setTimeout(() => {
+          setIsExpanded(false);
+          executeCommand(data.command as AICommand);
+        }, 500);
+      }
     } catch (error) {
       console.error('Error calling AI function:', error);
       
@@ -151,7 +163,7 @@ export function AIAssistant() {
       {showWelcome && !isExpanded && (
         <div className="mb-3 mr-16 hidden sm:block">
           <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap relative">
-            ASK AI - Your Personal JEE Doubt Solver
+            ASK AI - Your Personal JEE Assistant
             <div className="absolute right-[-8px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-8 border-l-primary border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
           </div>
         </div>
@@ -174,7 +186,7 @@ export function AIAssistant() {
           <CardHeader className="pb-3 flex-row items-center justify-between space-y-0 flex-shrink-0">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Bot className="h-5 w-5 text-primary" />
-              <span className="hidden sm:inline">ASK AI - JEE Tutor</span>
+              <span className="hidden sm:inline">ASK AI - JEE Assistant</span>
               <span className="sm:hidden">ASK AI</span>
             </CardTitle>
             <Button
@@ -263,7 +275,7 @@ export function AIAssistant() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask AI about JEE concepts..."
+                placeholder="Ask anything or try 'open Sets lecture'"
                 disabled={isLoading}
                 className="flex-1 text-sm"
               />

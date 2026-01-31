@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Switch } from '@/components/ui/switch';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StreakDisplay } from '@/components/StreakDisplay';
 import { SUBJECTS, Subject } from '@/types/jee';
@@ -18,6 +17,7 @@ import { AIAssistant } from '@/components/AIAssistant';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import { ClassesSection } from '@/components/ClassesSection';
+import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
 
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
@@ -31,7 +31,9 @@ const SUBJECT_COLORS: Record<Subject, string> = {
   Mathematics: 'from-accent to-accent-glow'
 };
 
-export default function Home() {
+function HomeContent() {
+  const { activeTab, setActiveTab } = useAICommand();
+  
   useSEO({
     title: "Dashboard | JEElytics - Your JEE Practice Hub",
     description: "Start your AI-powered JEE practice test. Choose from Physics, Chemistry, and Mathematics topics at your preferred difficulty level.",
@@ -193,7 +195,7 @@ export default function Home() {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-safe">
         <div className="max-w-4xl mx-auto">
           {/* Tabs */}
-          <Tabs defaultValue="tests" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8 h-12 sm:h-14">
               <TabsTrigger value="tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
                 <ClipboardList className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -477,5 +479,14 @@ export default function Home() {
       {/* AI Assistant - Floating */}
       <AIAssistant />
     </div>
+  );
+}
+
+// Wrapper component with AICommandProvider
+export default function Home() {
+  return (
+    <AICommandProvider>
+      <HomeContent />
+    </AICommandProvider>
   );
 }
