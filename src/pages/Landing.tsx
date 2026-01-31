@@ -256,21 +256,21 @@ export default function Landing() {
 
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gradient-primary">
+      <section className="container mx-auto px-3 sm:px-4 py-10 sm:py-16">
+        <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-5 sm:p-8 md:p-12 border border-primary/20">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-gradient-primary">
             Ready to Ace JEE?
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="text-base sm:text-lg text-muted-foreground mb-5 sm:mb-8 px-2">
             Join thousands of students improving their JEE preparation with AI-powered practice
           </p>
           <Button 
             size="lg" 
             variant="gradient" 
-            className="text-lg px-8 py-6 h-auto"
+            className="text-sm sm:text-lg px-4 sm:px-8 py-5 sm:py-6 h-auto w-full sm:w-auto btn-mobile"
             onClick={() => navigate('/signup')}
           >
-            Start Your Free Practice Today 🚀
+            Start Free Practice 🚀
           </Button>
         </div>
       </section>
