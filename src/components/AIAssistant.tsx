@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Bot, User, Loader2, MessageCircle, X, Mic, MicOff } from 'lucide-react';
+import { Send, Bot, User, Loader2, MessageCircle, X, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ interface Message {
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  fromVoice?: boolean; // Track if message was from voice input
 }
 
 // Declare SpeechRecognition types for TypeScript
@@ -64,6 +65,56 @@ declare global {
   }
 }
 
+// Text-to-Speech utility
+const speakText = (text: string, onEnd?: () => void): SpeechSynthesisUtterance | null => {
+  if (!('speechSynthesis' in window)) {
+    console.warn('Text-to-speech not supported');
+    return null;
+  }
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  // Clean the text - remove markdown formatting for better speech
+  const cleanText = text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+    .replace(/\*(.*?)\*/g, '$1') // Remove italic
+    .replace(/`(.*?)`/g, '$1') // Remove code
+    .replace(/#{1,6}\s/g, '') // Remove headers
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+    .replace(/[-*]\s/g, '') // Remove list markers
+    .replace(/\n+/g, '. ') // Replace newlines with pauses
+    .trim();
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+  
+  // Try to get a good English voice
+  const voices = window.speechSynthesis.getVoices();
+  const englishVoice = voices.find(v => 
+    v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural'))
+  ) || voices.find(v => v.lang.startsWith('en'));
+  
+  if (englishVoice) {
+    utterance.voice = englishVoice;
+  }
+
+  if (onEnd) {
+    utterance.onend = onEnd;
+  }
+
+  window.speechSynthesis.speak(utterance);
+  return utterance;
+};
+
+const stopSpeaking = () => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+};
+
 export function AIAssistant() {
   const { user, isAuthenticated } = useAuth();
   const { executeCommand } = useAICommand();
@@ -80,6 +131,9 @@ export function AIAssistant() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [pendingVoiceResponse, setPendingVoiceResponse] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -175,14 +229,20 @@ export function AIAssistant() {
   }
 
   // Core function to send a message to the AI
-  const sendMessageToAI = async (messageText: string) => {
+  const sendMessageToAI = async (messageText: string, fromVoice: boolean = false) => {
     if (!messageText.trim() || isLoading) return;
+
+    // If from voice, set pending flag for auto-speak
+    if (fromVoice) {
+      setPendingVoiceResponse(true);
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
       text: messageText.trim(),
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      fromVoice
     };
 
     setInputValue('');
@@ -232,14 +292,22 @@ export function AIAssistant() {
         throw new Error('Invalid response from AI');
       }
 
+      const aiMessageId = (Date.now() + 1).toString();
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: aiMessageId,
         text: data.response,
         sender: 'ai',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiMessage]);
+
+      // Auto-speak if this was a voice command response
+      if (fromVoice) {
+        setTimeout(() => {
+          handleSpeak(aiMessageId, data.response);
+        }, 200);
+      }
 
       // Execute command if present
       if (data.command) {
@@ -263,19 +331,40 @@ export function AIAssistant() {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setPendingVoiceResponse(false);
       // Focus input after message is sent
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
+  // Handle speaking a message
+  const handleSpeak = (messageId: string, text: string) => {
+    if (isSpeaking && speakingMessageId === messageId) {
+      // Stop speaking if same message
+      stopSpeaking();
+      setIsSpeaking(false);
+      setSpeakingMessageId(null);
+    } else {
+      // Start speaking
+      stopSpeaking(); // Stop any current speech first
+      setIsSpeaking(true);
+      setSpeakingMessageId(messageId);
+      
+      speakText(text, () => {
+        setIsSpeaking(false);
+        setSpeakingMessageId(null);
+      });
+    }
+  };
+
   // Handler for voice messages
   const handleVoiceMessage = (transcript: string) => {
-    sendMessageToAI(transcript);
+    sendMessageToAI(transcript, true); // true = from voice
   };
 
   // Handler for typed messages
   const handleSendMessage = () => {
-    sendMessageToAI(inputValue);
+    sendMessageToAI(inputValue, false); // false = from keyboard
   };
 
   // Toggle voice listening
@@ -392,6 +481,30 @@ export function AIAssistant() {
                           {message.text}
                         </ReactMarkdown>
                       </div>
+                      
+                      {/* Speaker button for AI messages */}
+                      {message.sender === 'ai' && message.id !== '1' && (
+                        <button
+                          onClick={() => handleSpeak(message.id, message.text)}
+                          className={cn(
+                            "mt-2 p-1 rounded-full hover:bg-primary/10 transition-colors inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary",
+                            speakingMessageId === message.id && "text-primary bg-primary/10"
+                          )}
+                          title={speakingMessageId === message.id ? "Stop speaking" : "Read aloud"}
+                        >
+                          {speakingMessageId === message.id ? (
+                            <>
+                              <VolumeX className="h-3 w-3" />
+                              <span className="hidden sm:inline">Stop</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="h-3 w-3" />
+                              <span className="hidden sm:inline">Listen</span>
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                     
                     {message.sender === 'user' && (
