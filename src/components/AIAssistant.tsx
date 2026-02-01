@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, MessageCircle, X } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Bot, User, Loader2, MessageCircle, X, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { useAICommand, AICommand } from '@/contexts/AICommandContext';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -19,13 +20,57 @@ interface Message {
   timestamp: Date;
 }
 
+// Declare SpeechRecognition types for TypeScript
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event & { error: string }) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export function AIAssistant() {
   const { user, isAuthenticated } = useAuth();
   const { executeCommand } = useAICommand();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm ASK AI, your personal JEE assistant! 🎯\n\nI can help you with:\n- **Doubt solving** - Ask me anything about Physics, Chemistry, or Maths\n- **Open lectures** - Say \"open Sets lecture\" or \"show me Calculus video\"\n- **Start tests** - Say \"generate a test on Semiconductors JEE Mains\" or \"5 questions on Algebra\"",
+      text: "Hi! I'm ASK AI, your personal JEE assistant! 🎯\n\nI can help you with:\n- **Doubt solving** - Ask me anything about Physics, Chemistry, or Maths\n- **Open lectures** - Say \"open Sets lecture\" or \"show me Calculus video\"\n- **Start tests** - Say \"generate a test on Semiconductors JEE Mains\" or \"5 questions on Algebra\"\n- **🎤 Voice commands** - Tap the mic button to speak!",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -34,9 +79,82 @@ export function AIAssistant() {
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognitionAPI) {
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        console.log('🎤 Speech recognition started');
+        setIsListening(true);
+      };
+      
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        // Update input with interim results for visual feedback
+        if (interimTranscript) {
+          setInputValue(interimTranscript);
+        }
+        
+        // When we get a final result, send the message
+        if (finalTranscript) {
+          setInputValue(finalTranscript);
+          // Auto-send after getting final transcript
+          setTimeout(() => {
+            handleVoiceMessage(finalTranscript);
+          }, 300);
+        }
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('🎤 Speech recognition error:', event.error);
+        setIsListening(false);
+        
+        if (event.error === 'not-allowed') {
+          toast.error('Microphone access denied. Please enable it in your browser settings.');
+        } else if (event.error === 'no-speech') {
+          toast.info('No speech detected. Try again!');
+        } else {
+          toast.error(`Voice recognition error: ${event.error}`);
+        }
+      };
+      
+      recognition.onend = () => {
+        console.log('🎤 Speech recognition ended');
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
 
   // Auto scroll to bottom when new messages or loading state changes
   useEffect(() => {
@@ -56,17 +174,17 @@ export function AIAssistant() {
     return null;
   }
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  // Core function to send a message to the AI
+  const sendMessageToAI = async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputValue.trim(),
+      text: messageText.trim(),
       sender: 'user',
       timestamp: new Date()
     };
 
-    const currentInput = inputValue.trim();
     setInputValue('');
     setIsLoading(true);
 
@@ -85,7 +203,7 @@ export function AIAssistant() {
       // Add current user message
       conversationHistory.push({
         role: 'user',
-        content: currentInput
+        content: messageText.trim()
       });
 
       // Get current session for auth token
@@ -100,7 +218,7 @@ export function AIAssistant() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: { 
-          message: currentInput,
+          message: messageText.trim(),
           conversationHistory: conversationHistory
         }
       });
@@ -147,6 +265,38 @@ export function AIAssistant() {
       setIsLoading(false);
       // Focus input after message is sent
       setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  // Handler for voice messages
+  const handleVoiceMessage = (transcript: string) => {
+    sendMessageToAI(transcript);
+  };
+
+  // Handler for typed messages
+  const handleSendMessage = () => {
+    sendMessageToAI(inputValue);
+  };
+
+  // Toggle voice listening
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error('Voice recognition is not supported in your browser. Try Chrome or Edge.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        setInputValue(''); // Clear input before starting
+        recognitionRef.current.start();
+        toast.info('🎤 Listening... Speak now!');
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        toast.error('Failed to start voice recognition. Please try again.');
+      }
     }
   };
 
@@ -270,13 +420,32 @@ export function AIAssistant() {
 
             {/* Input Area */}
             <div className="flex gap-2 flex-shrink-0">
+              {/* Mic Button */}
+              <Button
+                onClick={toggleListening}
+                disabled={isLoading}
+                size="icon"
+                variant={isListening ? "default" : "outline"}
+                className={cn(
+                  "shrink-0 h-9 w-9 sm:h-10 sm:w-10 transition-all",
+                  isListening && "bg-destructive hover:bg-destructive/90 text-destructive-foreground animate-pulse"
+                )}
+                title={isListening ? "Stop listening" : "Start voice input"}
+              >
+                {isListening ? (
+                  <MicOff className="h-3 w-3 sm:h-4 sm:w-4" />
+                ) : (
+                  <Mic className="h-3 w-3 sm:h-4 sm:w-4" />
+                )}
+              </Button>
+              
               <Input
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask anything or try 'open Sets lecture'"
-                disabled={isLoading}
+                placeholder={isListening ? "Listening..." : "Ask or speak..."}
+                disabled={isLoading || isListening}
                 className="flex-1 text-sm"
               />
               <Button
