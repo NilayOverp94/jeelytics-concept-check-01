@@ -440,6 +440,199 @@ export const LECTURES: Lecture[] = [
     topic: 'Modern Physics',
     youtubeId: 'rdnWOyqZTy4',
     notesLink: ''
+  },
+  // Chemistry Lectures
+  {
+    id: '55',
+    title: 'Periodic Table - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Inorganic Chemistry',
+    youtubeId: 'nLE7_YBFQNQ',
+    notesLink: ''
+  },
+  {
+    id: '56',
+    title: 'Chemical Bonding - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Chemical Bonding',
+    youtubeId: 'kS8s_WX0IlY',
+    notesLink: ''
+  },
+  {
+    id: '57',
+    title: 'Coordination Compound - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Coordination Compounds',
+    youtubeId: '5myJzBeN514',
+    notesLink: ''
+  },
+  {
+    id: '58',
+    title: 'P-Block - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'S and P Block Elements',
+    youtubeId: 'b0k5LOk_uPk',
+    notesLink: ''
+  },
+  {
+    id: '59',
+    title: 'D and F Block - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Inorganic Chemistry',
+    youtubeId: 'SjILQ6cX_Vo',
+    notesLink: ''
+  },
+  {
+    id: '60',
+    title: 'Salt Analysis - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Inorganic Chemistry',
+    youtubeId: '8rRnn4ECwXI',
+    notesLink: ''
+  },
+  {
+    id: '61',
+    title: 'Mole Concept - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Physical Chemistry',
+    youtubeId: 'CAb8YZKLoac',
+    notesLink: ''
+  },
+  {
+    id: '62',
+    title: 'Solution - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Physical Chemistry',
+    youtubeId: 'f6ENSghG7T4',
+    notesLink: ''
+  },
+  {
+    id: '63',
+    title: 'Redox - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Physical Chemistry',
+    youtubeId: '8oypjDXAXZc',
+    notesLink: ''
+  },
+  {
+    id: '64',
+    title: 'Electrochemistry - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Electrochemistry',
+    youtubeId: 'GplPceRaMi0',
+    notesLink: ''
+  },
+  {
+    id: '65',
+    title: 'Thermodynamics - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Thermodynamics',
+    youtubeId: 'NwCmoh7Vd9g',
+    notesLink: ''
+  },
+  {
+    id: '66',
+    title: 'Chemical Equilibrium - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Chemical Equilibrium',
+    youtubeId: 'BceSksiNLD4',
+    notesLink: ''
+  },
+  {
+    id: '67',
+    title: 'Ionic Equilibrium - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Chemical Equilibrium',
+    youtubeId: '1W-UvePUAKo',
+    notesLink: ''
+  },
+  {
+    id: '68',
+    title: 'Chemical Kinetics - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Chemical Kinetics',
+    youtubeId: 'kwPNxC9AgZA',
+    notesLink: ''
+  },
+  {
+    id: '69',
+    title: 'Structure of Atoms - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Atomic Structure',
+    youtubeId: '7OkNy8vhDaw',
+    notesLink: ''
+  },
+  {
+    id: '70',
+    title: 'IUPAC Nomenclature - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: 'A2QTsYu3fWo',
+    notesLink: ''
+  },
+  {
+    id: '71',
+    title: 'GOC - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: 'FFCT-lh86tA',
+    notesLink: ''
+  },
+  {
+    id: '72',
+    title: 'Isomerism - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: 'UOzWO2-Z9So',
+    notesLink: ''
+  },
+  {
+    id: '73',
+    title: 'Hydrocarbon - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Hydrocarbons',
+    youtubeId: '02CBTEOMMsA',
+    notesLink: ''
+  },
+  {
+    id: '74',
+    title: 'Haloalkanes and Haloarenes - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: '7iJFvPI8vMM',
+    notesLink: ''
+  },
+  {
+    id: '75',
+    title: 'Alcohol, Phenol and Ethers - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Alcohols',
+    youtubeId: 'IDo8B0c5Xis',
+    notesLink: ''
+  },
+  {
+    id: '76',
+    title: 'Aldehydes, Ketones and Carboxylic Acids - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: 'oR19BqbPBu4',
+    notesLink: ''
+  },
+  {
+    id: '77',
+    title: 'Amines - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: 'SKHrfD34Kkc',
+    notesLink: ''
+  },
+  {
+    id: '78',
+    title: 'Biomolecules - Complete Lecture',
+    subject: 'Chemistry',
+    topic: 'Organic Chemistry',
+    youtubeId: 'LcVNwEWJtyI',
+    notesLink: ''
   }
 ];
 
