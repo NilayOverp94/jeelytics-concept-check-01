@@ -140,35 +140,29 @@ export function ClassesSection() {
           <TabsTrigger value="Mathematics">Maths</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="Physics">
-          <ComingSoonCard />
-        </TabsContent>
-
-        <TabsContent value="Chemistry">
-          <ComingSoonCard />
-        </TabsContent>
-
-        <TabsContent value="Mathematics">
-          <div className="grid gap-6">
-            {filteredLectures.length > 0 ? (
-              filteredLectures.map((lecture) => (
-                <LectureCard key={lecture.id} lecture={lecture} />
-              ))
-            ) : searchQuery ? (
-              <Card className="card-jee">
-                <CardContent className="py-12 text-center">
-                  <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
-                  <p className="text-muted-foreground">
-                    No lectures match "{searchQuery}". Try a different search term.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <ComingSoonCard />
-            )}
-          </div>
-        </TabsContent>
+        {['Physics', 'Chemistry', 'Mathematics'].map((subject) => (
+          <TabsContent key={subject} value={subject}>
+            <div className="grid gap-6">
+              {filteredLectures.length > 0 ? (
+                filteredLectures.map((lecture) => (
+                  <LectureCard key={lecture.id} lecture={lecture} />
+                ))
+              ) : searchQuery ? (
+                <Card className="card-jee">
+                  <CardContent className="py-12 text-center">
+                    <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
+                    <p className="text-muted-foreground">
+                      No lectures match "{searchQuery}". Try a different search term.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <ComingSoonCard />
+              )}
+            </div>
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   );
