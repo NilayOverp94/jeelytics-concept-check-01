@@ -28,15 +28,26 @@ export function ClassesSection() {
     });
   };
 
+  // Universal search - if searching, show results from all subjects; otherwise filter by active subject
   const filteredLectures = useMemo(() => {
     return LECTURES.filter(lecture => {
-      const matchesSubject = lecture.subject === activeSubject;
       const matchesSearch = searchQuery === '' || 
         lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lecture.topic.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesSubject && matchesSearch;
+        lecture.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lecture.subject.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // If searching, show all matching lectures regardless of subject
+      if (searchQuery) {
+        return matchesSearch;
+      }
+      
+      // If not searching, filter by active subject
+      return lecture.subject === activeSubject;
     });
   }, [activeSubject, searchQuery]);
+
+  // Check if search is active to show unified results
+  const isSearching = searchQuery.length > 0;
 
   const ComingSoonCard = () => (
     <Card className="card-jee">
@@ -133,37 +144,53 @@ export function ClassesSection() {
       </div>
 
       {/* Subject Tabs */}
-      <Tabs defaultValue="Mathematics" value={activeSubject} onValueChange={(value) => setActiveSubject(value as Subject)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="Physics">Physics</TabsTrigger>
-          <TabsTrigger value="Chemistry">Chemistry</TabsTrigger>
-          <TabsTrigger value="Mathematics">Maths</TabsTrigger>
-        </TabsList>
+      {/* Show unified search results or tabbed content */}
+      {isSearching ? (
+        <div className="grid gap-6">
+          {filteredLectures.length > 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground text-center">
+                Found {filteredLectures.length} lecture{filteredLectures.length > 1 ? 's' : ''} matching "{searchQuery}"
+              </p>
+              {filteredLectures.map((lecture) => (
+                <LectureCard key={lecture.id} lecture={lecture} />
+              ))}
+            </>
+          ) : (
+            <Card className="card-jee">
+              <CardContent className="py-12 text-center">
+                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
+                <p className="text-muted-foreground">
+                  No lectures match "{searchQuery}". Try a different search term.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      ) : (
+        <Tabs defaultValue="Mathematics" value={activeSubject} onValueChange={(value) => setActiveSubject(value as Subject)} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="Physics">Physics</TabsTrigger>
+            <TabsTrigger value="Chemistry">Chemistry</TabsTrigger>
+            <TabsTrigger value="Mathematics">Maths</TabsTrigger>
+          </TabsList>
 
-        {['Physics', 'Chemistry', 'Mathematics'].map((subject) => (
-          <TabsContent key={subject} value={subject}>
-            <div className="grid gap-6">
-              {filteredLectures.length > 0 ? (
-                filteredLectures.map((lecture) => (
-                  <LectureCard key={lecture.id} lecture={lecture} />
-                ))
-              ) : searchQuery ? (
-                <Card className="card-jee">
-                  <CardContent className="py-12 text-center">
-                    <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
-                    <p className="text-muted-foreground">
-                      No lectures match "{searchQuery}". Try a different search term.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <ComingSoonCard />
-              )}
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+          {['Physics', 'Chemistry', 'Mathematics'].map((subject) => (
+            <TabsContent key={subject} value={subject}>
+              <div className="grid gap-6">
+                {filteredLectures.length > 0 ? (
+                  filteredLectures.map((lecture) => (
+                    <LectureCard key={lecture.id} lecture={lecture} />
+                  ))
+                ) : (
+                  <ComingSoonCard />
+                )}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
     </div>
   );
 }
