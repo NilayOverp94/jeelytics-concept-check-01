@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,8 +17,8 @@ import { AIAssistant } from '@/components/AIAssistant';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import { ClassesSection } from '@/components/ClassesSection';
+import { PYQSection } from '@/components/PYQSection';
 import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
-
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
@@ -156,7 +156,7 @@ function HomeContent() {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 pt-safe">
         <div className="container mx-auto px-3 sm:px-4 py-3">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/home" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer">
               <img
                 src={logo}
                 alt="JEElytics logo"
@@ -166,7 +166,7 @@ function HomeContent() {
               <h1 className="text-xl sm:text-2xl font-bold text-gradient-primary">
                 JEElytics
               </h1>
-            </div>
+            </Link>
             <div className="flex items-center gap-2 sm:gap-4">
               <StreakDisplay streak={userStats.streak} />
               <ThemeToggle />
@@ -196,7 +196,7 @@ function HomeContent() {
         <div className="max-w-4xl mx-auto">
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8 h-12 sm:h-14">
+            <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-12 sm:h-14">
               <TabsTrigger value="tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
                 <ClipboardList className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Tests
@@ -204,6 +204,10 @@ function HomeContent() {
               <TabsTrigger value="classes" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
                 <GraduationCap className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Classes
+              </TabsTrigger>
+              <TabsTrigger value="pyq" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">
+                <ScrollText className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                PYQs
               </TabsTrigger>
             </TabsList>
 
@@ -471,6 +475,10 @@ function HomeContent() {
 
             <TabsContent value="classes">
               <ClassesSection />
+            </TabsContent>
+
+            <TabsContent value="pyq">
+              <PYQSection />
             </TabsContent>
           </Tabs>
         </div>
