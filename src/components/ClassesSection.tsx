@@ -96,6 +96,7 @@ export function ClassesSection() {
               title={lecture.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
+              loading="lazy"
               className="w-full h-full"
             />
           </div>
