@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Download, Lock } from 'lucide-react';
 import { useState } from 'react';
 
-// PYQ data structure - PDFs will be added later
+// JEE Main PYQ data
 const JEE_MAIN_YEARS = [
   { year: 2024, sessions: ['January', 'April'] },
   { year: 2023, sessions: ['January', 'April'] },
@@ -17,6 +17,7 @@ const JEE_MAIN_YEARS = [
   { year: 2015, sessions: ['April'] },
 ];
 
+// JEE Advanced PYQ data
 const JEE_ADVANCED_YEARS = [
   { year: 2024, papers: ['Paper 1', 'Paper 2'] },
   { year: 2023, papers: ['Paper 1', 'Paper 2'] },
@@ -30,28 +31,69 @@ const JEE_ADVANCED_YEARS = [
   { year: 2015, papers: ['Paper 1', 'Paper 2'] },
 ];
 
+// CUET PYQ data
+const CUET_YEARS = [
+  { year: 2024, papers: ['Physics', 'Chemistry', 'Mathematics'] },
+  { year: 2023, papers: ['Physics', 'Chemistry', 'Mathematics'] },
+  { year: 2022, papers: ['Physics', 'Chemistry', 'Mathematics'] },
+];
+
+// MHTCET PYQ data
+const MHTCET_YEARS = [
+  { year: 2024, papers: ['PCM Combined'] },
+  { year: 2023, papers: ['PCM Combined'] },
+  { year: 2022, papers: ['PCM Combined'] },
+  { year: 2021, papers: ['PCM Combined'] },
+  { year: 2020, papers: ['PCM Combined'] },
+  { year: 2019, papers: ['PCM Combined'] },
+];
+
+// BITSAT PYQ data
+const BITSAT_YEARS = [
+  { year: 2024, papers: ['Full Paper'] },
+  { year: 2023, papers: ['Full Paper'] },
+  { year: 2022, papers: ['Full Paper'] },
+  { year: 2021, papers: ['Full Paper'] },
+  { year: 2020, papers: ['Full Paper'] },
+  { year: 2019, papers: ['Full Paper'] },
+];
+
+type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'mhtcet' | 'bitsat';
+
+const EXAM_COLORS: Record<ExamType, string> = {
+  'jee-main': 'bg-primary/20 text-primary',
+  'jee-advanced': 'bg-accent/20 text-accent',
+  'cuet': 'bg-secondary/20 text-secondary',
+  'mhtcet': 'bg-emerald-500/20 text-emerald-500',
+  'bitsat': 'bg-violet-500/20 text-violet-500',
+};
+
+const EXAM_LABELS: Record<ExamType, string> = {
+  'jee-main': 'JEE Main',
+  'jee-advanced': 'JEE Advanced',
+  'cuet': 'CUET',
+  'mhtcet': 'MHTCET',
+  'bitsat': 'BITSAT',
+};
+
 export function PYQSection() {
-  const [activeExam, setActiveExam] = useState<'mains' | 'advanced'>('mains');
+  const [activeExam, setActiveExam] = useState<ExamType>('jee-main');
 
   const PYQCard = ({ 
     year, 
     items, 
-    type 
+    examType
   }: { 
     year: number; 
     items: string[]; 
-    type: 'session' | 'paper' 
+    examType: ExamType;
   }) => (
     <Card className="card-jee hover:shadow-lg transition-all duration-300">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span className="text-2xl font-bold text-gradient-primary">{year}</span>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-            activeExam === 'mains' 
-              ? 'bg-primary/20 text-primary' 
-              : 'bg-accent/20 text-accent'
-          }`}>
-            {activeExam === 'mains' ? 'JEE Main' : 'JEE Advanced'}
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${EXAM_COLORS[examType]}`}>
+            {EXAM_LABELS[examType]}
           </span>
         </CardTitle>
       </CardHeader>
@@ -77,55 +119,79 @@ export function PYQSection() {
     </Card>
   );
 
+  const getExamData = (exam: ExamType) => {
+    switch (exam) {
+      case 'jee-main':
+        return JEE_MAIN_YEARS.map(item => ({ year: item.year, items: item.sessions }));
+      case 'jee-advanced':
+        return JEE_ADVANCED_YEARS.map(item => ({ year: item.year, items: item.papers }));
+      case 'cuet':
+        return CUET_YEARS.map(item => ({ year: item.year, items: item.papers }));
+      case 'mhtcet':
+        return MHTCET_YEARS.map(item => ({ year: item.year, items: item.papers }));
+      case 'bitsat':
+        return BITSAT_YEARS.map(item => ({ year: item.year, items: item.papers }));
+      default:
+        return [];
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 text-gradient-primary">Previous Year Questions</h2>
-        <p className="text-muted-foreground">Download year-wise JEE Main & Advanced question papers with solutions</p>
+        <p className="text-muted-foreground">Download year-wise question papers with solutions</p>
       </div>
 
       {/* Exam Type Tabs */}
-      <Tabs defaultValue="mains" value={activeExam} onValueChange={(value) => setActiveExam(value as 'mains' | 'advanced')} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6 h-14">
+      <Tabs defaultValue="jee-main" value={activeExam} onValueChange={(value) => setActiveExam(value as ExamType)} className="w-full">
+        <TabsList className="grid w-full grid-cols-5 mb-6 h-auto p-1">
           <TabsTrigger 
-            value="mains" 
-            className="text-lg h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white"
+            value="jee-main" 
+            className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white"
           >
             JEE Main
           </TabsTrigger>
           <TabsTrigger 
-            value="advanced"
-            className="text-lg h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white"
+            value="jee-advanced"
+            className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white"
           >
-            JEE Advanced
+            JEE Adv
+          </TabsTrigger>
+          <TabsTrigger 
+            value="cuet"
+            className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white"
+          >
+            CUET
+          </TabsTrigger>
+          <TabsTrigger 
+            value="mhtcet"
+            className="text-xs sm:text-sm py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+          >
+            MHTCET
+          </TabsTrigger>
+          <TabsTrigger 
+            value="bitsat"
+            className="text-xs sm:text-sm py-2 data-[state=active]:bg-violet-500 data-[state=active]:text-white"
+          >
+            BITSAT
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="mains">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {JEE_MAIN_YEARS.map((item) => (
-              <PYQCard 
-                key={item.year} 
-                year={item.year} 
-                items={item.sessions} 
-                type="session" 
-              />
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="advanced">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {JEE_ADVANCED_YEARS.map((item) => (
-              <PYQCard 
-                key={item.year} 
-                year={item.year} 
-                items={item.papers} 
-                type="paper" 
-              />
-            ))}
-          </div>
-        </TabsContent>
+        {(['jee-main', 'jee-advanced', 'cuet', 'mhtcet', 'bitsat'] as ExamType[]).map((exam) => (
+          <TabsContent key={exam} value={exam}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {getExamData(exam).map((item) => (
+                <PYQCard 
+                  key={item.year} 
+                  year={item.year} 
+                  items={item.items} 
+                  examType={exam}
+                />
+              ))}
+            </div>
+          </TabsContent>
+        ))}
       </Tabs>
 
       {/* Info Card */}
