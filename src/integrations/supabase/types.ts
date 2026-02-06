@@ -109,6 +109,36 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          created_at: string | null
+          display_name: string
+          duration_days: number
+          id: string
+          is_active: boolean | null
+          name: string
+          price_inr: number
+        }
+        Insert: {
+          created_at?: string | null
+          display_name: string
+          duration_days: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_inr: number
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string
+          duration_days?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_inr?: number
+        }
+        Relationships: []
+      }
       test_results: {
         Row: {
           correct_answers: string[]
@@ -156,7 +186,9 @@ export type Database = {
           created_at: string
           id: string
           last_test_date: string | null
+          last_test_reset_date: string | null
           streak: number
+          tests_today: number | null
           total_score: number
           total_tests: number
           updated_at: string
@@ -166,7 +198,9 @@ export type Database = {
           created_at?: string
           id?: string
           last_test_date?: string | null
+          last_test_reset_date?: string | null
           streak?: number
+          tests_today?: number | null
           total_score?: number
           total_tests?: number
           updated_at?: string
@@ -176,7 +210,9 @@ export type Database = {
           created_at?: string
           id?: string
           last_test_date?: string | null
+          last_test_reset_date?: string | null
           streak?: number
+          tests_today?: number | null
           total_score?: number
           total_tests?: number
           updated_at?: string
@@ -184,11 +220,62 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          plan_id: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
+          starts_at: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          plan_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          starts_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          plan_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          starts_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_take_test: { Args: { p_user_id: string }; Returns: boolean }
       fetch_random_questions: {
         Args: {
           p_limit: number
@@ -224,6 +311,12 @@ export type Database = {
           topic: string
         }[]
       }
+      get_remaining_tests: { Args: { p_user_id: string }; Returns: number }
+      increment_daily_test_count: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      is_premium_user: { Args: { p_user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
