@@ -53,3 +53,9 @@ verify_jwt = true
 
 [functions.ai-chat]
 verify_jwt = true
+
+[functions.razorpay-create-order]
+verify_jwt = false
+
+[functions.razorpay-verify-payment]
+verify_jwt = false
