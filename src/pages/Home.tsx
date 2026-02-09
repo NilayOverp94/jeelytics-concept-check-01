@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StreakDisplay } from '@/components/StreakDisplay';
+import { UserStatusBadge } from '@/components/UserStatusBadge';
 import { SUBJECTS, Subject } from '@/types/jee';
 import { UserStats } from '@/types/jee';
 import { useAuth } from '@/hooks/useAuth';
@@ -168,6 +169,7 @@ function HomeContent() {
               </h1>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
+              <UserStatusBadge />
               <StreakDisplay streak={userStats.streak} />
               <ThemeToggle />
               <DropdownMenu>

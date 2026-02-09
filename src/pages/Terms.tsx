@@ -1,6 +1,5 @@
 import useSEO from "@/hooks/useSEO";
 
-
 export default function Terms() {
   useSEO({
     title: "Terms of Use | JEElytics - Usage Terms & Conditions",
@@ -12,7 +11,7 @@ export default function Terms() {
     <main className="min-h-screen bg-background">
       <article className="mx-auto max-w-4xl px-4 md:px-8 py-12 md:py-16">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">Terms of Use</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last Updated: November 12, 2025</p>
+        <p className="text-sm text-muted-foreground mb-8">Last Updated: February 9, 2026</p>
         
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <section>
@@ -39,6 +38,9 @@ export default function Terms() {
               <li>Performance tracking, score analytics, and progress reports</li>
               <li>Study streak tracking and motivational features</li>
               <li>Topic-wise practice and concept testing</li>
+              <li>Embedded educational video lectures from YouTube (including Physics Wallah content)</li>
+              <li>Previous Year Question (PYQ) papers for various entrance exams (Premium feature)</li>
+              <li>Premium subscription plans with enhanced features</li>
             </ul>
           </section>
 
@@ -72,7 +74,50 @@ export default function Terms() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">4. Acceptable Use Policy</h2>
+            <h2 className="text-2xl font-semibold text-foreground">4. Subscription Plans and Payments</h2>
+            
+            <div className="space-y-3">
+              <h3 className="text-xl font-medium text-foreground">4.1 Free Plan</h3>
+              <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+                <li>Free users receive up to 10 tests per month</li>
+                <li>Access to basic AI-generated questions</li>
+                <li>Progress tracking and streak features</li>
+                <li>Access to embedded video lectures</li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-medium text-foreground">4.2 Premium Plans</h3>
+              <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+                <li><strong>Monthly Premium (₹29/month):</strong> Unlimited tests, all PYQ access, priority AI generation</li>
+                <li><strong>Yearly Premium (₹109/year):</strong> All monthly features with significant savings</li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-medium text-foreground">4.3 Payment Terms</h3>
+              <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+                <li>All payments are processed securely through Razorpay</li>
+                <li>Prices are in Indian Rupees (INR) and include applicable taxes</li>
+                <li>Subscriptions are billed at the start of each billing period</li>
+                <li>You authorize us to charge your selected payment method for recurring subscriptions</li>
+                <li>Failed payments may result in suspension of premium features</li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-medium text-foreground">4.4 Cancellation and Refunds</h3>
+              <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+                <li>You may cancel your subscription at any time</li>
+                <li>Access to premium features continues until the end of your current billing period</li>
+                <li>Refunds are generally not provided for partial subscription periods</li>
+                <li>Refund requests for exceptional circumstances may be considered on a case-by-case basis</li>
+              </ul>
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">5. Acceptable Use Policy</h2>
             <p className="text-muted-foreground leading-relaxed">You agree to use JEElytics only for lawful purposes and in accordance with these Terms. You shall not:</p>
             <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
               <li>Use the platform for any commercial purposes without our explicit written consent</li>
@@ -83,29 +128,38 @@ export default function Terms() {
               <li>Upload malicious code, viruses, or any harmful software</li>
               <li>Impersonate any person or entity or misrepresent your affiliation</li>
               <li>Harass, abuse, or harm other users or our staff</li>
+              <li>Circumvent subscription restrictions or payment requirements</li>
+              <li>Share premium account access with non-subscribers</li>
               <li>Violate any applicable laws, regulations, or third-party rights</li>
             </ul>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">5. Intellectual Property Rights</h2>
+            <h2 className="text-2xl font-semibold text-foreground">6. Intellectual Property Rights</h2>
             
             <div className="space-y-3">
-              <h3 className="text-xl font-medium text-foreground">5.1 Our Content</h3>
+              <h3 className="text-xl font-medium text-foreground">6.1 Our Content</h3>
               <p className="text-muted-foreground leading-relaxed">
                 All content on JEElytics, including but not limited to text, graphics, logos, questions, explanations, software, and design, is the property of JEElytics or its licensors and is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works without our express permission.
               </p>
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xl font-medium text-foreground">5.2 Limited License</h3>
+              <h3 className="text-xl font-medium text-foreground">6.2 Third-Party Content</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Embedded video lectures from YouTube (including Physics Wallah content) remain the intellectual property of their respective creators. We do not claim ownership of such content.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-medium text-foreground">6.3 Limited License</h3>
               <p className="text-muted-foreground leading-relaxed">
                 We grant you a limited, non-exclusive, non-transferable, revocable license to access and use JEElytics for personal, non-commercial educational purposes only. This license does not include the right to download (except for caching), copy, or distribute content.
               </p>
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xl font-medium text-foreground">5.3 User Content</h3>
+              <h3 className="text-xl font-medium text-foreground">6.4 User Content</h3>
               <p className="text-muted-foreground leading-relaxed">
                 While we do not claim ownership of your personal data (answers, performance records), you grant us a worldwide, royalty-free license to use anonymized data for analytics, service improvement, and AI training purposes.
               </p>
@@ -113,7 +167,7 @@ export default function Terms() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">6. Educational Purpose and Disclaimer</h2>
+            <h2 className="text-2xl font-semibold text-foreground">7. Educational Purpose and Disclaimer</h2>
             <p className="text-muted-foreground leading-relaxed">
               JEElytics is provided solely for educational and practice purposes. While we strive for accuracy, we make no guarantees regarding:
             </p>
@@ -129,14 +183,14 @@ export default function Terms() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">7. Third-Party Services and Advertisements</h2>
+            <h2 className="text-2xl font-semibold text-foreground">8. Third-Party Services and Advertisements</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Our platform may display third-party advertisements (e.g., Google AdSense) and may integrate third-party services. We are not responsible for the content, accuracy, or privacy practices of these third parties. Your interactions with third-party services are governed by their respective terms and policies.
+              Our platform may display third-party advertisements (e.g., Google AdSense), integrate payment services (Razorpay), and embed third-party content (YouTube videos). We are not responsible for the content, accuracy, or privacy practices of these third parties. Your interactions with third-party services are governed by their respective terms and policies.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">8. Disclaimer of Warranties</h2>
+            <h2 className="text-2xl font-semibold text-foreground">9. Disclaimer of Warranties</h2>
             <p className="text-muted-foreground leading-relaxed">
               JEElytics is provided on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind, either express or implied, including but not limited to:
             </p>
@@ -152,7 +206,7 @@ export default function Terms() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">9. Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold text-foreground">10. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
               To the maximum extent permitted by law, JEElytics, its owners, employees, and affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:
             </p>
@@ -160,6 +214,7 @@ export default function Terms() {
               <li>Loss of profits, data, or use</li>
               <li>Poor exam performance or admission outcomes</li>
               <li>Costs of procuring substitute services</li>
+              <li>Payment processing issues or disputes</li>
               <li>Any damages arising from your use or inability to use our services</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
@@ -168,7 +223,7 @@ export default function Terms() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">10. Indemnification</h2>
+            <h2 className="text-2xl font-semibold text-foreground">11. Indemnification</h2>
             <p className="text-muted-foreground leading-relaxed">
               You agree to indemnify, defend, and hold harmless JEElytics and its affiliates from any claims, liabilities, damages, losses, costs, or expenses (including legal fees) arising from:
             </p>
@@ -177,32 +232,33 @@ export default function Terms() {
               <li>Your misuse of our services</li>
               <li>Your violation of any third-party rights or applicable laws</li>
               <li>Any content or data you submit through our platform</li>
+              <li>Fraudulent payment activities or chargebacks</li>
             </ul>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">11. Modifications to Terms and Services</h2>
+            <h2 className="text-2xl font-semibold text-foreground">12. Modifications to Terms and Services</h2>
             <p className="text-muted-foreground leading-relaxed">
               We reserve the right to modify these Terms at any time. Changes will be effective upon posting on our platform with an updated "Last Updated" date. We may also modify, suspend, or discontinue any aspect of our services without notice. Your continued use of JEElytics after changes constitutes acceptance of the updated Terms.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">12. Governing Law and Dispute Resolution</h2>
+            <h2 className="text-2xl font-semibold text-foreground">13. Governing Law and Dispute Resolution</h2>
             <p className="text-muted-foreground leading-relaxed">
               These Terms shall be governed by and construed in accordance with the laws of India, without regard to conflict of law principles. Any disputes arising from these Terms or your use of our services shall be resolved through binding arbitration in accordance with Indian arbitration laws. You agree to waive any right to a jury trial or to participate in class action lawsuits.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">13. Severability</h2>
+            <h2 className="text-2xl font-semibold text-foreground">14. Severability</h2>
             <p className="text-muted-foreground leading-relaxed">
               If any provision of these Terms is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">14. Contact Information</h2>
+            <h2 className="text-2xl font-semibold text-foreground">15. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               For questions, concerns, or support regarding these Terms, please contact us:
             </p>
@@ -214,7 +270,7 @@ export default function Terms() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">15. Acknowledgment</h2>
+            <h2 className="text-2xl font-semibold text-foreground">16. Acknowledgment</h2>
             <p className="text-muted-foreground leading-relaxed">
               By using JEElytics, you acknowledge that you have read, understood, and agree to be bound by these Terms of Use.
             </p>

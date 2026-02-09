@@ -1,6 +1,5 @@
 import useSEO from "@/hooks/useSEO";
 
-
 export default function Disclaimer() {
   useSEO({
     title: "Disclaimer | JEElytics - Independent JEE Practice Platform",
@@ -12,7 +11,7 @@ export default function Disclaimer() {
     <main className="min-h-screen bg-background">
       <article className="mx-auto max-w-4xl px-4 md:px-8 py-12 md:py-16">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">Disclaimer</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last Updated: November 12, 2025</p>
+        <p className="text-sm text-muted-foreground mb-8">Last Updated: February 9, 2026</p>
         
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <section>
@@ -32,6 +31,7 @@ export default function Disclaimer() {
               <li>Indian Institutes of Technology (IITs)</li>
               <li>National Institutes of Technology (NITs)</li>
               <li>Indian Institutes of Information Technology (IIITs)</li>
+              <li>Physics Wallah or any coaching institute</li>
               <li>Any other government body or educational institution conducting JEE examinations</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
@@ -40,7 +40,24 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">2. Educational Purpose Only</h2>
+            <h2 className="text-2xl font-semibold text-foreground">2. Third-Party Educational Content</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Our "Classes" section features embedded YouTube lectures from third-party educational channels, including but not limited to Physics Wallah. Please note:
+            </p>
+            <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+              <li><strong>No Ownership:</strong> We do not own, produce, or claim ownership of any embedded video content</li>
+              <li><strong>No Affiliation:</strong> We are not affiliated with Physics Wallah, YouTube, or any other content creators whose videos are embedded on our platform</li>
+              <li><strong>Attribution:</strong> All lecture content remains the intellectual property of their respective creators and channels</li>
+              <li><strong>Fair Use:</strong> Videos are embedded using YouTube's official embed feature and are subject to YouTube's Terms of Service</li>
+              <li><strong>Content Accuracy:</strong> We do not guarantee the accuracy, completeness, or currency of third-party educational content</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              If you are a content creator and wish to have your content removed from our platform, please contact us at nilayraj712@gmail.com.
+            </p>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">3. Educational Purpose Only</h2>
             <p className="text-muted-foreground leading-relaxed">
               JEElytics is designed exclusively for educational and practice purposes. The questions, quizzes, explanations, and study materials provided on our platform are intended to:
             </p>
@@ -48,7 +65,7 @@ export default function Disclaimer() {
               <li>Help students practice concepts in Physics, Chemistry, and Mathematics</li>
               <li>Provide a simulated quiz-taking experience</li>
               <li>Track progress and identify areas for improvement</li>
-              <li>Offer supplementary learning resources</li>
+              <li>Offer supplementary learning resources through embedded video lectures</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
               Our content should be used as a <strong>supplement</strong> to your regular studies, not as a replacement for comprehensive JEE preparation through textbooks, coaching, and official materials.
@@ -56,7 +73,7 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">3. No Guarantee of Accuracy</h2>
+            <h2 className="text-2xl font-semibold text-foreground">4. No Guarantee of Accuracy</h2>
             <p className="text-muted-foreground leading-relaxed">
               While we make reasonable efforts to ensure the accuracy and quality of our content, including AI-generated questions:
             </p>
@@ -65,6 +82,7 @@ export default function Disclaimer() {
               <li><strong>Content may be outdated:</strong> JEE syllabus, patterns, and difficulty levels may change. Our content may not always reflect the latest official guidelines</li>
               <li><strong>AI-generated content:</strong> Some questions are generated using artificial intelligence, which may produce variations in quality, accuracy, or relevance</li>
               <li><strong>No official endorsement:</strong> Our questions do not represent official JEE exam questions and have not been verified by NTA or IITs</li>
+              <li><strong>PYQ Papers:</strong> Previous Year Question papers are provided for reference only and may not be official versions</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
               <strong>Users are encouraged to cross-verify information with official JEE resources, textbooks, and qualified educators.</strong>
@@ -72,7 +90,7 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">4. No Guarantee of Exam Performance</h2>
+            <h2 className="text-2xl font-semibold text-foreground">5. No Guarantee of Exam Performance</h2>
             <p className="text-muted-foreground leading-relaxed">
               We make no representations, warranties, or guarantees that:
             </p>
@@ -89,7 +107,21 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">5. Service Availability and Reliability</h2>
+            <h2 className="text-2xl font-semibold text-foreground">6. Subscription and Payment Services</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              JEElytics offers premium subscription services processed through Razorpay:
+            </p>
+            <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+              <li><strong>Payment Processing:</strong> All payments are processed securely through Razorpay, a PCI-DSS compliant payment gateway</li>
+              <li><strong>No Refund Guarantee:</strong> Subscription fees may not be refundable except as required by applicable law. Please review our refund policy before subscribing</li>
+              <li><strong>Service Changes:</strong> Premium features may change, be modified, or discontinued without prior notice</li>
+              <li><strong>Payment Security:</strong> We do not store your credit/debit card details. All payment information is handled directly by Razorpay</li>
+              <li><strong>Subscription Cancellation:</strong> You may cancel your subscription at any time, but access to premium features will continue until the end of your billing period</li>
+            </ul>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">7. Service Availability and Reliability</h2>
             <p className="text-muted-foreground leading-relaxed">
               JEElytics is provided on an "as is" and "as available" basis:
             </p>
@@ -103,14 +135,15 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">6. Third-Party Content and Links</h2>
+            <h2 className="text-2xl font-semibold text-foreground">8. Third-Party Content and Links</h2>
             <p className="text-muted-foreground leading-relaxed">
               Our platform may contain:
             </p>
             <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
               <li><strong>Third-party advertisements:</strong> We display ads through services like Google AdSense. We are not responsible for the content, accuracy, or practices of advertisers</li>
               <li><strong>External links:</strong> Links to external websites are provided for convenience only. We do not endorse or control third-party sites and are not liable for their content or services</li>
-              <li><strong>Third-party services:</strong> We integrate services like Supabase for database and authentication. We are not liable for failures or security issues in third-party services</li>
+              <li><strong>Embedded YouTube content:</strong> Video lectures from channels like Physics Wallah are embedded using YouTube's API. We do not control this content</li>
+              <li><strong>Third-party services:</strong> We integrate services like Supabase for database, Razorpay for payments, and authentication services. We are not liable for failures or security issues in third-party services</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
               Your interactions with third parties are solely between you and that third party, governed by their terms and policies.
@@ -118,7 +151,7 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">7. User Responsibility</h2>
+            <h2 className="text-2xl font-semibold text-foreground">9. User Responsibility</h2>
             <p className="text-muted-foreground leading-relaxed">
               By using JEElytics, you acknowledge and accept that:
             </p>
@@ -133,7 +166,7 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">8. Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold text-foreground">10. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
               To the maximum extent permitted by law, JEElytics, its creators, owners, employees, and affiliates shall not be liable for:
             </p>
@@ -144,6 +177,7 @@ export default function Disclaimer() {
               <li>Loss of time, opportunity, or tuition costs</li>
               <li>Reliance on inaccurate or outdated content</li>
               <li>Technical failures, data loss, or service interruptions</li>
+              <li>Payment processing issues or disputes with Razorpay</li>
               <li>Emotional distress or disappointment arising from use of our services</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
@@ -152,7 +186,7 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">9. Medical and Mental Health Disclaimer</h2>
+            <h2 className="text-2xl font-semibold text-foreground">11. Medical and Mental Health Disclaimer</h2>
             <p className="text-muted-foreground leading-relaxed">
               Exam preparation can be stressful. JEElytics is not a substitute for professional medical, psychological, or counseling services. If you experience:
             </p>
@@ -167,28 +201,28 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">10. No Professional Advice</h2>
+            <h2 className="text-2xl font-semibold text-foreground">12. No Professional Advice</h2>
             <p className="text-muted-foreground leading-relaxed">
               JEElytics does not provide professional educational counseling, career guidance, or college admission advice. Any information provided is for general educational purposes only and should not be construed as personalized advice. For college admissions, career planning, or educational guidance, consult qualified counselors or educational institutions.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">11. Intellectual Property Notice</h2>
+            <h2 className="text-2xl font-semibold text-foreground">13. Intellectual Property Notice</h2>
             <p className="text-muted-foreground leading-relaxed">
-              All trademarks, logos, and brand names mentioned on JEElytics are the property of their respective owners. The mention of "JEE," "IIT," "NIT," or other institutional names is for descriptive purposes only and does not imply endorsement, affiliation, or sponsorship.
+              All trademarks, logos, and brand names mentioned on JEElytics are the property of their respective owners. The mention of "JEE," "IIT," "NIT," "Physics Wallah," or other institutional/brand names is for descriptive purposes only and does not imply endorsement, affiliation, or sponsorship.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">12. Changes to This Disclaimer</h2>
+            <h2 className="text-2xl font-semibold text-foreground">14. Changes to This Disclaimer</h2>
             <p className="text-muted-foreground leading-relaxed">
               We reserve the right to update this Disclaimer at any time without prior notice. Changes will be effective upon posting with an updated "Last Updated" date. Your continued use of JEElytics after changes constitutes acceptance of the updated Disclaimer.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">13. Contact Information</h2>
+            <h2 className="text-2xl font-semibold text-foreground">15. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               If you have questions, concerns, or need clarification regarding this Disclaimer, please contact us:
             </p>
@@ -200,7 +234,7 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">14. Acknowledgment and Agreement</h2>
+            <h2 className="text-2xl font-semibold text-foreground">16. Acknowledgment and Agreement</h2>
             <p className="text-muted-foreground leading-relaxed">
               By accessing or using JEElytics, you acknowledge that you have read, understood, and agree to this Disclaimer in its entirety. You accept all risks associated with using our platform and agree to hold JEElytics harmless for any outcomes related to your use of our services.
             </p>

@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { FileText, Download, Lock, Crown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { useSubscription } from '@/hooks/useSubscription';
+import { PremiumGate } from '@/components/PremiumGate';
 
 // JEE Main PYQ data
 const JEE_MAIN_YEARS = [
+  { year: 2025, sessions: ['January', 'April'] },
   { year: 2024, sessions: ['January', 'April'] },
   { year: 2023, sessions: ['January', 'April'] },
   { year: 2022, sessions: ['June', 'July'] },
@@ -17,8 +22,9 @@ const JEE_MAIN_YEARS = [
   { year: 2015, sessions: ['April'] },
 ];
 
-// JEE Advanced PYQ data
+// JEE Advanced PYQ data - Extended from 2007 to 2025
 const JEE_ADVANCED_YEARS = [
+  { year: 2025, papers: ['Paper 1', 'Paper 2'] },
   { year: 2024, papers: ['Paper 1', 'Paper 2'] },
   { year: 2023, papers: ['Paper 1', 'Paper 2'] },
   { year: 2022, papers: ['Paper 1', 'Paper 2'] },
@@ -29,6 +35,14 @@ const JEE_ADVANCED_YEARS = [
   { year: 2017, papers: ['Paper 1', 'Paper 2'] },
   { year: 2016, papers: ['Paper 1', 'Paper 2'] },
   { year: 2015, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2014, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2013, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2012, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2011, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2010, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2009, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2008, papers: ['Paper 1', 'Paper 2'] },
+  { year: 2007, papers: ['Paper 1', 'Paper 2'] },
 ];
 
 // CUET PYQ data
@@ -77,7 +91,10 @@ const EXAM_LABELS: Record<ExamType, string> = {
 };
 
 export function PYQSection() {
+  const navigate = useNavigate();
+  const { isPremium, isLoading } = useSubscription();
   const [activeExam, setActiveExam] = useState<ExamType>('jee-main');
+  const [showPremiumGate, setShowPremiumGate] = useState(false);
 
   const PYQCard = ({ 
     year, 
@@ -136,11 +153,89 @@ export function PYQSection() {
     }
   };
 
+  // Show blurred content with premium gate for free users
+  if (!isLoading && !isPremium) {
+    return (
+      <div className="relative">
+        {/* Blurred background content */}
+        <div className="blur-sm pointer-events-none select-none">
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-2 text-gradient-primary">Previous Year Questions</h2>
+              <p className="text-muted-foreground">Download year-wise question papers with solutions</p>
+            </div>
+
+            <Tabs defaultValue="jee-main" className="w-full">
+              <TabsList className="grid w-full grid-cols-5 mb-6 h-auto p-1">
+                <TabsTrigger value="jee-main" className="text-xs sm:text-sm py-2">JEE Main</TabsTrigger>
+                <TabsTrigger value="jee-advanced" className="text-xs sm:text-sm py-2">JEE Adv</TabsTrigger>
+                <TabsTrigger value="cuet" className="text-xs sm:text-sm py-2">CUET</TabsTrigger>
+                <TabsTrigger value="mhtcet" className="text-xs sm:text-sm py-2">MHTCET</TabsTrigger>
+                <TabsTrigger value="bitsat" className="text-xs sm:text-sm py-2">BITSAT</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="jee-main">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {getExamData('jee-main').slice(0, 4).map((item) => (
+                    <PYQCard key={item.year} year={item.year} items={item.items} examType="jee-main" />
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+
+        {/* Premium lock overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+          <Card className="card-jee max-w-md mx-4 shadow-2xl">
+            <CardContent className="pt-8 pb-6 text-center">
+              <div className="mx-auto mb-4 p-4 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-400/20 w-fit">
+                <Lock className="h-10 w-10 text-amber-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Premium Feature</h3>
+              <p className="text-muted-foreground mb-6">
+                Access to all PYQ papers from 2007-2025 is available for premium subscribers.
+              </p>
+              <div className="space-y-3">
+                <Button 
+                  variant="gradient" 
+                  className="w-full"
+                  onClick={() => navigate('/pricing')}
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade to Premium
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Starting at just ₹29/month
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <PremiumGate 
+          open={showPremiumGate} 
+          onOpenChange={setShowPremiumGate}
+          title="PYQ Access Locked"
+          description="Get access to 19 years of JEE Advanced papers and more with Premium."
+          feature="PYQ papers"
+        />
+      </div>
+    );
+  }
+
+  // Premium users see full content
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 text-gradient-primary">Previous Year Questions</h2>
         <p className="text-muted-foreground">Download year-wise question papers with solutions</p>
+        {isPremium && (
+          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-400/10 border border-amber-500/20">
+            <Crown className="h-3.5 w-3.5 text-amber-500" />
+            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Premium Access</span>
+          </div>
+        )}
       </div>
 
       {/* Exam Type Tabs */}
