@@ -33,14 +33,14 @@ export function useSubscription(): UseSubscriptionReturn {
   const [isPremium, setIsPremium] = useState(false);
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [remainingTests, setRemainingTests] = useState(2);
+  const [remainingTests, setRemainingTests] = useState(10);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchSubscriptionStatus = useCallback(async () => {
     if (!user) {
       setIsPremium(false);
       setSubscription(null);
-      setRemainingTests(2);
+      setRemainingTests(10);
       setIsLoading(false);
       return;
     }
@@ -63,7 +63,7 @@ export function useSubscription(): UseSubscriptionReturn {
       if (testsError) {
         console.error('Error getting remaining tests:', testsError);
       } else {
-        setRemainingTests(testsData ?? 2);
+        setRemainingTests(testsData ?? 10);
       }
 
       // Get active subscription details

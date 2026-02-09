@@ -13,11 +13,13 @@ import { MCQQuestion, Subject } from '@/types/jee';
 // import { generateMCQs } from '@/data/questionBank';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
 
 import { QuizLoadingScreen } from '@/components/QuizLoadingScreen';
+import { TestLimitGate } from '@/components/PremiumGate';
 
 export default function Quiz() {
   const location = useLocation();
@@ -25,19 +27,20 @@ export default function Quiz() {
   const { toast } = useToast();
   const { user, loading } = useAuth();
   
-  // Safely handle location state - redirect if missing
-  if (!location.state) {
-    navigate('/home');
-    return null;
-  }
-  
-  const { subject, topic, useAI, questionCount = 5, difficulty = 'jee-mains' } = location.state as { 
-    subject: Subject; 
-    topic: string; 
+  // Extract state values with defaults - hooks must be called unconditionally
+  const stateData = location.state as { 
+    subject?: Subject; 
+    topic?: string; 
     useAI?: boolean;
     questionCount?: number;
     difficulty?: 'cbse' | 'jee-mains' | 'jee-advanced';
-  };
+  } | null;
+  
+  const subject = stateData?.subject;
+  const topic = stateData?.topic;
+  const useAI = stateData?.useAI;
+  const questionCount = stateData?.questionCount ?? 5;
+  const difficulty = stateData?.difficulty ?? 'jee-mains';
 
   // Calculate time limit based on question count
   const getTimeLimit = (count: number) => {
@@ -53,6 +56,10 @@ export default function Quiz() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [labelMaps, setLabelMaps] = useState<Record<string, Record<string, string>>>({});
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showTestLimitGate, setShowTestLimitGate] = useState(false);
+  
+  // Subscription hook for test limits
+  const { isPremium, remainingTests, isLoading: subscriptionLoading } = useSubscription();
 
   // Convert simple LaTeX ($...$, \( ... \), $$...$$, \[ ... \]) to KaTeX HTML, then sanitize
   const renderMathToHTML = (input: string) => {
@@ -84,7 +91,7 @@ export default function Quiz() {
   };
   // Check authentication first
   useEffect(() => {
-    if (loading) return; // Wait for auth to load
+    if (loading || subscriptionLoading) return; // Wait for auth and subscription to load
     
     if (!user) {
       console.log('❌ Quiz: User not authenticated, redirecting to login');
@@ -96,7 +103,13 @@ export default function Quiz() {
       navigate('/login');
       return;
     }
-  }, [user, loading, navigate, toast]);
+
+    // Check test limits for free users
+    if (!isPremium && remainingTests <= 0) {
+      console.log('❌ Quiz: Free user has no remaining tests');
+      setShowTestLimitGate(true);
+    }
+  }, [user, loading, navigate, toast, isPremium, remainingTests, subscriptionLoading]);
 
   useEffect(() => {
     if (!subject || !topic) {
@@ -510,6 +523,13 @@ export default function Quiz() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Test Limit Gate for free users */}
+      <TestLimitGate 
+        open={showTestLimitGate} 
+        onOpenChange={setShowTestLimitGate}
+        remainingTests={remainingTests}
+      />
     </div>
   );
 }
