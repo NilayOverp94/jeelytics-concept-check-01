@@ -153,13 +153,12 @@ export function useRazorpay(): UseRazorpayReturn {
     } catch (err: any) {
       console.error('Payment initiation error:', err);
       setError(err.message);
+      setIsLoading(false);
       toast({
         title: "Payment Error",
         description: err.message || "Failed to initiate payment. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   }, [toast]);
 
