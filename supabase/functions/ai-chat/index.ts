@@ -7,16 +7,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Available lectures for reference
-const AVAILABLE_LECTURES = [
-  'Vectors', 'Matrices', 'Basic Math', 'Determinants', 'Quadratic Equations',
-  'Sequence and Series', '3D Geometry', 'Binomial Theorem', 'Relations & Functions',
-  'Permutation & Combination', 'Inverse Trigonometric Functions', 'Trigonometric Functions & Equations',
-  'Straight Lines', 'Definite Integration', 'Circles', 'Limits, Continuity & Differentiability',
-  'Parabola', 'Application of Derivatives', 'Hyperbola', 'Complex Numbers', 'Statistics',
-  'Differential Equations', 'Probability', 'Methods of Differentiation', 'Indefinite Integration',
-  'Ellipse', 'Area Under Curves', 'Sets'
-];
+// Available lectures for reference - ALL subjects
+const AVAILABLE_LECTURES = {
+  Mathematics: [
+    'Vectors', 'Matrices', 'Basic Math', 'Determinants', 'Quadratic Equations',
+    'Sequence and Series', '3D Geometry', 'Binomial Theorem', 'Relations & Functions',
+    'Permutation & Combination', 'Inverse Trigonometric Functions', 'Trigonometric Functions & Equations',
+    'Straight Lines', 'Definite Integration', 'Circles', 'Limits, Continuity & Differentiability',
+    'Parabola', 'Application of Derivatives', 'Hyperbola', 'Complex Numbers', 'Statistics',
+    'Differential Equations', 'Probability', 'Methods of Differentiation', 'Indefinite Integration',
+    'Ellipse', 'Area Under Curves', 'Sets'
+  ],
+  Physics: [
+    'Kinematics 1D', 'Kinematics 2D', 'NLM & Friction', 'Work Power Energy',
+    'Circular Motion', 'Centre of Mass', 'Rotational Motion', 'Gravitation',
+    'Mechanical Properties of Solids', 'Fluid Mechanics', 'Thermal Properties of Matter',
+    'Thermodynamics', 'KTG', 'SHM', 'Waves', 'Sound Waves',
+    'Ray Optics', 'Wave Optics', 'Electrostatics', 'Current Electricity',
+    'Magnetism', 'EMI', 'AC Circuits', 'Modern Physics', 'Semiconductors', 'Communication Systems'
+  ],
+  Chemistry: [
+    'Atomic Structure', 'Chemical Bonding', 'States of Matter', 'Thermodynamics',
+    'Equilibrium', 'Ionic Equilibrium', 'Redox Reactions', 'Electrochemistry',
+    'Chemical Kinetics', 'Surface Chemistry', 'Solid State', 'Solutions',
+    'Periodic Table', 'S-Block Elements', 'P-Block Elements', 'D & F Block Elements',
+    'Coordination Compounds', 'GOC', 'Isomerism', 'Hydrocarbons',
+    'Haloarenes', 'Alcohols Phenols Ethers', 'Aldehydes Ketones',
+    'Amines', 'Biomolecules'
+  ]
+};
 
 // Available topics for tests
 const AVAILABLE_TOPICS = {
@@ -90,7 +109,10 @@ serve(async (req) => {
 IMPORTANT: You have special capabilities to help students:
 
 1. **OPEN LECTURES**: When a user asks to open/watch/show a video lecture, you MUST respond with a JSON command block.
-   Available lectures (Mathematics only for now): ${AVAILABLE_LECTURES.join(', ')}
+   Available lectures across ALL subjects:
+   - Mathematics: ${AVAILABLE_LECTURES.Mathematics.join(', ')}
+   - Physics: ${AVAILABLE_LECTURES.Physics.join(', ')}
+   - Chemistry: ${AVAILABLE_LECTURES.Chemistry.join(', ')}
    
    When user asks something like "open Sets lecture", "show me the video on Calculus", "play Vectors lecture":
    Respond with:

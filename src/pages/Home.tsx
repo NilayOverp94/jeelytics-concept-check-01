@@ -168,9 +168,10 @@ function HomeContent() {
                 JEElytics
               </h1>
             </Link>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <UserStatusBadge />
-              <StreakDisplay streak={userStats.streak} />
+            <div className="flex items-center gap-1.5 sm:gap-3">
+              <div className="hidden sm:block"><UserStatusBadge /></div>
+              <div className="sm:hidden"><UserStatusBadge /></div>
+              <div className="hidden sm:block"><StreakDisplay streak={userStats.streak} /></div>
               <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -216,7 +217,7 @@ function HomeContent() {
             <TabsContent value="tests">
               {/* Hero Section */}
               <div className="text-center mb-8 sm:mb-12 animate-fade-in">
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gradient-primary leading-tight">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gradient-primary leading-tight pb-1">
                   Your Concept Strength Checker
                 </h2>
                 <p className="text-base sm:text-xl text-muted-foreground mb-6 sm:mb-8 px-2">Master JEE concepts with AI-powered assessments!</p>

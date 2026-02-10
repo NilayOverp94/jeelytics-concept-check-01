@@ -210,7 +210,7 @@ export default function Pricing() {
               </CardTitle>
               <CardDescription>Perfect for focused prep</CardDescription>
               <div className="mt-4">
-                <span className="text-4xl font-bold">₹{monthlyPlan?.price_inr || 29}</span>
+                <span className="text-4xl font-bold">₹{monthlyPlan?.price_inr ?? 29}</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
             </CardHeader>
@@ -256,10 +256,10 @@ export default function Pricing() {
               </CardTitle>
               <CardDescription>Best value for JEE prep</CardDescription>
               <div className="mt-4">
-                <span className="text-4xl font-bold">₹{yearlyPlan?.price_inr || 109}</span>
+                <span className="text-4xl font-bold">₹{yearlyPlan?.price_inr ?? 109}</span>
                 <span className="text-muted-foreground">/year</span>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Just ₹{Math.round((yearlyPlan?.price_inr || 109) / 12)}/month
+                  Just ₹{Math.round((yearlyPlan?.price_inr ?? 109) / 12)}/month
                 </p>
               </div>
             </CardHeader>
