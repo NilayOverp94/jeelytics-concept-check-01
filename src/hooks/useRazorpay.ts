@@ -146,7 +146,8 @@ export function useRazorpay(): UseRazorpayReturn {
         }
       };
 
-      // Open Razorpay checkout
+      // Open Razorpay checkout - set loading false BEFORE opening modal
+      setIsLoading(false);
       const razorpay = new window.Razorpay(options);
       razorpay.open();
 
