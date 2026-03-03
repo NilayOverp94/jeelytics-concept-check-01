@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, X, Crown, Zap, Shield, Clock } from 'lucide-react';
+import { ArrowLeft, Check, X, Crown, Zap, Shield, Clock, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useRazorpay } from '@/hooks/useRazorpay';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 
@@ -23,6 +25,37 @@ export default function Pricing() {
   const { plans, isPremium, subscription, isLoading } = useSubscription();
   const { initiatePayment, isLoading: isPaymentLoading } = useRazorpay();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState('');
+  const [isRedeemingCode, setIsRedeemingCode] = useState(false);
+
+  const handleRedeemReferral = async () => {
+    if (!user) {
+      toast({ title: "Login Required", description: "Please login first.", variant: "destructive" });
+      navigate('/login');
+      return;
+    }
+    if (!referralCode.trim()) {
+      toast({ title: "Enter Code", description: "Please enter a referral code.", variant: "destructive" });
+      return;
+    }
+    setIsRedeemingCode(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('redeem-referral', {
+        body: { code: referralCode.trim() }
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: "Invalid Code", description: data.error, variant: "destructive" });
+      } else if (data?.success) {
+        toast({ title: "🎉 Premium Activated!", description: data.message });
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to redeem code.", variant: "destructive" });
+    } finally {
+      setIsRedeemingCode(false);
+    }
+  };
 
   const handleSubscribe = async (planId: string) => {
     if (!user) {
@@ -289,6 +322,35 @@ export default function Pricing() {
                     Subscribe Yearly
                   </>
                 )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Referral Code Section */}
+        <div className="max-w-md mx-auto mb-16">
+          <Card className="card-jee border-dashed border-2 border-primary/30">
+            <CardHeader className="text-center pb-2">
+              <CardTitle className="text-lg flex items-center justify-center gap-2">
+                <Gift className="h-5 w-5 text-primary" />
+                Have a Referral Code?
+              </CardTitle>
+              <CardDescription>Enter your code to unlock free premium access</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Input
+                placeholder="Enter referral code"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                className="h-12 text-center text-base"
+              />
+              <Button
+                variant="gradient"
+                className="w-full"
+                onClick={handleRedeemReferral}
+                disabled={isRedeemingCode || !referralCode.trim()}
+              >
+                {isRedeemingCode ? 'Verifying...' : 'Redeem Code'}
               </Button>
             </CardContent>
           </Card>

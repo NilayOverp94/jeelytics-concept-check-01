@@ -636,13 +636,62 @@ export const LECTURES: Lecture[] = [
   }
 ];
 
-// Helper function to find a lecture by search term
+// Helper function to find a lecture by search term (improved fuzzy matching)
 export function findLecture(searchTerm: string): Lecture | undefined {
-  const term = searchTerm.toLowerCase();
-  return LECTURES.find(lecture => 
-    lecture.title.toLowerCase().includes(term) ||
-    lecture.topic.toLowerCase().includes(term)
+  const term = searchTerm.toLowerCase().trim();
+  if (!term) return undefined;
+
+  // 1. Exact title match (without "- Complete Lecture")
+  const exactMatch = LECTURES.find(l =>
+    l.title.replace(' - Complete Lecture', '').toLowerCase() === term
   );
+  if (exactMatch) return exactMatch;
+
+  // 2. Title includes search term
+  const titleMatch = LECTURES.find(l =>
+    l.title.toLowerCase().includes(term)
+  );
+  if (titleMatch) return titleMatch;
+
+  // 3. Topic includes search term
+  const topicMatch = LECTURES.find(l =>
+    l.topic.toLowerCase().includes(term)
+  );
+  if (topicMatch) return topicMatch;
+
+  // 4. Search term includes title keyword (e.g. "play optics lecture" matches "Optics")
+  const titleKeywordMatch = LECTURES.find(l => {
+    const titleClean = l.title.replace(' - Complete Lecture', '').toLowerCase();
+    return term.includes(titleClean);
+  });
+  if (titleKeywordMatch) return titleKeywordMatch;
+
+  // 5. Word-level fuzzy: any word in search matches any word in title
+  const searchWords = term.split(/\s+/).filter(w => w.length > 2);
+  let bestMatch: Lecture | undefined;
+  let bestScore = 0;
+
+  for (const lecture of LECTURES) {
+    const titleClean = lecture.title.replace(' - Complete Lecture', '').toLowerCase();
+    const titleWords = titleClean.split(/\s+/);
+    const topicWords = lecture.topic.toLowerCase().split(/\s+/);
+    const allWords = [...titleWords, ...topicWords];
+
+    let score = 0;
+    for (const sw of searchWords) {
+      for (const tw of allWords) {
+        if (tw.includes(sw) || sw.includes(tw)) {
+          score += 1;
+        }
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = lecture;
+    }
+  }
+
+  return bestScore > 0 ? bestMatch : undefined;
 }
 
 // Get all available lecture titles for the AI prompt

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Brain, BookOpen, Calculator, Zap, TrendingUp, Target, Clock, Award, Play, FileText, Sparkles } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, TrendingUp, Target, Clock, Award, Play, FileText, Sparkles, Bot, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -92,28 +92,35 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 rounded-xl">
           <div className="flex items-center gap-2 mb-3 sm:mb-4 justify-center">
             <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <h3 className="text-lg sm:text-xl font-bold text-primary">New Features!</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-primary">What We Offer</h3>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
             <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
               <Play className="h-8 w-8 sm:h-10 sm:w-10 text-secondary flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm sm:text-base">Recorded Lectures</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Video lessons from experts</p>
+                <p className="font-semibold text-sm sm:text-base">Video Lectures</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">All topics by expert teachers</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
               <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-accent flex-shrink-0" />
               <div>
                 <p className="font-semibold text-sm sm:text-base">Notes & Resources</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Study materials included</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Study materials for every chapter</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
-              <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 text-primary flex-shrink-0" />
+              <Bot className="h-8 w-8 sm:h-10 sm:w-10 text-primary flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm sm:text-base">More Coming Soon</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Stay tuned for updates!</p>
+                <p className="font-semibold text-sm sm:text-base">Personal AI Tutor</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Your own AI study assistant</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 sm:p-4 bg-background/50 rounded-lg">
+              <ScrollText className="h-8 w-8 sm:h-10 sm:w-10 text-amber-500 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm sm:text-base">PYQ Papers</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">JEE Advanced 2007-2025</p>
               </div>
             </div>
           </div>

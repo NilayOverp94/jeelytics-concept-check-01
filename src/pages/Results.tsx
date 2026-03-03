@@ -249,6 +249,18 @@ export default function Results() {
 
       console.log('📊 Updating stats with:', newStats);
 
+      // Increment monthly test count for free users
+      try {
+        const { error: incError } = await supabase.rpc('increment_daily_test_count', { p_user_id: user.id });
+        if (incError) {
+          console.error('❌ Error incrementing test count:', incError);
+        } else {
+          console.log('✅ Monthly test count incremented');
+        }
+      } catch (e) {
+        console.error('💥 Error calling increment_daily_test_count:', e);
+      }
+
       const { data: statsData, error: statsError } = await supabase
         .from('user_stats')
         .upsert(newStats, { onConflict: 'user_id' })
