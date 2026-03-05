@@ -104,10 +104,11 @@ export default function Quiz() {
       return;
     }
 
-    // Check test limits for free users
+    // Check test limits for free users - block immediately, don't show loading screen
     if (!isPremium && remainingTests <= 0) {
       console.log('❌ Quiz: Free user has no remaining tests');
       setShowTestLimitGate(true);
+      return; // Don't proceed to load questions
     }
   }, [user, loading, navigate, toast, isPremium, remainingTests, subscriptionLoading]);
 
@@ -355,6 +356,15 @@ export default function Quiz() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Show test limit gate BEFORE loading screen
+  if (showTestLimitGate) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <TestLimitGate open={true} onOpenChange={() => navigate('/home')} remainingTests={0} />
       </div>
     );
   }
