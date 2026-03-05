@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,16 @@ export function ClassesSection() {
   const { selectedLectureId, setSelectedLectureId } = useAICommand();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSubject, setActiveSubject] = useState<Subject>('Mathematics');
+
+  // Listen for AI command to switch subject tab
+  React.useEffect(() => {
+    const handler = (e: Event) => {
+      const subject = (e as CustomEvent).detail as Subject;
+      if (subject) setActiveSubject(subject);
+    };
+    window.addEventListener('switch-lecture-subject', handler);
+    return () => window.removeEventListener('switch-lecture-subject', handler);
+  }, []);
 
   const handleStartTest = (subject: string, topic: string) => {
     navigate('/quiz', {
@@ -96,7 +106,7 @@ export function ClassesSection() {
               title={lecture.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              loading="eager"
+              loading="lazy"
               className="w-full h-full"
             />
           </div>

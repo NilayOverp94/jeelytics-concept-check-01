@@ -39,9 +39,12 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
       const lecture = findLecture(searchTerm, subjectHint || undefined);
       
       if (lecture) {
-        // Switch to classes tab and highlight the lecture
+        // Switch to classes tab AND switch subject tab to match the lecture's subject
         setActiveTab('classes');
         setSelectedLectureId(lecture.id);
+        
+        // Dispatch custom event so ClassesSection switches to the correct subject tab
+        window.dispatchEvent(new CustomEvent('switch-lecture-subject', { detail: lecture.subject }));
         
         toast({
           title: "Opening Lecture",

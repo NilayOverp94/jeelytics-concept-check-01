@@ -16,48 +16,29 @@ const tips = [
   "Trust your preparation and instincts"
 ];
 
-const GRID_SIZE = 4;
-const TOTAL_TILES = GRID_SIZE * GRID_SIZE;
+// Memory card game
+const EMOJIS = ['⚡', '🧪', '📐', '🎯', '🧠', '🔬', '📊', '✨'];
+const CARD_PAIRS = [...EMOJIS, ...EMOJIS]; // 16 cards = 8 pairs
 
-// Generate shuffled indices for puzzle
-function generateShuffledTiles(): number[] {
-  const tiles = Array.from({ length: TOTAL_TILES }, (_, i) => i);
-  // Fisher-Yates shuffle
-  for (let i = tiles.length - 1; i > 0; i--) {
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return tiles;
+  return a;
 }
-
-const TILE_COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--accent))',
-  'hsl(var(--secondary))',
-  'hsl(262 80% 55%)',
-  'hsl(330 70% 50%)',
-  'hsl(200 80% 50%)',
-  'hsl(150 60% 45%)',
-  'hsl(30 80% 55%)',
-  'hsl(var(--primary) / 0.8)',
-  'hsl(var(--accent) / 0.8)',
-  'hsl(262 70% 60%)',
-  'hsl(330 60% 55%)',
-  'hsl(200 70% 55%)',
-  'hsl(150 50% 50%)',
-  'hsl(30 70% 60%)',
-  'hsl(var(--secondary) / 0.8)',
-];
-
-const TILE_ICONS = ['⚡', '🧪', '📐', '🎯', '🧠', '🔬', '📊', '✨', '🚀', '💡', '⭐', '🔥', '🎓', '📖', '🏆', '💪'];
 
 export function QuizLoadingScreen({ questionCount }: QuizLoadingScreenProps) {
   const [currentTip, setCurrentTip] = useState(0);
-  const [tiles, setTiles] = useState<number[]>(generateShuffledTiles);
-  const [selectedTile, setSelectedTile] = useState<number | null>(null);
-  const [moves, setMoves] = useState(0);
-  const [solved, setSolved] = useState(false);
   const [dots, setDots] = useState('');
+
+  // Memory game state
+  const [cards, setCards] = useState(() => shuffleArray(CARD_PAIRS));
+  const [flipped, setFlipped] = useState<number[]>([]);
+  const [matched, setMatched] = useState<Set<number>>(new Set());
+  const [moves, setMoves] = useState(0);
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     const tipInterval = setInterval(() => {
@@ -72,41 +53,40 @@ export function QuizLoadingScreen({ questionCount }: QuizLoadingScreenProps) {
     };
   }, []);
 
-  // Check if puzzle is solved
-  useEffect(() => {
-    const isSolved = tiles.every((tile, index) => tile === index);
-    if (isSolved && moves > 0) {
-      setSolved(true);
-    }
-  }, [tiles, moves]);
+  const handleCardClick = useCallback((index: number) => {
+    if (locked || flipped.includes(index) || matched.has(index)) return;
 
-  const handleTileClick = useCallback((clickedIndex: number) => {
-    if (solved) return;
+    const newFlipped = [...flipped, index];
+    setFlipped(newFlipped);
 
-    if (selectedTile === null) {
-      setSelectedTile(clickedIndex);
-    } else {
-      if (selectedTile === clickedIndex) {
-        setSelectedTile(null);
-        return;
-      }
-      // Swap tiles
-      setTiles(prev => {
-        const newTiles = [...prev];
-        [newTiles[selectedTile], newTiles[clickedIndex]] = [newTiles[clickedIndex], newTiles[selectedTile]];
-        return newTiles;
-      });
+    if (newFlipped.length === 2) {
       setMoves(m => m + 1);
-      setSelectedTile(null);
+      setLocked(true);
+      const [first, second] = newFlipped;
+      if (cards[first] === cards[second]) {
+        // Match found
+        setMatched(prev => new Set([...prev, first, second]));
+        setFlipped([]);
+        setLocked(false);
+      } else {
+        // No match - flip back after delay
+        setTimeout(() => {
+          setFlipped([]);
+          setLocked(false);
+        }, 800);
+      }
     }
-  }, [selectedTile, solved]);
+  }, [flipped, matched, locked, cards]);
 
   const handleReset = () => {
-    setTiles(generateShuffledTiles());
-    setSelectedTile(null);
+    setCards(shuffleArray(CARD_PAIRS));
+    setFlipped([]);
+    setMatched(new Set());
     setMoves(0);
-    setSolved(false);
+    setLocked(false);
   };
+
+  const allMatched = matched.size === cards.length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
@@ -117,7 +97,7 @@ export function QuizLoadingScreen({ questionCount }: QuizLoadingScreenProps) {
             Generating Questions{dots}
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
-            {questionCount} questions loading • Solve the puzzle while you wait!
+            {questionCount} questions loading • Play while you wait!
           </p>
         </div>
 
@@ -127,15 +107,16 @@ export function QuizLoadingScreen({ questionCount }: QuizLoadingScreenProps) {
                style={{ width: '40%' }} />
         </div>
 
-        {/* Puzzle */}
+        {/* Memory Game */}
         <div className="bg-card/80 backdrop-blur-sm border border-border rounded-xl p-4 sm:p-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">🧩 Tile Puzzle</span>
-              {solved && <span className="text-xs font-bold text-green-500 animate-pulse">✅ Solved!</span>}
+              <span className="text-sm font-medium text-muted-foreground">🃏 Memory Match</span>
+              {allMatched && <span className="text-xs font-bold text-green-500 animate-pulse">🎉 You win!</span>}
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">Moves: <span className="font-bold text-foreground">{moves}</span></span>
+              <span className="text-xs text-muted-foreground">Pairs: <span className="font-bold text-foreground">{matched.size / 2}/{EMOJIS.length}</span></span>
               <button 
                 onClick={handleReset}
                 className="text-xs px-2 py-1 rounded bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
@@ -146,37 +127,37 @@ export function QuizLoadingScreen({ questionCount }: QuizLoadingScreenProps) {
           </div>
           
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-            {tiles.map((tileValue, index) => {
-              const isSelected = selectedTile === index;
-              const isInCorrectPosition = tileValue === index;
+            {cards.map((emoji, index) => {
+              const isFlipped = flipped.includes(index);
+              const isMatched = matched.has(index);
+              const showFace = isFlipped || isMatched;
               
               return (
                 <button
                   key={index}
-                  onClick={() => handleTileClick(index)}
+                  onClick={() => handleCardClick(index)}
                   className={`
                     aspect-square rounded-lg flex items-center justify-center text-xl sm:text-2xl
-                    transition-all duration-200 cursor-pointer select-none
-                    ${isSelected 
-                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-95' 
-                      : 'hover:scale-105 active:scale-95'
+                    transition-all duration-300 cursor-pointer select-none
+                    ${showFace 
+                      ? isMatched 
+                        ? 'bg-primary/20 border-2 border-primary/40 scale-95' 
+                        : 'bg-accent/20 border-2 border-accent/40' 
+                      : 'bg-muted hover:bg-muted/70 hover:scale-105 active:scale-95 border-2 border-border'
                     }
-                    ${solved && isInCorrectPosition ? 'animate-pulse' : ''}
                   `}
                   style={{
-                    backgroundColor: TILE_COLORS[tileValue],
-                    opacity: isInCorrectPosition && !solved ? 0.9 : 0.75,
-                    boxShadow: isSelected ? '0 0 15px hsl(var(--primary) / 0.5)' : 'none',
+                    transform: showFace ? 'rotateY(0deg)' : 'rotateY(0deg)',
                   }}
                 >
-                  {TILE_ICONS[tileValue]}
+                  {showFace ? emoji : '❓'}
                 </button>
               );
             })}
           </div>
           
           <p className="text-xs text-center text-muted-foreground mt-3">
-            Tap two tiles to swap them • Arrange in order to solve
+            Tap cards to find matching pairs!
           </p>
         </div>
 
