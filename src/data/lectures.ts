@@ -636,42 +636,50 @@ export const LECTURES: Lecture[] = [
   }
 ];
 
-// Helper function to find a lecture by search term (improved fuzzy matching)
-export function findLecture(searchTerm: string): Lecture | undefined {
+// Helper function to find a lecture by search term with optional subject filter
+export function findLecture(searchTerm: string, subjectHint?: string): Lecture | undefined {
   const term = searchTerm.toLowerCase().trim();
   if (!term) return undefined;
 
+  // Filter by subject if provided
+  const pool = subjectHint 
+    ? LECTURES.filter(l => l.subject.toLowerCase() === subjectHint.toLowerCase())
+    : LECTURES;
+  
+  // Fallback to all lectures if subject filter yields nothing
+  const candidates = pool.length > 0 ? pool : LECTURES;
+
   // 1. Exact title match (without "- Complete Lecture")
-  const exactMatch = LECTURES.find(l =>
+  const exactMatch = candidates.find(l =>
     l.title.replace(' - Complete Lecture', '').toLowerCase() === term
   );
   if (exactMatch) return exactMatch;
 
   // 2. Title includes search term
-  const titleMatch = LECTURES.find(l =>
+  const titleMatch = candidates.find(l =>
     l.title.toLowerCase().includes(term)
   );
   if (titleMatch) return titleMatch;
 
   // 3. Topic includes search term
-  const topicMatch = LECTURES.find(l =>
+  const topicMatch = candidates.find(l =>
     l.topic.toLowerCase().includes(term)
   );
   if (topicMatch) return topicMatch;
 
-  // 4. Search term includes title keyword (e.g. "play optics lecture" matches "Optics")
-  const titleKeywordMatch = LECTURES.find(l => {
+  // 4. Search term includes title keyword
+  const titleKeywordMatch = candidates.find(l => {
     const titleClean = l.title.replace(' - Complete Lecture', '').toLowerCase();
     return term.includes(titleClean);
   });
   if (titleKeywordMatch) return titleKeywordMatch;
 
-  // 5. Word-level fuzzy: any word in search matches any word in title
+  // 5. Word-level fuzzy scoring
   const searchWords = term.split(/\s+/).filter(w => w.length > 2);
   let bestMatch: Lecture | undefined;
   let bestScore = 0;
 
-  for (const lecture of LECTURES) {
+  for (const lecture of candidates) {
     const titleClean = lecture.title.replace(' - Complete Lecture', '').toLowerCase();
     const titleWords = titleClean.split(/\s+/);
     const topicWords = lecture.topic.toLowerCase().split(/\s+/);

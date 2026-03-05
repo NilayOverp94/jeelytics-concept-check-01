@@ -35,7 +35,8 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
 
     if (command.type === 'open_lecture') {
       const searchTerm = command.lectureSearch || '';
-      const lecture = findLecture(searchTerm);
+      const subjectHint = command.subject || '';
+      const lecture = findLecture(searchTerm, subjectHint || undefined);
       
       if (lecture) {
         // Switch to classes tab and highlight the lecture
