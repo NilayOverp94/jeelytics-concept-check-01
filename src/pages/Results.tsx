@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ export default function Results() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const hasSaved = useRef(false);
   const [userStats, setUserStats] = useState<UserStats>({
     streak: 0,
     lastTestDate: null,
@@ -93,9 +94,12 @@ export default function Results() {
       return () => clearTimeout(timeout);
     }
 
-    // User is authenticated, save the test result
-    console.log('✅ User authenticated, saving test result');
-    saveTestResult();
+    // User is authenticated, save the test result (only once)
+    if (!hasSaved.current) {
+      hasSaved.current = true;
+      console.log('✅ User authenticated, saving test result');
+      saveTestResult();
+    }
   }, [subject, score, totalQuestions, topic, userAnswers, correctAnswers, user, navigate]);
 
   const saveTestResult = async () => {

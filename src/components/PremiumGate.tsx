@@ -94,8 +94,8 @@ export function TestLimitGate({ open, onOpenChange, remainingTests }: TestLimitG
   const navigate = useNavigate();
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={() => { /* prevent closing via overlay/escape */ }}>
+      <DialogContent className="sm:max-w-md [&>button]:hidden" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 p-4 rounded-full bg-destructive/20">
             <Lock className="h-8 w-8 text-destructive" />

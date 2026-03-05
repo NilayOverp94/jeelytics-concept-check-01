@@ -74,7 +74,7 @@ export function QuestionReview({ questions, userAnswers, correctAnswers, useAI =
                     </div>
                   )}
                   <div className="space-y-1 text-sm">
-                    <div className={`${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <div className={`${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
                       Your answer: {userAnswer ? (
                         isIntegerType ? (
                           <span className="font-semibold">{userAnswer}</span>

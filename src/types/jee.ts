@@ -44,7 +44,7 @@ export const SUBJECTS = {
     'Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry', 
     'Chemical Bonding', 'Thermodynamics', 'Electrochemistry',
     'Chemical Kinetics', 'Coordination Compounds', 'P-Block Elements',
-    'S-Block Elements', 'Hydrocarbons', 'Alcohols & Ethers'
+    'S-Block Elements', 'D & F Block Elements', 'Hydrocarbons', 'Alcohols & Ethers'
   ],
   Mathematics: [
     'Algebra', 'Trigonometry', 'Calculus', 'Coordinate Geometry',

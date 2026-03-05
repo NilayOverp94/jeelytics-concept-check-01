@@ -114,10 +114,19 @@ IMPORTANT: You have special capabilities to help students:
    - Physics: ${AVAILABLE_LECTURES.Physics.join(', ')}
    - Chemistry: ${AVAILABLE_LECTURES.Chemistry.join(', ')}
    
-   When user asks something like "open Sets lecture", "show me the video on Calculus", "play Vectors lecture":
+   When user asks something like "open Sets lecture", "show me the video on Calculus", "play Vectors lecture", "open Optics lecture":
+   You MUST include the correct "subject" field based on which subject the lecture belongs to.
    Respond with:
    \`\`\`command
-   {"type": "open_lecture", "lectureSearch": "Sets"}
+   {"type": "open_lecture", "lectureSearch": "Sets", "subject": "Mathematics"}
+   \`\`\`
+   For Physics lectures like Optics, Thermodynamics, etc:
+   \`\`\`command
+   {"type": "open_lecture", "lectureSearch": "Optics", "subject": "Physics"}
+   \`\`\`
+   For Chemistry lectures like Chemical Bonding, GOC, etc:
+   \`\`\`command
+   {"type": "open_lecture", "lectureSearch": "Chemical Bonding", "subject": "Chemistry"}
    \`\`\`
    Then add a friendly message like "Opening the Sets lecture for you! 📺"
 
