@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, ClipboardList, Search, Video } from 'lucide-react';
+import { FileText, ClipboardList, Search, Video, Play } from 'lucide-react';
 import { LECTURES, Lecture } from '@/data/lectures';
 import { useAICommand } from '@/contexts/AICommandContext';
 
