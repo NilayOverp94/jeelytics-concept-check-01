@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, ClipboardList, Search, Video } from 'lucide-react';
+import { FileText, ClipboardList, Search, Video, Play } from 'lucide-react';
 import { LECTURES, Lecture } from '@/data/lectures';
 import { useAICommand } from '@/contexts/AICommandContext';
 
@@ -73,6 +73,11 @@ export function ClassesSection() {
 
   const LectureCard = ({ lecture }: { lecture: Lecture }) => {
     const isHighlighted = selectedLectureId === lecture.id;
+    const [isPlaying, setIsPlaying] = useState(false);
+    
+    const handlePlay = useCallback(() => {
+      setIsPlaying(true);
+    }, []);
     
     return (
       <Card 
@@ -100,15 +105,34 @@ export function ClassesSection() {
           <CardTitle className="text-xl mt-2">{lecture.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-            <iframe
-              src={`https://www.youtube.com/embed/${lecture.youtubeId}`}
-              title={lecture.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              loading="lazy"
-              className="w-full h-full"
-            />
+          <div className="aspect-video rounded-lg overflow-hidden bg-muted relative">
+            {isPlaying ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${lecture.youtubeId}?autoplay=1`}
+                title={lecture.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            ) : (
+              <button
+                onClick={handlePlay}
+                className="w-full h-full relative group cursor-pointer bg-black"
+                aria-label={`Play ${lecture.title}`}
+              >
+                <img
+                  src={`https://img.youtube.com/vi/${lecture.youtubeId}/hqdefault.jpg`}
+                  alt={lecture.title}
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-70 transition-opacity"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Play className="h-7 w-7 text-white ml-1" fill="white" />
+                  </div>
+                </div>
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">

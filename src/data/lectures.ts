@@ -637,38 +637,28 @@ export const LECTURES: Lecture[] = [
 ];
 
 // Helper function to find a lecture by search term with optional subject filter
-export function findLecture(searchTerm: string, subjectHint?: string): Lecture | undefined {
-  const term = searchTerm.toLowerCase().trim();
-  if (!term) return undefined;
-
-  // Filter by subject if provided
-  const pool = subjectHint 
-    ? LECTURES.filter(l => l.subject.toLowerCase() === subjectHint.toLowerCase())
-    : LECTURES;
-  
-  // Fallback to all lectures if subject filter yields nothing
-  const candidates = pool.length > 0 ? pool : LECTURES;
-
-  // 1. Exact title match (without "- Complete Lecture")
-  const exactMatch = candidates.find(l =>
+// Search function that tries subject-filtered first, then falls back to all lectures
+function searchInPool(term: string, pool: Lecture[]): Lecture | undefined {
+  // 1. Exact title match
+  const exactMatch = pool.find(l =>
     l.title.replace(' - Complete Lecture', '').toLowerCase() === term
   );
   if (exactMatch) return exactMatch;
 
   // 2. Title includes search term
-  const titleMatch = candidates.find(l =>
+  const titleMatch = pool.find(l =>
     l.title.toLowerCase().includes(term)
   );
   if (titleMatch) return titleMatch;
 
   // 3. Topic includes search term
-  const topicMatch = candidates.find(l =>
+  const topicMatch = pool.find(l =>
     l.topic.toLowerCase().includes(term)
   );
   if (topicMatch) return topicMatch;
 
   // 4. Search term includes title keyword
-  const titleKeywordMatch = candidates.find(l => {
+  const titleKeywordMatch = pool.find(l => {
     const titleClean = l.title.replace(' - Complete Lecture', '').toLowerCase();
     return term.includes(titleClean);
   });
@@ -679,7 +669,7 @@ export function findLecture(searchTerm: string, subjectHint?: string): Lecture |
   let bestMatch: Lecture | undefined;
   let bestScore = 0;
 
-  for (const lecture of candidates) {
+  for (const lecture of pool) {
     const titleClean = lecture.title.replace(' - Complete Lecture', '').toLowerCase();
     const titleWords = titleClean.split(/\s+/);
     const topicWords = lecture.topic.toLowerCase().split(/\s+/);
@@ -700,6 +690,23 @@ export function findLecture(searchTerm: string, subjectHint?: string): Lecture |
   }
 
   return bestScore > 0 ? bestMatch : undefined;
+}
+
+export function findLecture(searchTerm: string, subjectHint?: string): Lecture | undefined {
+  const term = searchTerm.toLowerCase().trim();
+  if (!term) return undefined;
+
+  // Try subject-filtered pool first
+  if (subjectHint) {
+    const subjectPool = LECTURES.filter(l => l.subject.toLowerCase() === subjectHint.toLowerCase());
+    if (subjectPool.length > 0) {
+      const result = searchInPool(term, subjectPool);
+      if (result) return result;
+    }
+  }
+
+  // Fall back to ALL lectures (handles wrong subject hint from AI)
+  return searchInPool(term, LECTURES);
 }
 
 // Get all available lecture titles for the AI prompt
