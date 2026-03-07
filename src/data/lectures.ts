@@ -255,7 +255,7 @@ export const LECTURES: Lecture[] = [
     subject: 'Physics',
     topic: 'Mechanics',
     youtubeId: 'v-kDOGM3214',
-    notesLink: ''
+    notesLink: '/notes/physics-motion-in-1d.pdf'
   },
   {
     id: '32',
