@@ -456,7 +456,7 @@ export const LECTURES: Lecture[] = [
     subject: 'Chemistry',
     topic: 'Chemical Bonding',
     youtubeId: 'kS8s_WX0IlY',
-    notesLink: ''
+    notesLink: '/notes/chemistry-chemical-bonding.pdf'
   },
   {
     id: '57',
