@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Download, Lock, Crown } from 'lucide-react';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PremiumGate } from '@/components/PremiumGate';
+import { useAICommand } from '@/contexts/AICommandContext';
 
 // JEE Main PYQ data
 const JEE_MAIN_YEARS = [
@@ -22,7 +23,7 @@ const JEE_MAIN_YEARS = [
   { year: 2015, sessions: ['April'] },
 ];
 
-// JEE Advanced PYQ data - Extended from 2007 to 2025
+// JEE Advanced PYQ data
 const JEE_ADVANCED_YEARS = [
   { year: 2025, papers: ['Paper 1', 'Paper 2'] },
   { year: 2024, papers: ['Paper 1', 'Paper 2'] },
@@ -93,8 +94,30 @@ const EXAM_LABELS: Record<ExamType, string> = {
 export function PYQSection() {
   const navigate = useNavigate();
   const { isPremium, isLoading } = useSubscription();
+  const { pendingPyqExam, clearPendingPyqExam } = useAICommand();
   const [activeExam, setActiveExam] = useState<ExamType>('jee-main');
   const [showPremiumGate, setShowPremiumGate] = useState(false);
+
+  // Pick up pending PYQ exam from AI command
+  useEffect(() => {
+    if (pendingPyqExam) {
+      const examMap: Record<string, ExamType> = {
+        'jee-main': 'jee-main',
+        'jee main': 'jee-main',
+        'jee-mains': 'jee-main',
+        'jee mains': 'jee-main',
+        'jee-advanced': 'jee-advanced',
+        'jee advanced': 'jee-advanced',
+        'jee-adv': 'jee-advanced',
+        'cuet': 'cuet',
+        'mhtcet': 'mhtcet',
+        'bitsat': 'bitsat',
+      };
+      const mapped = examMap[pendingPyqExam.toLowerCase()] || 'jee-main';
+      setActiveExam(mapped);
+      clearPendingPyqExam();
+    }
+  }, [pendingPyqExam, clearPendingPyqExam]);
 
   const PYQCard = ({ 
     year, 
@@ -153,11 +176,9 @@ export function PYQSection() {
     }
   };
 
-  // Show blurred content with premium gate for free users
   if (!isLoading && !isPremium) {
     return (
       <div className="relative">
-        {/* Blurred background content */}
         <div className="blur-sm pointer-events-none select-none">
           <div className="space-y-6">
             <div className="text-center mb-8">
@@ -185,7 +206,6 @@ export function PYQSection() {
           </div>
         </div>
 
-        {/* Premium lock overlay */}
         <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
           <Card className="card-jee max-w-md mx-4 shadow-2xl">
             <CardContent className="pt-8 pb-6 text-center">
@@ -224,7 +244,6 @@ export function PYQSection() {
     );
   }
 
-  // Premium users see full content
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -238,7 +257,6 @@ export function PYQSection() {
         )}
       </div>
 
-      {/* Exam Type Tabs */}
       <Tabs defaultValue="jee-main" value={activeExam} onValueChange={(value) => setActiveExam(value as ExamType)} className="w-full">
         <TabsList className="grid w-full grid-cols-5 mb-6 h-auto p-1">
           <TabsTrigger 
@@ -289,7 +307,6 @@ export function PYQSection() {
         ))}
       </Tabs>
 
-      {/* Info Card */}
       <Card className="card-jee bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 border-primary/20">
         <CardContent className="py-6 text-center">
           <Download className="h-10 w-10 text-primary mx-auto mb-3" />

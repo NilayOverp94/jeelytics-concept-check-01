@@ -255,7 +255,7 @@ export const LECTURES: Lecture[] = [
     subject: 'Physics',
     topic: 'Mechanics',
     youtubeId: 'v-kDOGM3214',
-    notesLink: ''
+    notesLink: '/notes/physics-motion-in-1d.pdf'
   },
   {
     id: '32',
@@ -456,7 +456,7 @@ export const LECTURES: Lecture[] = [
     subject: 'Chemistry',
     topic: 'Chemical Bonding',
     youtubeId: 'kS8s_WX0IlY',
-    notesLink: ''
+    notesLink: '/notes/chemistry-chemical-bonding.pdf'
   },
   {
     id: '57',

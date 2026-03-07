@@ -7,7 +7,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Available lectures for reference - ALL subjects
 const AVAILABLE_LECTURES = {
   Mathematics: [
     'Vectors', 'Matrices', 'Basic Math', 'Determinants', 'Quadratic Equations',
@@ -19,25 +18,26 @@ const AVAILABLE_LECTURES = {
     'Ellipse', 'Area Under Curves', 'Sets'
   ],
   Physics: [
-    'Kinematics 1D', 'Kinematics 2D', 'NLM & Friction', 'Work Power Energy',
-    'Circular Motion', 'Centre of Mass', 'Rotational Motion', 'Gravitation',
-    'Mechanical Properties of Solids', 'Fluid Mechanics', 'Thermal Properties of Matter',
-    'Thermodynamics', 'KTG', 'SHM', 'Waves', 'Sound Waves',
-    'Ray Optics', 'Wave Optics', 'Electrostatics', 'Current Electricity',
-    'Magnetism', 'EMI', 'AC Circuits', 'Modern Physics', 'Semiconductors', 'Communication Systems'
+    'Basic Maths', 'Electric Charges and Fields', 'Motion in a Straight Line',
+    'Electric Potential, Dipole & Conductor', 'Motion in a Plane', 'Capacitor',
+    'Laws of Motion', 'Current Electricity', 'Work, Energy & Power', 'Magnetism',
+    'Circular Motion', 'Electromagnetic Induction', 'Alternating Current',
+    'Rotational Motion', 'Modern Physics', 'Gravitation',
+    'Mechanical Properties of Solids & Fluid', 'KTG & Thermodynamics', 'Optics',
+    'Thermal Properties of Matter', 'Oscillations', 'Waves', 'Wave Optics',
+    'Electromagnetic Waves', 'Centre of Mass', 'Semiconductor'
   ],
   Chemistry: [
-    'Atomic Structure', 'Chemical Bonding', 'States of Matter', 'Thermodynamics',
-    'Equilibrium', 'Ionic Equilibrium', 'Redox Reactions', 'Electrochemistry',
-    'Chemical Kinetics', 'Surface Chemistry', 'Solid State', 'Solutions',
-    'Periodic Table', 'S-Block Elements', 'P-Block Elements', 'D & F Block Elements',
-    'Coordination Compounds', 'GOC', 'Isomerism', 'Hydrocarbons',
-    'Haloarenes', 'Alcohols Phenols Ethers', 'Aldehydes Ketones',
-    'Amines', 'Biomolecules'
+    'Periodic Table', 'Chemical Bonding', 'Coordination Compound', 'P-Block',
+    'D and F Block', 'Salt Analysis', 'Mole Concept', 'Atomic Structure (States of Matter)',
+    'Thermodynamics & Thermochemistry', 'Solution', 'Redox', 'Electrochemistry',
+    'Thermodynamics', 'Chemical Equilibrium', 'Ionic Equilibrium', 'Chemical Kinetics',
+    'Structure of Atoms', 'IUPAC Nomenclature', 'GOC', 'Isomerism', 'Hydrocarbon',
+    'Haloalkanes and Haloarenes', 'Alcohol, Phenol and Ethers',
+    'Aldehydes, Ketones and Carboxylic Acids', 'Amines', 'Biomolecules'
   ]
 };
 
-// Available topics for tests
 const AVAILABLE_TOPICS = {
   Physics: ['Mechanics', 'Thermodynamics', 'Waves & Oscillations', 'Optics', 
     'Electricity & Magnetism', 'Modern Physics', 'Current Electricity',
@@ -52,14 +52,14 @@ const AVAILABLE_TOPICS = {
     'Binomial Theorem', 'Permutations & Combinations']
 };
 
+const AVAILABLE_PYQ_EXAMS = ['JEE Main', 'JEE Advanced', 'CUET', 'MHTCET', 'BITSAT'];
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Verify authentication
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ 
@@ -71,7 +71,6 @@ serve(async (req) => {
       });
     }
 
-    // Create Supabase client to verify JWT
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -81,7 +80,6 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     
     if (authError || !user) {
-      console.error('Auth verification failed:', authError);
       return new Response(JSON.stringify({ 
         error: 'Invalid authentication',
         response: 'Your session has expired. Please log in again.'
@@ -104,83 +102,81 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not found');
     }
 
-    const systemPrompt = `You are ASK AI, a knowledgeable and friendly JEE (Joint Entrance Examination) doubt solver and assistant. You specialize in Physics, Chemistry, and Mathematics concepts.
+    const systemPrompt = `You are ASK AI, a knowledgeable and friendly JEE doubt solver and assistant. You specialize in Physics, Chemistry, and Mathematics.
 
-IMPORTANT: You have special capabilities to help students:
+IMPORTANT: You have special capabilities:
 
-1. **OPEN LECTURES**: When a user asks to open/watch/show a video lecture, you MUST respond with a JSON command block.
-   Available lectures across ALL subjects:
-   - Mathematics: ${AVAILABLE_LECTURES.Mathematics.join(', ')}
-   - Physics: ${AVAILABLE_LECTURES.Physics.join(', ')}
-   - Chemistry: ${AVAILABLE_LECTURES.Chemistry.join(', ')}
+1. **OPEN LECTURES**: When a user asks to open/watch/show a video lecture, respond with a JSON command block.
+   CRITICAL: You MUST set the "subject" field correctly based on the lecture topic:
+   - Physics lectures: ${AVAILABLE_LECTURES.Physics.join(', ')}
+   - Chemistry lectures: ${AVAILABLE_LECTURES.Chemistry.join(', ')}
+   - Mathematics lectures: ${AVAILABLE_LECTURES.Mathematics.join(', ')}
    
-   When user asks something like "open Sets lecture", "show me the video on Calculus", "play Vectors lecture", "open Optics lecture":
-   You MUST include the correct "subject" field based on which subject the lecture belongs to.
-   Respond with:
+   Examples:
+   - "open optics lecture" → subject is "Physics" because Optics is a Physics topic
+   - "open chemical bonding" → subject is "Chemistry"
+   - "open vectors lecture" → subject is "Mathematics"
+   - "show me motion in straight line" → subject is "Physics"
+   - "open GOC lecture" → subject is "Chemistry"
+   
    \`\`\`command
-   {"type": "open_lecture", "lectureSearch": "Sets", "subject": "Mathematics"}
+   {"type": "open_lecture", "lectureSearch": "<lecture name>", "subject": "<Physics|Chemistry|Mathematics>"}
    \`\`\`
-   For Physics lectures like Optics, Thermodynamics, etc:
-   \`\`\`command
-   {"type": "open_lecture", "lectureSearch": "Optics", "subject": "Physics"}
-   \`\`\`
-   For Chemistry lectures like Chemical Bonding, GOC, etc:
-   \`\`\`command
-   {"type": "open_lecture", "lectureSearch": "Chemical Bonding", "subject": "Chemistry"}
-   \`\`\`
-   Then add a friendly message like "Opening the Sets lecture for you! 📺"
+   Then add a friendly message.
 
-2. **START TESTS**: When a user asks to generate/start a test/quiz, you MUST respond with a JSON command block.
+2. **START TESTS**: When a user asks to generate/start a test/quiz:
    Available subjects: Physics, Chemistry, Mathematics
    Available topics: ${JSON.stringify(AVAILABLE_TOPICS)}
    Difficulty levels: cbse, jee-mains, jee-advanced
    Question count: 3 to 25 (default 5)
    
-   When user asks something like "generate a test on semiconductors", "start a quiz on Mechanics", "give me 10 questions on Organic Chemistry JEE Advanced":
-   Respond with:
    \`\`\`command
    {"type": "start_test", "subject": "Physics", "topic": "Semiconductors", "difficulty": "jee-mains", "questionCount": 5}
    \`\`\`
-   Then add a friendly message like "Starting your Semiconductors test! Good luck! 🎯"
 
-3. **REGULAR QUESTIONS**: For JEE concept doubts, provide helpful explanations as usual.
+3. **OPEN PYQ SECTION**: When a user asks to open/show PYQ papers for any exam (JEE Main, JEE Advanced, BITSAT, CUET, MHTCET):
+   Available exams: ${AVAILABLE_PYQ_EXAMS.join(', ')}
+   
+   Examples:
+   - "open BITSAT PYQ" → exam is "bitsat"
+   - "show JEE Advanced 2023 papers" → exam is "jee-advanced"
+   - "open CUET previous year" → exam is "cuet"
+   
+   \`\`\`command
+   {"type": "open_pyq", "exam": "<jee-main|jee-advanced|cuet|mhtcet|bitsat>"}
+   \`\`\`
+   Then add a friendly message. Note: PYQ section is premium-only, so mention that if relevant.
+
+4. **REGULAR QUESTIONS**: For JEE concept doubts, provide helpful explanations.
 
 Your personality:
 - Friendly, encouraging, and patient
 - Always relate answers back to JEE exam context
 - Provide clear, step-by-step explanations
 - Use simple language but maintain technical accuracy
-- Add motivational elements when appropriate
 
-Guidelines for regular questions:
+Guidelines:
 - For math problems, show step-by-step solutions
-- For physics concepts, explain the underlying principles
+- For physics concepts, explain underlying principles
 - For chemistry, focus on reactions, mechanisms, and concepts
 - Always mention if a topic is frequently tested in JEE
 - Keep responses concise but complete
 
-Remember: Always use the command blocks when users ask to open lectures or start tests. The command block MUST be wrapped in \`\`\`command ... \`\`\` tags for the system to recognize it.`;
+CRITICAL RULE: When opening lectures, ALWAYS determine the correct subject. Do NOT default to Mathematics. Check which subject list contains the lecture name.
 
-    // Build messages array for OpenAI-compatible API
+Remember: Always use command blocks wrapped in \`\`\`command ... \`\`\` tags.`;
+
     const messages: any[] = [
       { role: 'system', content: systemPrompt }
     ];
     
-    // Add conversation history if provided
     if (conversationHistory && Array.isArray(conversationHistory)) {
       for (const msg of conversationHistory) {
-        messages.push({
-          role: msg.role,
-          content: msg.content
-        });
+        messages.push({ role: msg.role, content: msg.content });
       }
     }
     
-    // Add current message
-    messages.push({
-      role: 'user',
-      content: message
-    });
+    messages.push({ role: 'user', content: message });
 
     console.log('Calling Lovable AI Gateway, message count:', messages.length);
 
@@ -192,7 +188,7 @@ Remember: Always use the command blocks when users ask to open lectures or start
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: messages,
+        messages,
         temperature: 0.7,
         top_p: 0.9,
       })
@@ -206,19 +202,13 @@ Remember: Always use the command blocks when users ask to open lectures or start
         return new Response(JSON.stringify({ 
           error: 'Rate limits exceeded',
           response: "I'm receiving too many questions right now. Please try again in a moment!"
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ 
           error: 'Payment required',
           response: "AI credits have been exhausted. Please add funds to continue using this feature."
-        }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
       
       throw new Error(`Lovable AI Gateway error: ${response.status}`);
@@ -233,7 +223,6 @@ Remember: Always use the command blocks when users ask to open lectures or start
       throw new Error('Invalid response format from Lovable AI Gateway');
     }
 
-    // Parse for command blocks
     const commandRegex = /```command\s*([\s\S]*?)```/g;
     const commandMatch = commandRegex.exec(aiResponse);
     
@@ -243,7 +232,6 @@ Remember: Always use the command blocks when users ask to open lectures or start
     if (commandMatch) {
       try {
         command = JSON.parse(commandMatch[1].trim());
-        // Remove the command block from the response shown to user
         cleanResponse = aiResponse.replace(commandRegex, '').trim();
         console.log('Detected command:', command);
       } catch (e) {
@@ -253,7 +241,7 @@ Remember: Always use the command blocks when users ask to open lectures or start
 
     return new Response(JSON.stringify({ 
       response: cleanResponse,
-      command: command 
+      command 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
