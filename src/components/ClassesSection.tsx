@@ -1,30 +1,30 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, ClipboardList, Search, Video, Play } from 'lucide-react';
+import { FileText, ClipboardList, Search, Video, Play, Eye } from 'lucide-react';
 import { LECTURES, Lecture } from '@/data/lectures';
 import { useAICommand } from '@/contexts/AICommandContext';
+import { PDFViewer } from '@/components/PDFViewer';
 
 type Subject = 'Physics' | 'Chemistry' | 'Mathematics';
 
 export function ClassesSection() {
   const navigate = useNavigate();
-  const { selectedLectureId, setSelectedLectureId } = useAICommand();
+  const { selectedLectureId, setSelectedLectureId, pendingSubject, clearPendingSubject } = useAICommand();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSubject, setActiveSubject] = useState<Subject>('Mathematics');
+  const [viewingPdf, setViewingPdf] = useState<{ url: string; title: string } | null>(null);
 
-  // Listen for AI command to switch subject tab
-  React.useEffect(() => {
-    const handler = (e: Event) => {
-      const subject = (e as CustomEvent).detail as Subject;
-      if (subject) setActiveSubject(subject);
-    };
-    window.addEventListener('switch-lecture-subject', handler);
-    return () => window.removeEventListener('switch-lecture-subject', handler);
-  }, []);
+  // Pick up pending subject from AI command (fires on mount or when pendingSubject changes)
+  useEffect(() => {
+    if (pendingSubject) {
+      setActiveSubject(pendingSubject as Subject);
+      clearPendingSubject();
+    }
+  }, [pendingSubject, clearPendingSubject]);
 
   const handleStartTest = (subject: string, topic: string) => {
     navigate('/quiz', {
@@ -38,7 +38,6 @@ export function ClassesSection() {
     });
   };
 
-  // Universal search - if searching, show results from all subjects; otherwise filter by active subject
   const filteredLectures = useMemo(() => {
     return LECTURES.filter(lecture => {
       const matchesSearch = searchQuery === '' || 
@@ -46,17 +45,14 @@ export function ClassesSection() {
         lecture.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
         lecture.subject.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // If searching, show all matching lectures regardless of subject
       if (searchQuery) {
         return matchesSearch;
       }
       
-      // If not searching, filter by active subject
       return lecture.subject === activeSubject;
     });
   }, [activeSubject, searchQuery]);
 
-  // Check if search is active to show unified results
   const isSearching = searchQuery.length > 0;
 
   const ComingSoonCard = () => (
@@ -140,10 +136,23 @@ export function ClassesSection() {
               variant="outline"
               className="flex-1 h-12"
               disabled={!lecture.notesLink}
-              onClick={() => lecture.notesLink && window.open(lecture.notesLink, '_blank')}
+              onClick={() => {
+                if (lecture.notesLink) {
+                  setViewingPdf({ url: lecture.notesLink, title: `${lecture.title} - Notes` });
+                }
+              }}
             >
-              <FileText className="mr-2 h-4 w-4" />
-              {lecture.notesLink ? 'View Notes' : 'Notes Coming Soon'}
+              {lecture.notesLink ? (
+                <>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Notes
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Notes Coming Soon
+                </>
+              )}
             </Button>
             <Button
               variant="gradient"
@@ -178,8 +187,6 @@ export function ClassesSection() {
         />
       </div>
 
-      {/* Subject Tabs */}
-      {/* Show unified search results or tabbed content */}
       {isSearching ? (
         <div className="grid gap-6">
           {filteredLectures.length > 0 ? (
@@ -225,6 +232,15 @@ export function ClassesSection() {
             </TabsContent>
           ))}
         </Tabs>
+      )}
+
+      {/* PDF Viewer Modal */}
+      {viewingPdf && (
+        <PDFViewer
+          url={viewingPdf.url}
+          title={viewingPdf.title}
+          onClose={() => setViewingPdf(null)}
+        />
       )}
     </div>
   );

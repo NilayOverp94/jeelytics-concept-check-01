@@ -5,13 +5,15 @@ import { SUBJECTS, Subject } from '@/types/jee';
 import { useToast } from '@/hooks/use-toast';
 
 export interface AICommand {
-  type: 'open_lecture' | 'start_test' | 'none';
+  type: 'open_lecture' | 'start_test' | 'open_pyq' | 'none';
   lectureSearch?: string;
   lectureId?: string;
   subject?: string;
   topic?: string;
   difficulty?: 'cbse' | 'jee-mains' | 'jee-advanced';
   questionCount?: number;
+  exam?: string;
+  year?: number;
 }
 
 interface AICommandContextType {
@@ -20,6 +22,10 @@ interface AICommandContextType {
   setSelectedLectureId: (id: string | null) => void;
   selectedLectureId: string | null;
   activeTab: string;
+  pendingSubject: string | null;
+  clearPendingSubject: () => void;
+  pendingPyqExam: string | null;
+  clearPendingPyqExam: () => void;
 }
 
 const AICommandContext = createContext<AICommandContextType | undefined>(undefined);
@@ -29,6 +35,11 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('tests');
   const [selectedLectureId, setSelectedLectureId] = useState<string | null>(null);
+  const [pendingSubject, setPendingSubject] = useState<string | null>(null);
+  const [pendingPyqExam, setPendingPyqExam] = useState<string | null>(null);
+
+  const clearPendingSubject = useCallback(() => setPendingSubject(null), []);
+  const clearPendingPyqExam = useCallback(() => setPendingPyqExam(null), []);
 
   const executeCommand = useCallback((command: AICommand) => {
     console.log('🤖 Executing AI command:', command);
@@ -39,19 +50,17 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
       const lecture = findLecture(searchTerm, subjectHint || undefined);
       
       if (lecture) {
-        // Switch to classes tab AND switch subject tab to match the lecture's subject
-        setActiveTab('classes');
+        // Store the pending subject so ClassesSection picks it up on mount
+        setPendingSubject(lecture.subject);
         setSelectedLectureId(lecture.id);
-        
-        // Dispatch custom event so ClassesSection switches to the correct subject tab
-        window.dispatchEvent(new CustomEvent('switch-lecture-subject', { detail: lecture.subject }));
+        setActiveTab('classes');
         
         toast({
           title: "Opening Lecture",
           description: `Opening "${lecture.title}"...`
         });
         
-        // Scroll to the lecture after a short delay
+        // Scroll to the lecture after component mounts
         setTimeout(() => {
           const element = document.getElementById(`lecture-${lecture.id}`);
           if (element) {
@@ -61,7 +70,7 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
               element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
             }, 3000);
           }
-        }, 300);
+        }, 500);
       } else {
         toast({
           title: "Lecture Not Found",
@@ -69,14 +78,21 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
           variant: "destructive"
         });
       }
+    } else if (command.type === 'open_pyq') {
+      const exam = command.exam || 'jee-main';
+      setPendingPyqExam(exam);
+      setActiveTab('pyq');
+      
+      toast({
+        title: "Opening PYQs",
+        description: `Switching to ${exam.toUpperCase()} PYQ section...`
+      });
     } else if (command.type === 'start_test') {
-      // Validate subject
       let subject = command.subject || '';
       let topic = command.topic || '';
       const difficulty = command.difficulty || 'jee-mains';
       const questionCount = command.questionCount || 5;
 
-      // Map common terms to subjects
       const subjectMap: Record<string, Subject> = {
         'physics': 'Physics',
         'chemistry': 'Chemistry',
@@ -87,7 +103,6 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
 
       const normalizedSubject = subjectMap[subject.toLowerCase()] || subject as Subject;
       
-      // Check if subject is valid
       if (!SUBJECTS[normalizedSubject as Subject]) {
         toast({
           title: "Invalid Subject",
@@ -97,14 +112,12 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Find the closest matching topic
       const topics = SUBJECTS[normalizedSubject as Subject];
       let matchedTopic = topics.find(t => 
         t.toLowerCase().includes(topic.toLowerCase()) || 
         topic.toLowerCase().includes(t.toLowerCase())
       );
 
-      // If no exact match, try fuzzy matching
       if (!matchedTopic) {
         matchedTopic = topics.find(t => {
           const words = topic.toLowerCase().split(' ');
@@ -112,7 +125,6 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
-      // If still no match, use the first topic as fallback or use raw topic
       const finalTopic = matchedTopic || topic;
 
       if (!matchedTopic) {
@@ -145,7 +157,11 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
       setActiveTab, 
       setSelectedLectureId,
       selectedLectureId,
-      activeTab 
+      activeTab,
+      pendingSubject,
+      clearPendingSubject,
+      pendingPyqExam,
+      clearPendingPyqExam,
     }}>
       {children}
     </AICommandContext.Provider>
