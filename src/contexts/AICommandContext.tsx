@@ -50,27 +50,33 @@ export function AICommandProvider({ children }: { children: React.ReactNode }) {
       const lecture = findLecture(searchTerm, subjectHint || undefined);
       
       if (lecture) {
-        // Store the pending subject so ClassesSection picks it up on mount
-        setPendingSubject(lecture.subject);
-        setSelectedLectureId(lecture.id);
+        console.log('🤖 Found lecture:', lecture.title, 'Subject:', lecture.subject);
+        
+        // First switch to classes tab
         setActiveTab('classes');
         
-        toast({
-          title: "Opening Lecture",
-          description: `Opening "${lecture.title}"...`
-        });
-        
-        // Scroll to the lecture after component mounts
+        // Then set the subject and lecture with a small delay to ensure tab switch renders first
         setTimeout(() => {
-          const element = document.getElementById(`lecture-${lecture.id}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            element.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
-            setTimeout(() => {
-              element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
-            }, 3000);
-          }
-        }, 500);
+          setPendingSubject(lecture.subject);
+          setSelectedLectureId(lecture.id);
+          
+          toast({
+            title: "Opening Lecture",
+            description: `Opening "${lecture.title}" in ${lecture.subject}...`
+          });
+          
+          // Scroll to the lecture after subject tab switch
+          setTimeout(() => {
+            const element = document.getElementById(`lecture-${lecture.id}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+              setTimeout(() => {
+                element.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+              }, 3000);
+            }
+          }, 300);
+        }, 100);
       } else {
         toast({
           title: "Lecture Not Found",
