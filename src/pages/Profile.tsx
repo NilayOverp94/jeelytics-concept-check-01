@@ -61,7 +61,7 @@ export default function Profile() {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (stats) setUserStats(stats);
+    if (stats) setUserStats({ streak: stats.streak, totalTests: stats.total_tests, totalScore: stats.total_score });
   };
 
   const handleAvatarSelect = (avatar: string) => {

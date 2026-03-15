@@ -180,8 +180,9 @@ function HomeContent() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-popover border border-border">
-                  <DropdownMenuItem disabled className="font-medium text-sm">
-                    {user?.user_metadata?.name || user?.email}
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="touch-target">
+                    <User className="mr-2 h-4 w-4" />
+                    {user?.user_metadata?.name || 'Profile'}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive touch-target">
                     <LogOut className="mr-2 h-4 w-4" />
