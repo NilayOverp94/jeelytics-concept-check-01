@@ -6,8 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// The referral code is stored server-side only - never exposed to the client
-const VALID_REFERRAL_CODE = "123456789Nilay123456789";
+// Referral code stored as environment variable for security
+const VALID_REFERRAL_CODE = Deno.env.get('REFERRAL_CODE') || '';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

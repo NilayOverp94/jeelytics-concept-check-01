@@ -11,7 +11,7 @@ export interface MCQQuestion {
   explanation: string;
   topic: string;
   subject: string;
-  questionType?: 'mcq' | 'integer'; // integer type has no options, answer is a number
+  questionType?: 'mcq' | 'integer';
 }
 
 export interface TestResult {
@@ -36,21 +36,38 @@ export interface UserStats {
 
 export const SUBJECTS = {
   Physics: [
-    'Mechanics', 'Thermodynamics', 'Waves & Oscillations', 'Optics', 
+    'Mechanics', 'Thermodynamics', 'Waves & Oscillations', 'Optics',
     'Electricity & Magnetism', 'Modern Physics', 'Current Electricity',
-    'Electromagnetic Induction', 'AC Circuits', 'Atomic Physics'
+    'Electromagnetic Induction', 'AC Circuits', 'Atomic Physics',
+    'Rotational Motion', 'Gravitation', 'Fluid Mechanics',
+    'Oscillations', 'Waves and Sound', 'Electrostatics',
+    'Centre of Mass', 'Circular Motion', 'Wave Optics',
+    'Electromagnetic Waves', 'Semiconductor', 'Thermal Properties of Matter',
+    'KTG & Thermodynamics', 'Ray Optics'
   ],
   Chemistry: [
-    'Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry', 
+    'Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry',
     'Chemical Bonding', 'Thermodynamics', 'Electrochemistry',
     'Chemical Kinetics', 'Coordination Compounds', 'P-Block Elements',
-    'S-Block Elements', 'D & F Block Elements', 'Hydrocarbons', 'Alcohols & Ethers'
+    'S-Block Elements', 'D & F Block Elements', 'Hydrocarbons', 'Alcohols & Ethers',
+    'Atomic Structure', 'Chemical Equilibrium', 'Ionic Equilibrium',
+    'Mole Concept', 'Solutions', 'Redox Reactions',
+    'IUPAC Nomenclature', 'GOC (General Organic Chemistry)', 'Isomerism',
+    'Haloalkanes & Haloarenes', 'Aldehydes Ketones & Carboxylic Acids',
+    'Amines', 'Biomolecules', 'Periodic Table', 'Salt Analysis',
+    'S & P Block Elements'
   ],
   Mathematics: [
     'Algebra', 'Trigonometry', 'Calculus', 'Coordinate Geometry',
     'Vectors', 'Probability', 'Statistics', 'Complex Numbers',
     'Sequences & Series', 'Matrices & Determinants', 'Functions',
-    'Binomial Theorem', 'Permutations & Combinations'
+    'Binomial Theorem', 'Permutations & Combinations',
+    'Sets', 'Relations & Functions', 'Limits Continuity & Differentiability',
+    'Methods of Differentiation', 'Application of Derivatives',
+    'Indefinite Integration', 'Definite Integration', 'Area Under Curves',
+    'Differential Equations', 'Straight Lines', 'Circles',
+    'Parabola', 'Ellipse', 'Hyperbola', '3D Geometry',
+    'Inverse Trigonometric Functions'
   ]
 } as const;
 

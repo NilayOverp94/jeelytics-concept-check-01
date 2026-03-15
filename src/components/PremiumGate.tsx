@@ -120,7 +120,7 @@ export function TestLimitGate({ open, onOpenChange, remainingTests }: TestLimitG
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Unlimited Tests every month</li>
               <li>• Access to all PYQ Papers</li>
-              <li>• Starting at just ₹29/month</li>
+              <li>• Starting at just ₹149/month</li>
             </ul>
           </div>
 
