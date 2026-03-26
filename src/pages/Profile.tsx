@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, User, Mail, Calendar, Target, TrendingUp, BarChart3, Award } from 'lucide-react';
+import { ArrowLeft, Crown, User, Mail, Target, TrendingUp, BarChart3, Award, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,13 +31,17 @@ export default function Profile() {
   const { isPremium, subscription } = useSubscription();
   const [testHistory, setTestHistory] = useState<TestHistoryItem[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<string>('');
+  const [customAvatar, setCustomAvatar] = useState<string>('');
   const [userStats, setUserStats] = useState({ streak: 0, totalTests: 0, totalScore: 0 });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
       fetchData();
       const saved = localStorage.getItem(`avatar_${user.id}`);
       if (saved) setSelectedAvatar(saved);
+      const savedCustom = localStorage.getItem(`custom_avatar_${user.id}`);
+      if (savedCustom) setCustomAvatar(savedCustom);
     }
   }, [user]);
 
@@ -66,7 +70,31 @@ export default function Profile() {
 
   const handleAvatarSelect = (avatar: string) => {
     setSelectedAvatar(avatar);
-    if (user) localStorage.setItem(`avatar_${user.id}`, avatar);
+    setCustomAvatar('');
+    if (user) {
+      localStorage.setItem(`avatar_${user.id}`, avatar);
+      localStorage.removeItem(`custom_avatar_${user.id}`);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image must be under 2MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setCustomAvatar(dataUrl);
+      setSelectedAvatar('');
+      if (user) {
+        localStorage.setItem(`custom_avatar_${user.id}`, dataUrl);
+        localStorage.removeItem(`avatar_${user.id}`);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const avgScore = testHistory.length > 0
@@ -105,8 +133,27 @@ export default function Profile() {
         <Card className="card-jee">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center text-4xl shadow-lg">
-                {selectedAvatar || <User className="h-10 w-10 text-white" />}
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center text-4xl shadow-lg overflow-hidden">
+                {customAvatar ? (
+                  <img src={customAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : selectedAvatar ? (
+                  selectedAvatar
+                ) : (
+                  <User className="h-10 w-10 text-white" />
+                )}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-md border-2 border-background"
+                >
+                  <Camera className="h-3.5 w-3.5 text-primary-foreground" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
               </div>
 
               <div>

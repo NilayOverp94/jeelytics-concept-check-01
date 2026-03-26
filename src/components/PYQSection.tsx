@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Lock, Crown, Eye, Download } from 'lucide-react';
+import { FileText, Lock, Crown, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -70,7 +70,31 @@ const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
   { year: 2019, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2019.pdf' }] },
 ];
 
-type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'mhtcet' | 'bitsat';
+// NDA PYQ data (2021-2024) - links to UPSC official PDFs
+const NDA_YEARS: { year: number; items: PYQItem[] }[] = [
+  { year: 2024, items: [
+    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_GENERAL-ABILITY-TEST_22042024.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_MATHEMATICS_22042024.pdf' },
+  ]},
+  { year: 2023, items: [
+    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-23-GENERAL-ABILITY-TEST-170423.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-23-MATHEMATICS-170423.pdf' },
+  ]},
+  { year: 2022, items: [
+    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-22-MATHEMATICS-120422.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-II-22-GENERAL-ABILITY-TEST-050922.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-II-MATHEMATICS-050922.pdf' },
+  ]},
+  { year: 2021, items: [
+    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-21-GENERAL_ABILITY_TEST.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-21-MATHEMATICS.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-GAT-NDANA-EXAM-II-2021-161121.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-MATH-NDANA-EXAM-II-2021-161121.pdf' },
+  ]},
+];
+
+type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'mhtcet' | 'bitsat' | 'nda';
 
 const EXAM_COLORS: Record<ExamType, string> = {
   'jee-main': 'bg-primary/20 text-primary',
@@ -78,6 +102,7 @@ const EXAM_COLORS: Record<ExamType, string> = {
   'cuet': 'bg-secondary/20 text-secondary',
   'mhtcet': 'bg-emerald-500/20 text-emerald-500',
   'bitsat': 'bg-violet-500/20 text-violet-500',
+  'nda': 'bg-rose-500/20 text-rose-500',
 };
 
 const EXAM_LABELS: Record<ExamType, string> = {
@@ -86,6 +111,7 @@ const EXAM_LABELS: Record<ExamType, string> = {
   'cuet': 'CUET',
   'mhtcet': 'MHTCET',
   'bitsat': 'BITSAT',
+  'nda': 'NDA',
 };
 
 export function PYQSection() {
@@ -100,7 +126,7 @@ export function PYQSection() {
       const examMap: Record<string, ExamType> = {
         'jee-main': 'jee-main', 'jee main': 'jee-main', 'jee-mains': 'jee-main', 'jee mains': 'jee-main',
         'jee-advanced': 'jee-advanced', 'jee advanced': 'jee-advanced', 'jee-adv': 'jee-advanced',
-        'cuet': 'cuet', 'mhtcet': 'mhtcet', 'bitsat': 'bitsat',
+        'cuet': 'cuet', 'mhtcet': 'mhtcet', 'bitsat': 'bitsat', 'nda': 'nda',
       };
       setActiveExam(examMap[pendingPyqExam.toLowerCase()] || 'jee-main');
       clearPendingPyqExam();
@@ -131,7 +157,12 @@ export function PYQSection() {
                     return;
                   }
                   if (item.pdfPath) {
-                    setViewingPdf({ url: item.pdfPath, title: `${EXAM_LABELS[examType]} ${year} - ${item.label}` });
+                    // External URLs (NDA from upsc.gov.in) open in new tab
+                    if (item.pdfPath.startsWith('http')) {
+                      window.open(item.pdfPath, '_blank');
+                    } else {
+                      setViewingPdf({ url: item.pdfPath, title: `${EXAM_LABELS[examType]} ${year} - ${item.label}` });
+                    }
                   }
                 }}
                 disabled={!item.pdfPath && isPremium}
@@ -170,6 +201,7 @@ export function PYQSection() {
       case 'cuet': return CUET_YEARS;
       case 'mhtcet': return MHTCET_YEARS;
       case 'bitsat': return BITSAT_YEARS;
+      case 'nda': return NDA_YEARS;
       default: return [];
     }
   };
@@ -197,15 +229,16 @@ export function PYQSection() {
       </div>
 
       <Tabs defaultValue="jee-main" value={activeExam} onValueChange={(v) => setActiveExam(v as ExamType)} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-6 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-6 h-auto p-1">
           <TabsTrigger value="jee-main" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">JEE Main</TabsTrigger>
           <TabsTrigger value="jee-advanced" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">JEE Adv</TabsTrigger>
           <TabsTrigger value="cuet" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">CUET</TabsTrigger>
           <TabsTrigger value="mhtcet" className="text-xs sm:text-sm py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white">MHTCET</TabsTrigger>
           <TabsTrigger value="bitsat" className="text-xs sm:text-sm py-2 data-[state=active]:bg-violet-500 data-[state=active]:text-white">BITSAT</TabsTrigger>
+          <TabsTrigger value="nda" className="text-xs sm:text-sm py-2 data-[state=active]:bg-rose-500 data-[state=active]:text-white">NDA</TabsTrigger>
         </TabsList>
 
-        {(['jee-main', 'jee-advanced', 'cuet', 'mhtcet', 'bitsat'] as ExamType[]).map((exam) => (
+        {(['jee-main', 'jee-advanced', 'cuet', 'mhtcet', 'bitsat', 'nda'] as ExamType[]).map((exam) => (
           <TabsContent key={exam} value={exam}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {getExamData(exam).map((item) => (

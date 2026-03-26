@@ -133,18 +133,15 @@ serve(async (req) => {
 
     console.log(`Activating subscription: starts ${startsAt.toISOString()}, expires ${expiresAt.toISOString()}`);
 
-    // Update subscription to active
+    // Activate subscription via SECURITY DEFINER function (prevents client-side manipulation)
     const { error: updateError } = await supabase
-      .from('user_subscriptions')
-      .update({
-        status: 'active',
-        razorpay_payment_id,
-        razorpay_signature,
-        starts_at: startsAt.toISOString(),
-        expires_at: expiresAt.toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', subscription.id);
+      .rpc('activate_subscription', {
+        p_subscription_id: subscription.id,
+        p_razorpay_payment_id: razorpay_payment_id,
+        p_razorpay_signature: razorpay_signature,
+        p_starts_at: startsAt.toISOString(),
+        p_expires_at: expiresAt.toISOString()
+      });
 
     if (updateError) {
       console.error('Subscription update error:', updateError);

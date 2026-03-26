@@ -11,7 +11,7 @@ export default function Disclaimer() {
     <main className="min-h-screen bg-background">
       <article className="mx-auto max-w-4xl px-4 md:px-8 py-12 md:py-16">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">Disclaimer</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last Updated: February 9, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last Updated: March 26, 2026</p>
         
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <section>
@@ -53,6 +53,22 @@ export default function Disclaimer() {
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3">
               If you are a content creator and wish to have your content removed from our platform, please contact us at nilayraj712@gmail.com.
+            </p>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">3. Study Notes and PDF Materials</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              The chapter-wise study notes provided on our platform (available to Premium users) are curated from various educational resources. Please note:
+            </p>
+            <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+              <li><strong>No Ownership:</strong> Study notes may be sourced from publicly available educational materials and third-party creators</li>
+              <li><strong>Educational Use:</strong> All notes are provided solely for personal, non-commercial educational purposes</li>
+              <li><strong>No Guarantee:</strong> We do not guarantee the completeness or accuracy of any study notes</li>
+              <li><strong>PYQ Papers:</strong> Previous Year Question papers are sourced from official examination bodies (NTA, IITs, UPSC, BITS Pilani) and remain their intellectual property</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              If you are a content creator and believe your material has been used without proper authorization, please contact us at nilayraj712@gmail.com for prompt removal.
             </p>
           </section>
 

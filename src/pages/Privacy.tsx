@@ -11,7 +11,7 @@ export default function Privacy() {
     <main className="min-h-screen bg-background">
       <article className="mx-auto max-w-4xl px-4 md:px-8 py-12 md:py-16">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">Privacy Policy</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last Updated: February 9, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last Updated: March 26, 2026</p>
         
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <section>

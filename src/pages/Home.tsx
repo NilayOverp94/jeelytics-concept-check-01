@@ -5,9 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { StreakDisplay } from '@/components/StreakDisplay';
 import { UserStatusBadge } from '@/components/UserStatusBadge';
 import { SUBJECTS, Subject } from '@/types/jee';
 import { UserStats } from '@/types/jee';
@@ -169,27 +167,14 @@ function HomeContent() {
               </h1>
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-3">
-              <div className="hidden sm:block"><UserStatusBadge /></div>
-              <div className="sm:hidden"><UserStatusBadge /></div>
-              <div className="hidden sm:block"><StreakDisplay streak={userStats.streak} /></div>
+              <UserStatusBadge />
               <ThemeToggle />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full touch-target">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-popover border border-border">
-                  <DropdownMenuItem onClick={() => navigate('/profile')} className="touch-target">
-                    <User className="mr-2 h-4 w-4" />
-                    {user?.user_metadata?.name || 'Profile'}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive touch-target">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/profile')}>
+                <User className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-full touch-target text-destructive" onClick={handleLogout}>
+                <LogOut className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
