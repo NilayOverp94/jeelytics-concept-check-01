@@ -126,7 +126,7 @@ export function PYQSection() {
       const examMap: Record<string, ExamType> = {
         'jee-main': 'jee-main', 'jee main': 'jee-main', 'jee-mains': 'jee-main', 'jee mains': 'jee-main',
         'jee-advanced': 'jee-advanced', 'jee advanced': 'jee-advanced', 'jee-adv': 'jee-advanced',
-        'cuet': 'cuet', 'mhtcet': 'mhtcet', 'bitsat': 'bitsat',
+        'cuet': 'cuet', 'mhtcet': 'mhtcet', 'bitsat': 'bitsat', 'nda': 'nda',
       };
       setActiveExam(examMap[pendingPyqExam.toLowerCase()] || 'jee-main');
       clearPendingPyqExam();
@@ -157,7 +157,12 @@ export function PYQSection() {
                     return;
                   }
                   if (item.pdfPath) {
-                    setViewingPdf({ url: item.pdfPath, title: `${EXAM_LABELS[examType]} ${year} - ${item.label}` });
+                    // External URLs (NDA from upsc.gov.in) open in new tab
+                    if (item.pdfPath.startsWith('http')) {
+                      window.open(item.pdfPath, '_blank');
+                    } else {
+                      setViewingPdf({ url: item.pdfPath, title: `${EXAM_LABELS[examType]} ${year} - ${item.label}` });
+                    }
                   }
                 }}
                 disabled={!item.pdfPath && isPremium}
@@ -196,6 +201,7 @@ export function PYQSection() {
       case 'cuet': return CUET_YEARS;
       case 'mhtcet': return MHTCET_YEARS;
       case 'bitsat': return BITSAT_YEARS;
+      case 'nda': return NDA_YEARS;
       default: return [];
     }
   };
