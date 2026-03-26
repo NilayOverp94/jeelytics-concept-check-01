@@ -229,15 +229,16 @@ export function PYQSection() {
       </div>
 
       <Tabs defaultValue="jee-main" value={activeExam} onValueChange={(v) => setActiveExam(v as ExamType)} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-6 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-6 h-auto p-1">
           <TabsTrigger value="jee-main" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">JEE Main</TabsTrigger>
           <TabsTrigger value="jee-advanced" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">JEE Adv</TabsTrigger>
           <TabsTrigger value="cuet" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">CUET</TabsTrigger>
           <TabsTrigger value="mhtcet" className="text-xs sm:text-sm py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white">MHTCET</TabsTrigger>
           <TabsTrigger value="bitsat" className="text-xs sm:text-sm py-2 data-[state=active]:bg-violet-500 data-[state=active]:text-white">BITSAT</TabsTrigger>
+          <TabsTrigger value="nda" className="text-xs sm:text-sm py-2 data-[state=active]:bg-rose-500 data-[state=active]:text-white">NDA</TabsTrigger>
         </TabsList>
 
-        {(['jee-main', 'jee-advanced', 'cuet', 'mhtcet', 'bitsat'] as ExamType[]).map((exam) => (
+        {(['jee-main', 'jee-advanced', 'cuet', 'mhtcet', 'bitsat', 'nda'] as ExamType[]).map((exam) => (
           <TabsContent key={exam} value={exam}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {getExamData(exam).map((item) => (
