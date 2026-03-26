@@ -275,6 +275,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_subscription: {
+        Args: {
+          p_expires_at: string
+          p_razorpay_payment_id: string
+          p_razorpay_signature: string
+          p_starts_at: string
+          p_subscription_id: string
+        }
+        Returns: undefined
+      }
       can_take_test: { Args: { p_user_id: string }; Returns: boolean }
       fetch_random_questions: {
         Args: {
