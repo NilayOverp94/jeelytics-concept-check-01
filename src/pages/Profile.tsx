@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, User, Mail, Calendar, Target, TrendingUp, BarChart3, Award } from 'lucide-react';
+import { ArrowLeft, Crown, User, Mail, Calendar, Target, TrendingUp, BarChart3, Award, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,13 +31,17 @@ export default function Profile() {
   const { isPremium, subscription } = useSubscription();
   const [testHistory, setTestHistory] = useState<TestHistoryItem[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<string>('');
+  const [customAvatar, setCustomAvatar] = useState<string>('');
   const [userStats, setUserStats] = useState({ streak: 0, totalTests: 0, totalScore: 0 });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
       fetchData();
       const saved = localStorage.getItem(`avatar_${user.id}`);
       if (saved) setSelectedAvatar(saved);
+      const savedCustom = localStorage.getItem(`custom_avatar_${user.id}`);
+      if (savedCustom) setCustomAvatar(savedCustom);
     }
   }, [user]);
 
@@ -66,7 +70,31 @@ export default function Profile() {
 
   const handleAvatarSelect = (avatar: string) => {
     setSelectedAvatar(avatar);
-    if (user) localStorage.setItem(`avatar_${user.id}`, avatar);
+    setCustomAvatar('');
+    if (user) {
+      localStorage.setItem(`avatar_${user.id}`, avatar);
+      localStorage.removeItem(`custom_avatar_${user.id}`);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image must be under 2MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setCustomAvatar(dataUrl);
+      setSelectedAvatar('');
+      if (user) {
+        localStorage.setItem(`custom_avatar_${user.id}`, dataUrl);
+        localStorage.removeItem(`avatar_${user.id}`);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const avgScore = testHistory.length > 0
