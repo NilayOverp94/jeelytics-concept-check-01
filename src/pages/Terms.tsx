@@ -11,7 +11,7 @@ export default function Terms() {
     <main className="min-h-screen bg-background">
       <article className="mx-auto max-w-4xl px-4 md:px-8 py-12 md:py-16">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">Terms of Use</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last Updated: February 9, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last Updated: March 26, 2026</p>
         
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <section>
@@ -39,7 +39,8 @@ export default function Terms() {
               <li>Study streak tracking and motivational features</li>
               <li>Topic-wise practice and concept testing</li>
               <li>Embedded educational video lectures from YouTube (including Physics Wallah content)</li>
-              <li>Previous Year Question (PYQ) papers for various entrance exams (Premium feature)</li>
+              <li>Chapter-wise study notes in PDF format (Premium feature)</li>
+              <li>Previous Year Question (PYQ) papers for JEE Main, JEE Advanced, BITSAT, CUET, MHTCET, and NDA (Premium feature)</li>
               <li>Premium subscription plans with enhanced features</li>
             </ul>
           </section>
@@ -89,8 +90,8 @@ export default function Terms() {
             <div className="space-y-3">
               <h3 className="text-xl font-medium text-foreground">4.2 Premium Plans</h3>
               <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
-                <li><strong>Monthly Premium (₹29/month):</strong> Unlimited tests, all PYQ access, priority AI generation</li>
-                <li><strong>Yearly Premium (₹109/year):</strong> All monthly features with significant savings</li>
+                <li><strong>Monthly Premium (₹149/month):</strong> Unlimited tests, all PYQ access, chapter-wise notes, priority AI generation</li>
+                <li><strong>Yearly Premium (₹1,499/year):</strong> All monthly features with significant savings</li>
               </ul>
             </div>
 
