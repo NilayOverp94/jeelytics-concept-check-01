@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UserStatusBadge } from '@/components/UserStatusBadge';
-import { UserStatusBadge } from '@/components/UserStatusBadge';
 import { SUBJECTS, Subject } from '@/types/jee';
 import { UserStats } from '@/types/jee';
 import { useAuth } from '@/hooks/useAuth';
