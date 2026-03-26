@@ -57,6 +57,22 @@ export default function Disclaimer() {
           </section>
 
           <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">3. Study Notes and PDF Materials</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              The chapter-wise study notes provided on our platform (available to Premium users) are curated from various educational resources. Please note:
+            </p>
+            <ul className="list-disc ml-6 text-muted-foreground space-y-2 leading-relaxed">
+              <li><strong>No Ownership:</strong> Study notes may be sourced from publicly available educational materials and third-party creators</li>
+              <li><strong>Educational Use:</strong> All notes are provided solely for personal, non-commercial educational purposes</li>
+              <li><strong>No Guarantee:</strong> We do not guarantee the completeness or accuracy of any study notes</li>
+              <li><strong>PYQ Papers:</strong> Previous Year Question papers are sourced from official examination bodies (NTA, IITs, UPSC, BITS Pilani) and remain their intellectual property</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              If you are a content creator and believe your material has been used without proper authorization, please contact us at nilayraj712@gmail.com for prompt removal.
+            </p>
+          </section>
+
+          <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">3. Educational Purpose Only</h2>
             <p className="text-muted-foreground leading-relaxed">
               JEElytics is designed exclusively for educational and practice purposes. The questions, quizzes, explanations, and study materials provided on our platform are intended to:
