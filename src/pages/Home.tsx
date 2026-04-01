@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIAssistant } from '@/components/AIAssistant';
+import { InboxButton } from '@/components/InboxButton';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import { ClassesSection } from '@/components/ClassesSection';
@@ -168,6 +169,10 @@ function HomeContent() {
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-3">
               <UserStatusBadge />
+              <InboxButton />
+              <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/groups')}>
+                <Users className="h-5 w-5" />
+              </Button>
               <ThemeToggle />
               <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/profile')}>
                 <User className="h-5 w-5" />

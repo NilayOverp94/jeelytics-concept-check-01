@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, User, Mail, Target, TrendingUp, BarChart3, Award, Camera } from 'lucide-react';
+import { ArrowLeft, Crown, User, Mail, Target, TrendingUp, BarChart3, Award, Camera, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -294,6 +294,18 @@ export default function Profile() {
                 })}
               </div>
             )}
+          </CardContent>
+        </Card>
+        {/* Study Groups Link */}
+        <Card className="card-jee cursor-pointer hover:shadow-card transition-shadow" onClick={() => navigate('/groups')}>
+          <CardContent className="py-5 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Study Groups</h3>
+              <p className="text-sm text-muted-foreground">Create or join groups to discuss doubts</p>
+            </div>
           </CardContent>
         </Card>
       </main>
