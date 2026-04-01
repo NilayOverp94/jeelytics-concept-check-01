@@ -169,6 +169,10 @@ function HomeContent() {
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-3">
               <UserStatusBadge />
+              <InboxButton />
+              <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/groups')}>
+                <Users className="h-5 w-5" />
+              </Button>
               <ThemeToggle />
               <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/profile')}>
                 <User className="h-5 w-5" />
