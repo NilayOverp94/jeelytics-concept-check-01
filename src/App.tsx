@@ -16,6 +16,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import Profile from "./pages/Profile";
+import StudyGroups from "./pages/StudyGroups";
 import SiteFooter from "./components/SiteFooter";
 
 const queryClient = new QueryClient();
