@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIAssistant } from '@/components/AIAssistant';
+import { InboxButton } from '@/components/InboxButton';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import { ClassesSection } from '@/components/ClassesSection';
