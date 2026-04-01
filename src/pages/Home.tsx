@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
