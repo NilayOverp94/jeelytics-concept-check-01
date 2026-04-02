@@ -435,6 +435,7 @@ function HomeContent() {
 
       {/* AI Assistant - Floating */}
       <AIAssistant />
+      <FeedbackButton />
     </div>
   );
 }

@@ -154,7 +154,8 @@ export default function StudyGroups() {
       .single();
 
     if (error) {
-      toast({ title: "Error", description: "Failed to create group", variant: "destructive" });
+      console.error('Create group error:', error);
+      toast({ title: "Error", description: error.message || "Failed to create group", variant: "destructive" });
       return;
     }
 
