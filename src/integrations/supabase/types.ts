@@ -477,6 +477,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      is_group_member: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_premium_user: { Args: { p_user_id: string }; Returns: boolean }
       send_group_invite: {
         Args: {

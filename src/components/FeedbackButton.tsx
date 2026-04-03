@@ -38,13 +38,14 @@ export function FeedbackButton() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button - rectangle, positioned to cover "Edit with Lovable" badge */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+        className="fixed bottom-2 right-2 z-[9999] h-8 px-3 rounded-md bg-primary text-primary-foreground shadow-lg flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity text-xs font-medium"
         aria-label="Send feedback"
       >
-        {open ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />}
+        {open ? <X className="h-3.5 w-3.5" /> : <MessageSquare className="h-3.5 w-3.5" />}
+        {!open && <span>Report</span>}
       </button>
 
       {/* Feedback form */}
