@@ -201,23 +201,32 @@ export type Database = {
       study_group_messages: {
         Row: {
           created_at: string
+          edited_at: string | null
           group_id: string
           id: string
+          is_deleted: boolean
           message: string
+          reply_to: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
+          edited_at?: string | null
           group_id: string
           id?: string
+          is_deleted?: boolean
           message: string
+          reply_to?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
+          edited_at?: string | null
           group_id?: string
           id?: string
+          is_deleted?: boolean
           message?: string
+          reply_to?: string | null
           user_id?: string
         }
         Relationships: [
@@ -226,6 +235,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_group_messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "study_group_messages"
             referencedColumns: ["id"]
           },
         ]
