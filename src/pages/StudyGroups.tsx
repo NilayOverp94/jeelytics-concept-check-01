@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Group {
   id: string;
@@ -33,6 +39,11 @@ interface GroupMessage {
   message: string;
   created_at: string;
   sender_name?: string;
+  reply_to?: string | null;
+  is_deleted?: boolean;
+  edited_at?: string | null;
+  reply_message?: string;
+  reply_sender?: string;
 }
 
 export default function StudyGroups() {
@@ -52,12 +63,15 @@ export default function StudyGroups() {
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [memberCount, setMemberCount] = useState(0);
+  const [replyingTo, setReplyingTo] = useState<GroupMessage | null>(null);
+  const [editingMessage, setEditingMessage] = useState<GroupMessage | null>(null);
+  const [editText, setEditText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
       fetchGroups();
-      // Check if joining via invite code from URL
       const code = searchParams.get('join');
       if (code) handleJoinByCode(code);
     }
@@ -67,11 +81,10 @@ export default function StudyGroups() {
     if (selectedGroup) {
       fetchMessages();
       fetchMemberCount();
-      // Real-time messages
       const channel = supabase
         .channel(`group-${selectedGroup.id}`)
         .on('postgres_changes', {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'study_group_messages',
           filter: `group_id=eq.${selectedGroup.id}`,
@@ -88,7 +101,6 @@ export default function StudyGroups() {
 
   const fetchGroups = async () => {
     if (!user) return;
-    // Get groups where user is a member
     const { data: memberData } = await supabase
       .from('study_group_members')
       .select('group_id')
@@ -116,10 +128,9 @@ export default function StudyGroups() {
       .select('*')
       .eq('group_id', selectedGroup.id)
       .order('created_at', { ascending: true })
-      .limit(100);
+      .limit(200);
 
     if (data) {
-      // Fetch sender names
       const userIds = [...new Set(data.map((m: any) => m.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
@@ -129,9 +140,15 @@ export default function StudyGroups() {
       const nameMap: Record<string, string> = {};
       profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
 
+      // Build reply references
+      const msgMap: Record<string, any> = {};
+      data.forEach((m: any) => { msgMap[m.id] = m; });
+
       setMessages(data.map((m: any) => ({
         ...m,
-        sender_name: nameMap[m.user_id] || 'Student'
+        sender_name: nameMap[m.user_id] || 'Student',
+        reply_message: m.reply_to ? (msgMap[m.reply_to]?.is_deleted ? '🚫 Deleted message' : msgMap[m.reply_to]?.message?.substring(0, 60)) : undefined,
+        reply_sender: m.reply_to ? nameMap[msgMap[m.reply_to]?.user_id] || 'Student' : undefined,
       })));
     }
   };
@@ -154,12 +171,10 @@ export default function StudyGroups() {
       .single();
 
     if (error) {
-      console.error('Create group error:', error);
       toast({ title: "Error", description: error.message || "Failed to create group", variant: "destructive" });
       return;
     }
 
-    // Add creator as admin member
     await supabase.from('study_group_members').insert({
       group_id: data.id,
       user_id: user.id,
@@ -174,7 +189,6 @@ export default function StudyGroups() {
 
   const handleJoinByCode = async (code: string) => {
     if (!user) return;
-    // Find group by invite code
     const { data: group, error } = await supabase
       .from('study_groups')
       .select('*')
@@ -186,7 +200,6 @@ export default function StudyGroups() {
       return;
     }
 
-    // Check if already a member
     const { data: existing } = await supabase
       .from('study_group_members')
       .select('id')
@@ -216,12 +229,36 @@ export default function StudyGroups() {
 
   const handleSendMessage = async () => {
     if (!user || !selectedGroup || !newMessage.trim()) return;
-    await supabase.from('study_group_messages').insert({
+    
+    const insertData: any = {
       group_id: selectedGroup.id,
       user_id: user.id,
       message: newMessage.trim()
-    });
+    };
+    if (replyingTo) {
+      insertData.reply_to = replyingTo.id;
+    }
+    
+    await supabase.from('study_group_messages').insert(insertData);
     setNewMessage('');
+    setReplyingTo(null);
+  };
+
+  const handleDeleteMessage = async (msgId: string) => {
+    await supabase.from('study_group_messages')
+      .update({ is_deleted: true, message: '🚫 This message was deleted' } as any)
+      .eq('id', msgId);
+    fetchMessages();
+  };
+
+  const handleEditMessage = async () => {
+    if (!editingMessage || !editText.trim()) return;
+    await supabase.from('study_group_messages')
+      .update({ message: editText.trim(), edited_at: new Date().toISOString() } as any)
+      .eq('id', editingMessage.id);
+    setEditingMessage(null);
+    setEditText('');
+    fetchMessages();
   };
 
   const handleInvite = async () => {
@@ -240,6 +277,12 @@ export default function StudyGroups() {
     const link = `${window.location.origin}/groups?join=${selectedGroup.invite_code}`;
     navigator.clipboard.writeText(link);
     toast({ title: "Copied!", description: "Invite link copied to clipboard" });
+  };
+
+  const copyInviteCode = () => {
+    if (!selectedGroup) return;
+    navigator.clipboard.writeText(selectedGroup.invite_code);
+    toast({ title: "Copied!", description: "Invite code copied to clipboard" });
   };
 
   const handleLeaveGroup = async () => {
@@ -262,6 +305,20 @@ export default function StudyGroups() {
     toast({ title: "Group deleted" });
   };
 
+  const startReply = (msg: GroupMessage) => {
+    setReplyingTo(msg);
+    setEditingMessage(null);
+    inputRef.current?.focus();
+  };
+
+  const startEdit = (msg: GroupMessage) => {
+    setEditingMessage(msg);
+    setEditText(msg.message);
+    setReplyingTo(null);
+  };
+
+  const isGroupAdmin = selectedGroup?.created_by === user?.id;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -283,7 +340,6 @@ export default function StudyGroups() {
 
       <main className="container mx-auto px-4 py-6 max-w-3xl">
         {!selectedGroup ? (
-          // Group List View
           <div className="space-y-4">
             <div className="flex gap-2">
               <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -364,12 +420,14 @@ export default function StudyGroups() {
             )}
           </div>
         ) : (
-          // Chat View
           <div className="flex flex-col h-[calc(100vh-180px)]">
             {/* Actions bar */}
             <div className="flex gap-2 mb-3 flex-wrap">
               <Button variant="outline" size="sm" onClick={copyInviteLink}>
-                <Copy className="h-3.5 w-3.5 mr-1" /> Copy Link
+                <Copy className="h-3.5 w-3.5 mr-1" /> Link
+              </Button>
+              <Button variant="outline" size="sm" onClick={copyInviteCode}>
+                <Copy className="h-3.5 w-3.5 mr-1" /> Code
               </Button>
               <div className="flex gap-1 flex-1 max-w-xs">
                 <Input
@@ -383,7 +441,7 @@ export default function StudyGroups() {
                 </Button>
               </div>
               <div className="flex gap-1 ml-auto">
-                {selectedGroup.created_by === user?.id ? (
+                {isGroupAdmin ? (
                   <Button variant="destructive" size="sm" onClick={handleDeleteGroup}>
                     <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
                   </Button>
@@ -396,7 +454,7 @@ export default function StudyGroups() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto space-y-2 border border-border rounded-lg p-3 bg-card/30">
+            <div className="flex-1 overflow-y-auto space-y-1 border border-border rounded-lg p-3 bg-card/30">
               {messages.length === 0 && (
                 <p className="text-center text-muted-foreground py-8 text-sm">
                   No messages yet. Start the conversation! 💬
@@ -404,20 +462,87 @@ export default function StudyGroups() {
               )}
               {messages.map((m) => {
                 const isOwn = m.user_id === user?.id;
+                const isDeleted = m.is_deleted;
+                
                 return (
-                  <div key={m.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[75%] px-3 py-2 rounded-lg text-sm ${
-                      isOwn
-                        ? 'bg-primary text-primary-foreground rounded-br-sm'
-                        : 'bg-muted rounded-bl-sm'
+                  <div key={m.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}>
+                    <div className={`relative max-w-[75%] px-3 py-2 rounded-lg text-sm ${
+                      isDeleted
+                        ? 'bg-muted/30 italic text-muted-foreground'
+                        : isOwn
+                          ? 'bg-primary text-primary-foreground rounded-br-sm'
+                          : 'bg-muted rounded-bl-sm'
                     }`}>
-                      {!isOwn && (
+                      {/* Reply preview */}
+                      {m.reply_message && !isDeleted && (
+                        <div className={`text-[10px] mb-1 pl-2 border-l-2 ${isOwn ? 'border-primary-foreground/40 text-primary-foreground/70' : 'border-primary/40 text-muted-foreground'}`}>
+                          <span className="font-semibold">{m.reply_sender}</span>
+                          <p className="truncate">{m.reply_message}</p>
+                        </div>
+                      )}
+                      
+                      {!isOwn && !isDeleted && (
                         <p className="text-[10px] font-medium text-primary mb-0.5">{m.sender_name}</p>
                       )}
-                      <p className="break-words">{m.message}</p>
-                      <p className={`text-[10px] mt-1 ${isOwn ? 'text-primary-foreground/60' : 'text-muted-foreground/60'}`}>
-                        {new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                      
+                      {editingMessage?.id === m.id ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleEditMessage()}
+                            className="bg-transparent border-b border-primary-foreground/50 outline-none text-sm flex-1 min-w-0"
+                            autoFocus
+                          />
+                          <button onClick={handleEditMessage} className="p-0.5"><Check className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => setEditingMessage(null)} className="p-0.5"><X className="h-3.5 w-3.5" /></button>
+                        </div>
+                      ) : (
+                        <p className="break-words">{m.message}</p>
+                      )}
+                      
+                      <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-primary-foreground/50' : 'text-muted-foreground/50'}`}>
+                        <span className="text-[10px]">
+                          {new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {m.edited_at && !isDeleted && (
+                          <span className="text-[9px] italic">edited</span>
+                        )}
+                      </div>
+
+                      {/* Message actions */}
+                      {!isDeleted && (
+                        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className={`p-0.5 rounded ${isOwn ? 'hover:bg-primary-foreground/20' : 'hover:bg-muted-foreground/20'}`}>
+                                <MoreVertical className="h-3.5 w-3.5" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-32">
+                              <DropdownMenuItem onClick={() => startReply(m)}>
+                                <Reply className="h-3.5 w-3.5 mr-2" /> Reply
+                              </DropdownMenuItem>
+                              {isOwn && (
+                                <DropdownMenuItem onClick={() => startEdit(m)}>
+                                  <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+                                </DropdownMenuItem>
+                              )}
+                              {(isOwn || isGroupAdmin) && (
+                                <DropdownMenuItem onClick={() => handleDeleteMessage(m.id)} className="text-destructive">
+                                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem onClick={() => {
+                                navigator.clipboard.writeText(m.message);
+                                toast({ title: "Copied!" });
+                              }}>
+                                <Copy className="h-3.5 w-3.5 mr-2" /> Copy
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -425,9 +550,24 @@ export default function StudyGroups() {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Reply preview bar */}
+            {replyingTo && (
+              <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-muted/50 rounded-t-lg border border-b-0 border-border">
+                <Reply className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold text-primary">{replyingTo.sender_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{replyingTo.message}</p>
+                </div>
+                <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-muted rounded">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
             {/* Input */}
-            <div className="flex gap-2 mt-3">
+            <div className={`flex gap-2 ${replyingTo ? '' : 'mt-3'}`}>
               <Input
+                ref={inputRef}
                 placeholder="Type a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}

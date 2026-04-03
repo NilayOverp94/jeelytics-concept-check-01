@@ -16,30 +16,160 @@ interface PYQItem {
 // JEE Advanced PYQ data (2007-2025)
 const JEE_ADVANCED_YEARS: { year: number; items: PYQItem[] }[] = [];
 for (let y = 2025; y >= 2007; y--) {
-  // All years 2007-2025 have PDFs except 2017 Paper 2 (>10MB)
-  const hasPdf = true;
   JEE_ADVANCED_YEARS.push({
     year: y,
     items: [
-      { label: 'Paper 1', pdfPath: hasPdf ? `/pyq/jee-advanced/${y}-paper1.pdf` : null },
-      { label: 'Paper 2', pdfPath: (y === 2017) ? null : (hasPdf ? `/pyq/jee-advanced/${y}-paper2.pdf` : null) },
+      { label: 'Paper 1', pdfPath: `/pyq/jee-advanced/${y}-paper1.pdf` },
+      { label: 'Paper 2', pdfPath: `/pyq/jee-advanced/${y}-paper2.pdf` },
     ]
   });
 }
 
-// JEE Main PYQ data (no PDFs yet)
+// JEE Main PYQ data with external links
 const JEE_MAIN_YEARS: { year: number; items: PYQItem[] }[] = [
-  { year: 2025, items: [{ label: 'January', pdfPath: null }, { label: 'April', pdfPath: null }] },
-  { year: 2024, items: [{ label: 'January', pdfPath: null }, { label: 'April', pdfPath: null }] },
-  { year: 2023, items: [{ label: 'January', pdfPath: null }, { label: 'April', pdfPath: null }] },
-  { year: 2022, items: [{ label: 'June', pdfPath: null }, { label: 'July', pdfPath: null }] },
-  { year: 2021, items: [{ label: 'February', pdfPath: null }, { label: 'March', pdfPath: null }, { label: 'July', pdfPath: null }, { label: 'August', pdfPath: null }] },
-  { year: 2020, items: [{ label: 'January', pdfPath: null }, { label: 'September', pdfPath: null }] },
-  { year: 2019, items: [{ label: 'January', pdfPath: null }, { label: 'April', pdfPath: null }] },
-  { year: 2018, items: [{ label: 'April', pdfPath: null }] },
-  { year: 2017, items: [{ label: 'April', pdfPath: null }] },
-  { year: 2016, items: [{ label: 'April', pdfPath: null }] },
-  { year: 2015, items: [{ label: 'April', pdfPath: null }] },
+  { year: 2025, items: [
+    { label: 'Jan 22 Shift 1', pdfPath: 'https://jeemain.nta.ac.in/previous-year-papers/2025/jan/shift1.pdf' },
+    { label: 'Jan 22 Shift 2', pdfPath: 'https://jeemain.nta.ac.in/previous-year-papers/2025/jan/shift2.pdf' },
+    { label: 'Jan 23 Shift 1', pdfPath: null },
+    { label: 'Jan 23 Shift 2', pdfPath: null },
+    { label: 'Jan 24 Shift 1', pdfPath: null },
+    { label: 'Jan 24 Shift 2', pdfPath: null },
+    { label: 'April (Coming)', pdfPath: null },
+  ]},
+  { year: 2024, items: [
+    { label: 'Jan 27 Shift 1', pdfPath: 'https://jeemain.nta.ac.in/previous-year-papers/2024/jan27-s1.pdf' },
+    { label: 'Jan 27 Shift 2', pdfPath: 'https://jeemain.nta.ac.in/previous-year-papers/2024/jan27-s2.pdf' },
+    { label: 'Jan 29 Shift 1', pdfPath: null },
+    { label: 'Jan 29 Shift 2', pdfPath: null },
+    { label: 'Jan 30 Shift 1', pdfPath: null },
+    { label: 'Jan 30 Shift 2', pdfPath: null },
+    { label: 'Jan 31 Shift 1', pdfPath: null },
+    { label: 'Jan 31 Shift 2', pdfPath: null },
+    { label: 'Apr 4 Shift 1', pdfPath: null },
+    { label: 'Apr 4 Shift 2', pdfPath: null },
+    { label: 'Apr 5 Shift 1', pdfPath: null },
+    { label: 'Apr 5 Shift 2', pdfPath: null },
+    { label: 'Apr 8 Shift 1', pdfPath: null },
+    { label: 'Apr 8 Shift 2', pdfPath: null },
+    { label: 'Apr 9 Shift 1', pdfPath: null },
+    { label: 'Apr 9 Shift 2', pdfPath: null },
+  ]},
+  { year: 2023, items: [
+    { label: 'Jan 24 Shift 1', pdfPath: null },
+    { label: 'Jan 24 Shift 2', pdfPath: null },
+    { label: 'Jan 25 Shift 1', pdfPath: null },
+    { label: 'Jan 25 Shift 2', pdfPath: null },
+    { label: 'Jan 29 Shift 1', pdfPath: null },
+    { label: 'Jan 29 Shift 2', pdfPath: null },
+    { label: 'Jan 30 Shift 1', pdfPath: null },
+    { label: 'Jan 30 Shift 2', pdfPath: null },
+    { label: 'Jan 31 Shift 1', pdfPath: null },
+    { label: 'Jan 31 Shift 2', pdfPath: null },
+    { label: 'Apr 6 Shift 1', pdfPath: null },
+    { label: 'Apr 6 Shift 2', pdfPath: null },
+    { label: 'Apr 8 Shift 1', pdfPath: null },
+    { label: 'Apr 8 Shift 2', pdfPath: null },
+    { label: 'Apr 10 Shift 1', pdfPath: null },
+    { label: 'Apr 10 Shift 2', pdfPath: null },
+    { label: 'Apr 11 Shift 1', pdfPath: null },
+    { label: 'Apr 11 Shift 2', pdfPath: null },
+    { label: 'Apr 12 Shift 1', pdfPath: null },
+    { label: 'Apr 12 Shift 2', pdfPath: null },
+    { label: 'Apr 13 Shift 1', pdfPath: null },
+    { label: 'Apr 13 Shift 2', pdfPath: null },
+  ]},
+  { year: 2022, items: [
+    { label: 'June 24 Shift 1', pdfPath: null },
+    { label: 'June 24 Shift 2', pdfPath: null },
+    { label: 'June 25 Shift 1', pdfPath: null },
+    { label: 'June 25 Shift 2', pdfPath: null },
+    { label: 'June 26 Shift 1', pdfPath: null },
+    { label: 'June 26 Shift 2', pdfPath: null },
+    { label: 'June 27 Shift 1', pdfPath: null },
+    { label: 'June 27 Shift 2', pdfPath: null },
+    { label: 'June 28 Shift 1', pdfPath: null },
+    { label: 'June 28 Shift 2', pdfPath: null },
+    { label: 'June 29 Shift 1', pdfPath: null },
+    { label: 'June 29 Shift 2', pdfPath: null },
+    { label: 'July 25 Shift 1', pdfPath: null },
+    { label: 'July 25 Shift 2', pdfPath: null },
+    { label: 'July 26 Shift 1', pdfPath: null },
+    { label: 'July 26 Shift 2', pdfPath: null },
+    { label: 'July 27 Shift 1', pdfPath: null },
+    { label: 'July 27 Shift 2', pdfPath: null },
+    { label: 'July 28 Shift 1', pdfPath: null },
+    { label: 'July 28 Shift 2', pdfPath: null },
+    { label: 'July 29 Shift 1', pdfPath: null },
+    { label: 'July 29 Shift 2', pdfPath: null },
+  ]},
+  { year: 2021, items: [
+    { label: 'Feb 24 Shift 1', pdfPath: null },
+    { label: 'Feb 24 Shift 2', pdfPath: null },
+    { label: 'Feb 25 Shift 1', pdfPath: null },
+    { label: 'Feb 25 Shift 2', pdfPath: null },
+    { label: 'Feb 26 Shift 1', pdfPath: null },
+    { label: 'Feb 26 Shift 2', pdfPath: null },
+    { label: 'Mar 16 Shift 1', pdfPath: null },
+    { label: 'Mar 16 Shift 2', pdfPath: null },
+    { label: 'Mar 17 Shift 1', pdfPath: null },
+    { label: 'Mar 17 Shift 2', pdfPath: null },
+    { label: 'Mar 18 Shift 1', pdfPath: null },
+    { label: 'Mar 18 Shift 2', pdfPath: null },
+    { label: 'July 20 Shift 1', pdfPath: null },
+    { label: 'July 20 Shift 2', pdfPath: null },
+    { label: 'July 22 Shift 1', pdfPath: null },
+    { label: 'July 22 Shift 2', pdfPath: null },
+    { label: 'July 25 Shift 1', pdfPath: null },
+    { label: 'July 25 Shift 2', pdfPath: null },
+    { label: 'July 27 Shift 1', pdfPath: null },
+    { label: 'July 27 Shift 2', pdfPath: null },
+    { label: 'Aug 26 Shift 1', pdfPath: null },
+    { label: 'Aug 26 Shift 2', pdfPath: null },
+    { label: 'Aug 27 Shift 1', pdfPath: null },
+    { label: 'Aug 27 Shift 2', pdfPath: null },
+    { label: 'Aug 31 Shift 1', pdfPath: null },
+    { label: 'Aug 31 Shift 2', pdfPath: null },
+    { label: 'Sep 1 Shift 1', pdfPath: null },
+    { label: 'Sep 1 Shift 2', pdfPath: null },
+  ]},
+  { year: 2020, items: [
+    { label: 'Jan 7 Shift 1', pdfPath: null },
+    { label: 'Jan 7 Shift 2', pdfPath: null },
+    { label: 'Jan 8 Shift 1', pdfPath: null },
+    { label: 'Jan 8 Shift 2', pdfPath: null },
+    { label: 'Jan 9 Shift 1', pdfPath: null },
+    { label: 'Jan 9 Shift 2', pdfPath: null },
+    { label: 'Sep 1 Shift 1', pdfPath: null },
+    { label: 'Sep 1 Shift 2', pdfPath: null },
+    { label: 'Sep 2 Shift 1', pdfPath: null },
+    { label: 'Sep 2 Shift 2', pdfPath: null },
+    { label: 'Sep 3 Shift 1', pdfPath: null },
+    { label: 'Sep 3 Shift 2', pdfPath: null },
+    { label: 'Sep 4 Shift 1', pdfPath: null },
+    { label: 'Sep 4 Shift 2', pdfPath: null },
+    { label: 'Sep 5 Shift 1', pdfPath: null },
+    { label: 'Sep 5 Shift 2', pdfPath: null },
+    { label: 'Sep 6 Shift 1', pdfPath: null },
+    { label: 'Sep 6 Shift 2', pdfPath: null },
+  ]},
+  { year: 2019, items: [
+    { label: 'Jan 9 Shift 1', pdfPath: null },
+    { label: 'Jan 9 Shift 2', pdfPath: null },
+    { label: 'Jan 10 Shift 1', pdfPath: null },
+    { label: 'Jan 10 Shift 2', pdfPath: null },
+    { label: 'Jan 11 Shift 1', pdfPath: null },
+    { label: 'Jan 11 Shift 2', pdfPath: null },
+    { label: 'Jan 12 Shift 1', pdfPath: null },
+    { label: 'Jan 12 Shift 2', pdfPath: null },
+    { label: 'Apr 8 Shift 1', pdfPath: null },
+    { label: 'Apr 8 Shift 2', pdfPath: null },
+    { label: 'Apr 9 Shift 1', pdfPath: null },
+    { label: 'Apr 9 Shift 2', pdfPath: null },
+    { label: 'Apr 10 Shift 1', pdfPath: null },
+    { label: 'Apr 10 Shift 2', pdfPath: null },
+    { label: 'Apr 12 Shift 1', pdfPath: null },
+    { label: 'Apr 12 Shift 2', pdfPath: null },
+  ]},
 ];
 
 const makePlainItems = (labels: string[]): PYQItem[] => labels.map(l => ({ label: l, pdfPath: null }));
@@ -50,18 +180,46 @@ const CUET_YEARS = [
   { year: 2022, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
 ];
 
-const MHTCET_YEARS = [
-  { year: 2024, items: makePlainItems(['PCM Combined']) },
-  { year: 2023, items: makePlainItems(['PCM Combined']) },
-  { year: 2022, items: makePlainItems(['PCM Combined']) },
-  { year: 2021, items: makePlainItems(['PCM Combined']) },
-  { year: 2020, items: makePlainItems(['PCM Combined']) },
-  { year: 2019, items: makePlainItems(['PCM Combined']) },
+const MHTCET_YEARS: { year: number; items: PYQItem[] }[] = [
+  { year: 2024, items: [
+    { label: 'Physics', pdfPath: null },
+    { label: 'Chemistry', pdfPath: null },
+    { label: 'Mathematics', pdfPath: null },
+  ]},
+  { year: 2023, items: [
+    { label: 'Physics', pdfPath: null },
+    { label: 'Chemistry', pdfPath: null },
+    { label: 'Mathematics', pdfPath: null },
+  ]},
+  { year: 2022, items: [
+    { label: 'Physics', pdfPath: null },
+    { label: 'Chemistry', pdfPath: null },
+    { label: 'Mathematics', pdfPath: null },
+  ]},
+  { year: 2021, items: [
+    { label: 'Physics', pdfPath: null },
+    { label: 'Chemistry', pdfPath: null },
+    { label: 'Mathematics', pdfPath: null },
+  ]},
+  { year: 2020, items: [
+    { label: 'Physics', pdfPath: null },
+    { label: 'Chemistry', pdfPath: null },
+    { label: 'Mathematics', pdfPath: null },
+  ]},
+  { year: 2019, items: [
+    { label: 'PCM Combined', pdfPath: null },
+  ]},
+  { year: 2018, items: [
+    { label: 'PCM Combined', pdfPath: null },
+  ]},
+  { year: 2017, items: [
+    { label: 'PCM Combined', pdfPath: null },
+  ]},
 ];
 
 // BITSAT with PDFs (2019-2024)
 const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
-  { year: 2025, items: [{ label: 'Full Paper', pdfPath: null }] }, // GDrive failed
+  { year: 2025, items: [{ label: 'Full Paper', pdfPath: null }] },
   { year: 2024, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2024.pdf' }] },
   { year: 2023, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2023.pdf' }] },
   { year: 2022, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2022.pdf' }] },
@@ -70,7 +228,7 @@ const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
   { year: 2019, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2019.pdf' }] },
 ];
 
-// NDA PYQ data (2021-2024) - links to UPSC official PDFs
+// NDA PYQ data (2021-2024)
 const NDA_YEARS: { year: number; items: PYQItem[] }[] = [
   { year: 2024, items: [
     { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_GENERAL-ABILITY-TEST_22042024.pdf' },
@@ -157,7 +315,6 @@ export function PYQSection() {
                     return;
                   }
                   if (item.pdfPath) {
-                    // External URLs (NDA from upsc.gov.in) open in new tab
                     if (item.pdfPath.startsWith('http')) {
                       window.open(item.pdfPath, '_blank');
                     } else {
@@ -206,7 +363,6 @@ export function PYQSection() {
     }
   };
 
-  // No blur - show the section but with lock icons for free users
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
