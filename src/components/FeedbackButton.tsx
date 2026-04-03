@@ -41,11 +41,11 @@ export function FeedbackButton() {
       {/* Floating button - rectangle, positioned to cover "Edit with Lovable" badge */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-2 right-2 z-[9999] h-8 px-3 rounded-md bg-primary text-primary-foreground shadow-lg flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity text-xs font-medium"
+        className="fixed bottom-[7px] right-[7px] z-[9999] h-[34px] min-w-[160px] px-4 rounded-md bg-primary text-primary-foreground shadow-lg flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity text-xs font-medium"
         aria-label="Send feedback"
       >
         {open ? <X className="h-3.5 w-3.5" /> : <MessageSquare className="h-3.5 w-3.5" />}
-        {!open && <span>Report</span>}
+        {!open && <span>Report a Problem</span>}
       </button>
 
       {/* Feedback form */}
