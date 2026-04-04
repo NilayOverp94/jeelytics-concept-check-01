@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Bell, CheckCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -84,8 +84,25 @@ export function InboxButton() {
 
   const handleNotificationClick = (n: Notification) => {
     markAsRead(n.id);
-    if (n.link) {
-      setOpen(false);
+    setOpen(false);
+    // Smart navigation based on notification type
+    if (n.type === 'test_reminder') {
+      navigate('/home', { state: { tab: 'tests' } });
+    } else if (n.type === 'weak_subject') {
+      // Extract subject from message and open classes tab
+      const subjectMatch = n.message.match(/(Physics|Chemistry|Mathematics)/i);
+      navigate('/home', { state: { tab: 'classes', subject: subjectMatch?.[1] || '' } });
+    } else if (n.type === 'subscription_expiry') {
+      navigate('/pricing');
+    } else if (n.type === 'group_invite' && n.link) {
+      // Group invite links contain group ID — navigate to groups page and auto-join
+      const groupId = n.link.split('/groups/')[1];
+      if (groupId) {
+        navigate('/groups', { state: { openGroupId: groupId } });
+      } else {
+        navigate('/groups');
+      }
+    } else if (n.link) {
       navigate(n.link);
     }
   };
@@ -114,11 +131,11 @@ export function InboxButton() {
       </SheetTrigger>
       <SheetContent className="w-[340px] sm:w-[400px]">
         <SheetHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <SheetTitle>Inbox</SheetTitle>
             {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
-                Mark all read
+              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs shrink-0">
+                <CheckCheck className="h-3.5 w-3.5 mr-1" /> Mark all read
               </Button>
             )}
           </div>

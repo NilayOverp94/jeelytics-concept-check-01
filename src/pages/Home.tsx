@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText, Users } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText, Users, Bell as BellIcon, Palette, MessageCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +43,14 @@ function HomeContent() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Handle tab switching from notification click
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location.state?.tab, setActiveTab]);
+
   const {
     user,
     signOut
@@ -170,17 +178,32 @@ function HomeContent() {
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-3">
               <UserStatusBadge />
-              <InboxButton />
-              <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/groups')}>
-                <Users className="h-5 w-5" />
-              </Button>
-              <ThemeToggle />
-              <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/profile')}>
-                <User className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full touch-target text-destructive" onClick={handleLogout}>
-                <LogOut className="h-5 w-5" />
-              </Button>
+              <div className="flex flex-col items-center">
+                <InboxButton />
+                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Inbox</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/groups')}>
+                  <Users className="h-5 w-5" />
+                </Button>
+                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Groups</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <ThemeToggle />
+                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Theme</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/profile')}>
+                  <User className="h-5 w-5" />
+                </Button>
+                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Profile</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <Button variant="ghost" size="icon" className="rounded-full touch-target text-destructive" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5" />
+                </Button>
+                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Logout</span>
+              </div>
             </div>
           </div>
         </div>
@@ -400,23 +423,23 @@ function HomeContent() {
             </Card>
             <Card className="card-jee hover:scale-105 transition-transform">
               <CardContent className="pt-6 text-center">
-                <Zap className="h-12 w-12 text-secondary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Instant Results</h3>
-                <p className="text-sm text-muted-foreground">Get immediate feedback and tips</p>
+                <BellIcon className="h-12 w-12 text-secondary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Smart Notifications</h3>
+                <p className="text-sm text-muted-foreground">Personalized reminders for weak topics & streaks</p>
               </CardContent>
             </Card>
             <Card className="card-jee hover:scale-105 transition-transform">
               <CardContent className="pt-6 text-center">
-                <BookOpen className="h-12 w-12 text-accent mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Track Progress</h3>
-                <p className="text-sm text-muted-foreground">Monitor your improvement over time</p>
+                <MessageCircle className="h-12 w-12 text-accent mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Study Groups</h3>
+                <p className="text-sm text-muted-foreground">Chat with peers, share doubts & solve together</p>
               </CardContent>
             </Card>
             <Card className="card-jee hover:scale-105 transition-transform">
               <CardContent className="pt-6 text-center">
-                <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">JEE Focused</h3>
-                <p className="text-sm text-muted-foreground">Questions aligned with JEE patterns</p>
+                <ScrollText className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">PYQ Papers</h3>
+                <p className="text-sm text-muted-foreground">JEE, MHTCET, BITSAT, NDA papers 2007-2025</p>
               </CardContent>
             </Card>
           </div>

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Share2, Eye, CheckCheck, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,13 +15,56 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+const GROUP_AVATARS: Record<string, { icon: any; color: string }> = {
+  books: { icon: BookOpen, color: 'from-blue-500 to-blue-600' },
+  beaker: { icon: Beaker, color: 'from-green-500 to-green-600' },
+  calc: { icon: CalcIcon, color: 'from-purple-500 to-purple-600' },
+  rocket: { icon: Rocket, color: 'from-orange-500 to-orange-600' },
+  heart: { icon: Heart, color: 'from-pink-500 to-pink-600' },
+  star: { icon: Star, color: 'from-amber-500 to-amber-600' },
+  gamepad: { icon: Gamepad2, color: 'from-indigo-500 to-indigo-600' },
+  music: { icon: Music, color: 'from-rose-500 to-rose-600' },
+  code: { icon: Code, color: 'from-cyan-500 to-cyan-600' },
+  globe: { icon: Globe, color: 'from-teal-500 to-teal-600' },
+  flame: { icon: Flame, color: 'from-red-500 to-red-600' },
+  zap: { icon: Zap, color: 'from-yellow-500 to-yellow-600' },
+  crown: { icon: Crown, color: 'from-amber-400 to-amber-600' },
+  shield: { icon: Shield, color: 'from-slate-500 to-slate-600' },
+  target: { icon: Target, color: 'from-emerald-500 to-emerald-600' },
+  sparkles: { icon: Sparkles, color: 'from-violet-500 to-violet-600' },
+};
+
+function GroupAvatar({ avatarKey, size = 'md' }: { avatarKey: string; size?: 'sm' | 'md' | 'lg' }) {
+  const avatar = GROUP_AVATARS[avatarKey] || GROUP_AVATARS.books;
+  const Icon = avatar.icon;
+  const sizeClasses = size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-14 w-14' : 'h-10 w-10';
+  const iconSize = size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-7 w-7' : 'h-5 w-5';
+  return (
+    <div className={`${sizeClasses} rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center flex-shrink-0`}>
+      <Icon className={`${iconSize} text-white`} />
+    </div>
+  );
+}
 
 interface Group {
   id: string;
@@ -30,6 +73,7 @@ interface Group {
   invite_code: string;
   max_members: number;
   created_at: string;
+  avatar_key?: string;
 }
 
 interface GroupMessage {
@@ -50,6 +94,7 @@ export default function StudyGroups() {
   useSEO({ title: "Study Groups | JEElytics", description: "Create and join study groups to discuss doubts with fellow JEE aspirants." });
 
   const navigate = useNavigate();
+  const routeLocation = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -58,16 +103,29 @@ export default function StudyGroups() {
   const [messages, setMessages] = useState<GroupMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState('books');
   const [joinCode, setJoinCode] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [memberCount, setMemberCount] = useState(0);
+  const [members, setMembers] = useState<{ user_id: string; display_name: string; role: string }[]>([]);
+  const [membersDialogOpen, setMembersDialogOpen] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteMessageConfirmOpen, setDeleteMessageConfirmOpen] = useState(false);
+  const [pendingDeleteMsg, setPendingDeleteMsg] = useState<{ id: string; isOwn: boolean } | null>(null);
+  const [renameName, setRenameName] = useState('');
   const [replyingTo, setReplyingTo] = useState<GroupMessage | null>(null);
   const [editingMessage, setEditingMessage] = useState<GroupMessage | null>(null);
   const [editText, setEditText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -77,8 +135,17 @@ export default function StudyGroups() {
     }
   }, [user]);
 
+  // Handle deep link from notification to open a specific group
+  useEffect(() => {
+    if (routeLocation.state?.openGroupId && groups.length > 0) {
+      const group = groups.find(g => g.id === routeLocation.state.openGroupId);
+      if (group) setSelectedGroup(group);
+    }
+  }, [routeLocation.state?.openGroupId, groups]);
+
   useEffect(() => {
     if (selectedGroup) {
+      setInitialLoadDone(false);
       fetchMessages();
       fetchMemberCount();
       const channel = supabase
@@ -95,9 +162,17 @@ export default function StudyGroups() {
     }
   }, [selectedGroup]);
 
+  // Only auto-scroll on new messages after initial load, not on initial open
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (!initialLoadDone) return;
+    if (shouldAutoScroll && messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+      if (isNearBottom) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [messages, initialLoadDone]);
 
   const fetchGroups = async () => {
     if (!user) return;
@@ -140,7 +215,6 @@ export default function StudyGroups() {
       const nameMap: Record<string, string> = {};
       profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
 
-      // Build reply references
       const msgMap: Record<string, any> = {};
       data.forEach((m: any) => { msgMap[m.id] = m; });
 
@@ -150,6 +224,14 @@ export default function StudyGroups() {
         reply_message: m.reply_to ? (msgMap[m.reply_to]?.is_deleted ? '🚫 Deleted message' : msgMap[m.reply_to]?.message?.substring(0, 60)) : undefined,
         reply_sender: m.reply_to ? nameMap[msgMap[m.reply_to]?.user_id] || 'Student' : undefined,
       })));
+      
+      if (!initialLoadDone) {
+        setInitialLoadDone(true);
+        // Scroll to bottom on first load
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        }, 100);
+      }
     }
   };
 
@@ -162,11 +244,37 @@ export default function StudyGroups() {
     setMemberCount(count || 0);
   };
 
+  const fetchMembers = async () => {
+    if (!selectedGroup) return;
+    const { data: memberData } = await supabase
+      .from('study_group_members')
+      .select('user_id, role')
+      .eq('group_id', selectedGroup.id);
+
+    if (memberData) {
+      const userIds = memberData.map(m => m.user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .in('user_id', userIds);
+
+      const nameMap: Record<string, string> = {};
+      profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
+
+      setMembers(memberData.map(m => ({
+        user_id: m.user_id,
+        display_name: nameMap[m.user_id] || 'Student',
+        role: m.role,
+      })));
+      setMembersDialogOpen(true);
+    }
+  };
+
   const handleCreateGroup = async () => {
     if (!user || !newGroupName.trim()) return;
     const { data, error } = await supabase
       .from('study_groups')
-      .insert({ name: newGroupName.trim(), created_by: user.id })
+      .insert({ name: newGroupName.trim(), created_by: user.id, avatar_key: selectedAvatar } as any)
       .select()
       .single();
 
@@ -182,6 +290,7 @@ export default function StudyGroups() {
     });
 
     setNewGroupName('');
+    setSelectedAvatar('books');
     setCreateOpen(false);
     fetchGroups();
     toast({ title: "Group created!", description: `"${data.name}" is ready. Share the invite code!` });
@@ -242,13 +351,29 @@ export default function StudyGroups() {
     await supabase.from('study_group_messages').insert(insertData);
     setNewMessage('');
     setReplyingTo(null);
+    // Force scroll to bottom after sending
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 200);
   };
 
-  const handleDeleteMessage = async (msgId: string) => {
-    await supabase.from('study_group_messages')
-      .update({ is_deleted: true, message: '🚫 This message was deleted' } as any)
-      .eq('id', msgId);
+  const handleDeleteMessage = async (msgId: string, deleteForAll: boolean) => {
+    if (deleteForAll) {
+      await supabase.from('study_group_messages')
+        .update({ is_deleted: true, message: '🚫 This message was deleted' } as any)
+        .eq('id', msgId);
+    }
+    // For "delete for me" — we just hide it locally
+    // In a full implementation we'd use the message_states table
+    // For now, we soft-delete for all
     fetchMessages();
+    setDeleteMessageConfirmOpen(false);
+    setPendingDeleteMsg(null);
+  };
+
+  const confirmDeleteMessage = (msgId: string, isOwn: boolean) => {
+    setPendingDeleteMsg({ id: msgId, isOwn });
+    setDeleteMessageConfirmOpen(true);
   };
 
   const handleEditMessage = async () => {
@@ -261,6 +386,13 @@ export default function StudyGroups() {
     fetchMessages();
   };
 
+  const canEdit = (msg: GroupMessage) => {
+    if (msg.user_id !== user?.id) return false;
+    const msgTime = new Date(msg.created_at).getTime();
+    const fifteenMinutes = 15 * 60 * 1000;
+    return Date.now() - msgTime < fifteenMinutes;
+  };
+
   const handleInvite = async () => {
     if (!selectedGroup || !inviteEmail.trim()) return;
     await supabase.rpc('send_group_invite', {
@@ -269,6 +401,7 @@ export default function StudyGroups() {
       p_group_name: selectedGroup.name
     });
     setInviteEmail('');
+    setInviteDialogOpen(false);
     toast({ title: "Invite sent!", description: `Notification sent to ${inviteEmail}` });
   };
 
@@ -301,8 +434,31 @@ export default function StudyGroups() {
     if (!user || !selectedGroup || selectedGroup.created_by !== user.id) return;
     await supabase.from('study_groups').delete().eq('id', selectedGroup.id);
     setSelectedGroup(null);
+    setDeleteConfirmOpen(false);
     fetchGroups();
     toast({ title: "Group deleted" });
+  };
+
+  const handleRename = async () => {
+    if (!selectedGroup || !renameName.trim()) return;
+    await supabase.from('study_groups')
+      .update({ name: renameName.trim() } as any)
+      .eq('id', selectedGroup.id);
+    setSelectedGroup({ ...selectedGroup, name: renameName.trim() });
+    setRenameDialogOpen(false);
+    fetchGroups();
+    toast({ title: "Group renamed!" });
+  };
+
+  const handleChangeAvatar = async (key: string) => {
+    if (!selectedGroup) return;
+    await supabase.from('study_groups')
+      .update({ avatar_key: key } as any)
+      .eq('id', selectedGroup.id);
+    setSelectedGroup({ ...selectedGroup, avatar_key: key });
+    setAvatarDialogOpen(false);
+    fetchGroups();
+    toast({ title: "Avatar updated!" });
   };
 
   const startReply = (msg: GroupMessage) => {
@@ -318,27 +474,87 @@ export default function StudyGroups() {
   };
 
   const isGroupAdmin = selectedGroup?.created_by === user?.id;
+  const groupAvatarKey = (selectedGroup as any)?.avatar_key || 'books';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3">
+          <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => selectedGroup ? setSelectedGroup(null) : navigate('/home')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <img src={logo} alt="JEElytics" className="h-8 w-8 rounded" />
-            <span className="text-xl font-bold text-gradient-primary">
-              {selectedGroup ? selectedGroup.name : 'Study Groups'}
-            </span>
-            {selectedGroup && (
-              <span className="text-xs text-muted-foreground ml-auto">{memberCount} members</span>
+            {selectedGroup ? (
+              <>
+                <GroupAvatar avatarKey={groupAvatarKey} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm sm:text-base truncate">{selectedGroup.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{memberCount} members</p>
+                </div>
+                {/* Invite button */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <UserPlus className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem onClick={copyInviteLink}>
+                      <Link2 className="h-4 w-4 mr-2" /> Copy Link
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={copyInviteCode}>
+                      <Hash className="h-4 w-4 mr-2" /> Copy Code
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setInviteDialogOpen(true)}>
+                      <Mail className="h-4 w-4 mr-2" /> Invite by Email
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {/* Settings button */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Settings className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem onClick={fetchMembers}>
+                      <Eye className="h-4 w-4 mr-2" /> View Members
+                    </DropdownMenuItem>
+                    {isGroupAdmin && (
+                      <>
+                        <DropdownMenuItem onClick={() => { setRenameName(selectedGroup.name); setRenameDialogOpen(true); }}>
+                          <Pencil className="h-4 w-4 mr-2" /> Change Name
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setAvatarDialogOpen(true)}>
+                          <Sparkles className="h-4 w-4 mr-2" /> Change Avatar
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    {isGroupAdmin ? (
+                      <DropdownMenuItem onClick={() => setDeleteConfirmOpen(true)} className="text-destructive">
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete Group
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem onClick={handleLeaveGroup} className="text-destructive">
+                        <LeaveIcon className="h-4 w-4 mr-2" /> Leave Group
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <img src={logo} alt="JEElytics" className="h-8 w-8 rounded" />
+                <span className="text-xl font-bold text-gradient-primary">Study Groups</span>
+              </>
             )}
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 max-w-3xl">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 max-w-3xl flex flex-col">
         {!selectedGroup ? (
           <div className="space-y-4">
             <div className="flex gap-2">
@@ -359,6 +575,23 @@ export default function StudyGroups() {
                       onChange={(e) => setNewGroupName(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
                     />
+                    <div>
+                      <p className="text-sm font-medium mb-2">Choose Avatar</p>
+                      <div className="grid grid-cols-8 gap-2">
+                        {Object.entries(GROUP_AVATARS).map(([key, avatar]) => {
+                          const Icon = avatar.icon;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => setSelectedAvatar(key)}
+                              className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all ${selectedAvatar === key ? 'ring-2 ring-primary ring-offset-2 scale-110' : 'opacity-60 hover:opacity-100'}`}
+                            >
+                              <Icon className="h-5 w-5 text-white" />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                     <Button onClick={handleCreateGroup} className="w-full" disabled={!newGroupName.trim()}>
                       Create
                     </Button>
@@ -407,12 +640,9 @@ export default function StudyGroups() {
                   onClick={() => setSelectedGroup(g)}
                 >
                   <CardContent className="py-4 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
-                      <Users className="h-5 w-5 text-white" />
-                    </div>
+                    <GroupAvatar avatarKey={(g as any).avatar_key || 'books'} />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{g.name}</p>
-                      <p className="text-xs text-muted-foreground">Code: {g.invite_code}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -420,41 +650,13 @@ export default function StudyGroups() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col h-[calc(100vh-180px)]">
-            {/* Actions bar */}
-            <div className="flex gap-2 mb-3 flex-wrap">
-              <Button variant="outline" size="sm" onClick={copyInviteLink}>
-                <Copy className="h-3.5 w-3.5 mr-1" /> Link
-              </Button>
-              <Button variant="outline" size="sm" onClick={copyInviteCode}>
-                <Copy className="h-3.5 w-3.5 mr-1" /> Code
-              </Button>
-              <div className="flex gap-1 flex-1 max-w-xs">
-                <Input
-                  placeholder="Invite by email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="h-8 text-xs"
-                />
-                <Button variant="outline" size="sm" onClick={handleInvite} disabled={!inviteEmail.trim()}>
-                  Invite
-                </Button>
-              </div>
-              <div className="flex gap-1 ml-auto">
-                {isGroupAdmin ? (
-                  <Button variant="destructive" size="sm" onClick={handleDeleteGroup}>
-                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" onClick={handleLeaveGroup} className="text-destructive">
-                    <LeaveIcon className="h-3.5 w-3.5 mr-1" /> Leave
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto space-y-1 border border-border rounded-lg p-3 bg-card/30">
+          <div className="flex flex-col flex-1 min-h-0">
+            {/* Messages — bigger height */}
+            <div
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto space-y-1.5 border border-border rounded-lg p-3 sm:p-4 bg-card/30 min-h-[300px]"
+              style={{ maxHeight: 'calc(100vh - 220px)' }}
+            >
               {messages.length === 0 && (
                 <p className="text-center text-muted-foreground py-8 text-sm">
                   No messages yet. Start the conversation! 💬
@@ -465,24 +667,24 @@ export default function StudyGroups() {
                 const isDeleted = m.is_deleted;
                 
                 return (
-                  <div key={m.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}>
-                    <div className={`relative max-w-[75%] px-3 py-2 rounded-lg text-sm ${
+                  <div key={m.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`relative max-w-[80%] sm:max-w-[75%] px-3 py-2 rounded-lg text-sm ${
                       isDeleted
                         ? 'bg-muted/30 italic text-muted-foreground'
                         : isOwn
-                          ? 'bg-primary text-primary-foreground rounded-br-sm'
+                          ? 'bg-[hsl(180,70%,35%)] text-white rounded-br-sm'
                           : 'bg-muted rounded-bl-sm'
                     }`}>
                       {/* Reply preview */}
                       {m.reply_message && !isDeleted && (
-                        <div className={`text-[10px] mb-1 pl-2 border-l-2 ${isOwn ? 'border-primary-foreground/40 text-primary-foreground/70' : 'border-primary/40 text-muted-foreground'}`}>
+                        <div className={`text-[10px] mb-1 pl-2 border-l-2 ${isOwn ? 'border-white/40 text-white/70' : 'border-primary/40 text-muted-foreground'}`}>
                           <span className="font-semibold">{m.reply_sender}</span>
                           <p className="truncate">{m.reply_message}</p>
                         </div>
                       )}
                       
                       {!isOwn && !isDeleted && (
-                        <p className="text-[10px] font-medium text-primary mb-0.5">{m.sender_name}</p>
+                        <p className="text-[10px] font-semibold text-primary mb-0.5">{m.sender_name}</p>
                       )}
                       
                       {editingMessage?.id === m.id ? (
@@ -491,57 +693,58 @@ export default function StudyGroups() {
                             value={editText}
                             onChange={(e) => setEditText(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleEditMessage()}
-                            className="bg-transparent border-b border-primary-foreground/50 outline-none text-sm flex-1 min-w-0"
+                            className="bg-transparent border-b border-white/50 outline-none text-sm flex-1 min-w-0"
                             autoFocus
                           />
                           <button onClick={handleEditMessage} className="p-0.5"><Check className="h-3.5 w-3.5" /></button>
                           <button onClick={() => setEditingMessage(null)} className="p-0.5"><X className="h-3.5 w-3.5" /></button>
                         </div>
                       ) : (
-                        <p className="break-words">{m.message}</p>
+                        <p className="break-words whitespace-pre-wrap pr-6">{m.message}</p>
                       )}
                       
-                      <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-primary-foreground/50' : 'text-muted-foreground/50'}`}>
+                      <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/70' : 'text-muted-foreground/70'}`}>
                         <span className="text-[10px]">
                           {new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {m.edited_at && !isDeleted && (
                           <span className="text-[9px] italic">edited</span>
                         )}
+                        {isOwn && !isDeleted && (
+                          <CheckCheck className="h-3 w-3 ml-0.5" />
+                        )}
                       </div>
 
-                      {/* Message actions */}
+                      {/* Message actions — positioned outside message bounds to prevent layout shift */}
                       {!isDeleted && (
-                        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button className={`p-0.5 rounded ${isOwn ? 'hover:bg-primary-foreground/20' : 'hover:bg-muted-foreground/20'}`}>
-                                <MoreVertical className="h-3.5 w-3.5" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-32">
-                              <DropdownMenuItem onClick={() => startReply(m)}>
-                                <Reply className="h-3.5 w-3.5 mr-2" /> Reply
+                        <DropdownMenu modal={false}>
+                          <DropdownMenuTrigger asChild>
+                            <button className={`absolute -top-1 ${isOwn ? '-left-6' : '-right-6'} p-1 rounded-full bg-card border border-border shadow-sm opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity`}>
+                              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-36">
+                            <DropdownMenuItem onClick={() => startReply(m)}>
+                              <Reply className="h-3.5 w-3.5 mr-2" /> Reply
+                            </DropdownMenuItem>
+                            {isOwn && canEdit(m) && (
+                              <DropdownMenuItem onClick={() => startEdit(m)}>
+                                <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
                               </DropdownMenuItem>
-                              {isOwn && (
-                                <DropdownMenuItem onClick={() => startEdit(m)}>
-                                  <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                                </DropdownMenuItem>
-                              )}
-                              {(isOwn || isGroupAdmin) && (
-                                <DropdownMenuItem onClick={() => handleDeleteMessage(m.id)} className="text-destructive">
-                                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem onClick={() => {
-                                navigator.clipboard.writeText(m.message);
-                                toast({ title: "Copied!" });
-                              }}>
-                                <Copy className="h-3.5 w-3.5 mr-2" /> Copy
+                            )}
+                            {isOwn && (
+                              <DropdownMenuItem onClick={() => confirmDeleteMessage(m.id, true)} className="text-destructive">
+                                <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
                               </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                            )}
+                            <DropdownMenuItem onClick={() => {
+                              navigator.clipboard.writeText(m.message);
+                              toast({ title: "Copied!" });
+                            }}>
+                              <Copy className="h-3.5 w-3.5 mr-2" /> Copy
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </div>
                   </div>
@@ -581,6 +784,128 @@ export default function StudyGroups() {
           </div>
         )}
       </main>
+
+      {/* Invite by email dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite by Email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              placeholder="Enter email address"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
+            />
+            <Button onClick={handleInvite} className="w-full" disabled={!inviteEmail.trim()}>
+              Send Invite
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View members dialog */}
+      <Dialog open={membersDialogOpen} onOpenChange={setMembersDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Group Members ({members.length})</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 pt-4 max-h-[60vh] overflow-y-auto">
+            {members.map(m => (
+              <div key={m.user_id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
+                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{m.display_name}</p>
+                </div>
+                {m.role === 'admin' && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">Admin</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename dialog */}
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Group</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              value={renameName}
+              onChange={(e) => setRenameName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+            />
+            <Button onClick={handleRename} className="w-full" disabled={!renameName.trim()}>
+              Rename
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change avatar dialog */}
+      <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose Group Avatar</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-8 gap-3 pt-4">
+            {Object.entries(GROUP_AVATARS).map(([key, avatar]) => {
+              const Icon = avatar.icon;
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleChangeAvatar(key)}
+                  className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all hover:scale-110 ${groupAvatarKey === key ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'}`}
+                >
+                  <Icon className="h-5 w-5 text-white" />
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete group confirmation */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Group?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{selectedGroup?.name}" and all messages. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteGroup} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete message confirmation */}
+      <AlertDialog open={deleteMessageConfirmOpen} onOpenChange={setDeleteMessageConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Message?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This message will be deleted for everyone and replaced with "This message was deleted".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => pendingDeleteMsg && handleDeleteMessage(pendingDeleteMsg.id, true)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete for everyone
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
