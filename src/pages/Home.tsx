@@ -34,14 +34,7 @@ const SUBJECT_COLORS: Record<Subject, string> = {
 
 function HomeContent() {
   const { activeTab, setActiveTab } = useAICommand();
-
-  // Handle tab switching from notification click
-  useEffect(() => {
-    if (location.state?.tab) {
-      setActiveTab(location.state.tab);
-    }
-  }, [location.state?.tab, setActiveTab]);
-
+  
   useSEO({
     title: "Dashboard | JEElytics - Your JEE Practice Hub",
     description: "Start your AI-powered JEE practice test. Choose from Physics, Chemistry, and Mathematics topics at your preferred difficulty level.",
@@ -50,6 +43,14 @@ function HomeContent() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Handle tab switching from notification click
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location.state?.tab, setActiveTab]);
+
   const {
     user,
     signOut
