@@ -47,6 +47,20 @@ serve(async (req) => {
     }
 
     // Store feedback in DB
+    // Check 24h rate limit
+    const { data: recentFeedback } = await supabase
+      .from('feedback')
+      .select('id')
+      .eq('user_id', user.id)
+      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .limit(1);
+
+    if (recentFeedback && recentFeedback.length > 0) {
+      return new Response(JSON.stringify({ error: 'You can only send feedback once every 24 hours' }), {
+        status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     await supabase.from('feedback').insert({
       user_id: user.id,
       message: message.trim(),
