@@ -198,6 +198,47 @@ export type Database = {
           },
         ]
       }
+      study_group_message_states: {
+        Row: {
+          created_at: string
+          delivered_at: string | null
+          hidden_at: string | null
+          id: string
+          message_id: string
+          read_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivered_at?: string | null
+          hidden_at?: string | null
+          id?: string
+          message_id: string
+          read_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivered_at?: string | null
+          hidden_at?: string | null
+          id?: string
+          message_id?: string
+          read_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_group_message_states_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "study_group_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_group_messages: {
         Row: {
           created_at: string
@@ -248,6 +289,7 @@ export type Database = {
       }
       study_groups: {
         Row: {
+          avatar_key: string
           created_at: string
           created_by: string
           id: string
@@ -257,6 +299,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_key?: string
           created_at?: string
           created_by: string
           id?: string
@@ -266,6 +309,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_key?: string
           created_at?: string
           created_by?: string
           id?: string
