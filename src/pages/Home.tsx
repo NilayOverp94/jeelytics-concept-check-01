@@ -160,49 +160,45 @@ function HomeContent() {
   const isStartDisabled = !selectedSubject || !selectedTopic;
 
   return (
-    <div className="min-h-screen bg-background pt-safe">
+    <div className="min-h-screen bg-background pt-safe overflow-x-hidden">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 pt-safe">
-        <div className="container mx-auto px-3 sm:px-4 py-3">
-          <div className="flex justify-between items-center">
-            <Link to="/home" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer">
+        <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+            <Link to="/home" className="flex items-center gap-1.5 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer shrink-0">
               <img
                 src={logo}
                 alt="JEElytics logo"
-                className="h-8 w-8 rounded"
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded"
                 loading="eager"
               />
-              <h1 className="text-xl sm:text-2xl font-bold text-gradient-primary">
-                JEElytics
+              <h1 className="text-base sm:text-2xl font-bold text-gradient-primary whitespace-nowrap">
+                JEEly
+                <span className="hidden sm:inline">tics</span>
               </h1>
             </Link>
-            <div className="flex items-center gap-1.5 sm:gap-3">
+            <div className="flex items-center gap-0.5 sm:gap-2 ml-auto">
               <UserStatusBadge />
               <div className="flex flex-col items-center">
                 <InboxButton />
-                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Inbox</span>
               </div>
               <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/groups')}>
-                  <Users className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/groups')}>
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
-                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Groups</span>
               </div>
               <div className="flex flex-col items-center">
                 <ThemeToggle />
-                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Theme</span>
               </div>
               <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full touch-target" onClick={() => navigate('/profile')}>
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/profile')}>
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
-                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Profile</span>
               </div>
               <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full touch-target text-destructive" onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 text-destructive" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
-                <span className="text-[8px] text-muted-foreground leading-none mt-0.5 hidden sm:block">Logout</span>
               </div>
             </div>
           </div>
