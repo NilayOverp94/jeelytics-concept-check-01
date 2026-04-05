@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Share2, Eye, CheckCheck, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Eye, CheckCheck, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,29 +10,13 @@ import { useToast } from '@/hooks/use-toast';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
 const GROUP_AVATARS: Record<string, { icon: any; color: string }> = {
@@ -67,27 +51,11 @@ function GroupAvatar({ avatarKey, size = 'md' }: { avatarKey: string; size?: 'sm
 }
 
 interface Group {
-  id: string;
-  name: string;
-  created_by: string;
-  invite_code: string;
-  max_members: number;
-  created_at: string;
-  avatar_key?: string;
+  id: string; name: string; created_by: string; invite_code: string; max_members: number; created_at: string; avatar_key?: string;
 }
-
 interface GroupMessage {
-  id: string;
-  group_id: string;
-  user_id: string;
-  message: string;
-  created_at: string;
-  sender_name?: string;
-  reply_to?: string | null;
-  is_deleted?: boolean;
-  edited_at?: string | null;
-  reply_message?: string;
-  reply_sender?: string;
+  id: string; group_id: string; user_id: string; message: string; created_at: string; sender_name?: string;
+  reply_to?: string | null; is_deleted?: boolean; edited_at?: string | null; reply_message?: string; reply_sender?: string;
 }
 
 export default function StudyGroups() {
@@ -124,8 +92,15 @@ export default function StudyGroups() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const lastMsgCountRef = useRef(0);
+
+  // Scroll to top when landing on groups page (no group selected)
+  useEffect(() => {
+    if (!selectedGroup) {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, [selectedGroup]);
 
   useEffect(() => {
     if (user) {
@@ -135,7 +110,6 @@ export default function StudyGroups() {
     }
   }, [user]);
 
-  // Handle deep link from notification to open a specific group
   useEffect(() => {
     if (routeLocation.state?.openGroupId && groups.length > 0) {
       const group = groups.find(g => g.id === routeLocation.state.openGroupId);
@@ -146,226 +120,140 @@ export default function StudyGroups() {
   useEffect(() => {
     if (selectedGroup) {
       setInitialLoadDone(false);
+      lastMsgCountRef.current = 0;
       fetchMessages();
       fetchMemberCount();
       const channel = supabase
         .channel(`group-${selectedGroup.id}`)
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'study_group_messages',
-          filter: `group_id=eq.${selectedGroup.id}`,
-        }, () => fetchMessages())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'study_group_messages', filter: `group_id=eq.${selectedGroup.id}` }, () => fetchMessages())
         .subscribe();
-
       return () => { supabase.removeChannel(channel); };
     }
   }, [selectedGroup]);
 
-  // Only auto-scroll on new messages after initial load, not on initial open
+  // Smart scroll: only auto-scroll on NEW messages (not initial load)
   useEffect(() => {
     if (!initialLoadDone) return;
-    if (shouldAutoScroll && messagesContainerRef.current) {
+    if (messages.length > lastMsgCountRef.current && lastMsgCountRef.current > 0) {
+      // New message arrived — only scroll if user is near bottom
       const container = messagesContainerRef.current;
-      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
-      if (isNearBottom) {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (container) {
+        const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+        if (isNearBottom) {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
       }
     }
+    lastMsgCountRef.current = messages.length;
   }, [messages, initialLoadDone]);
 
   const fetchGroups = async () => {
     if (!user) return;
-    const { data: memberData } = await supabase
-      .from('study_group_members')
-      .select('group_id')
-      .eq('user_id', user.id);
-
-    if (!memberData || memberData.length === 0) {
-      setGroups([]);
-      return;
-    }
-
+    const { data: memberData } = await supabase.from('study_group_members').select('group_id').eq('user_id', user.id);
+    if (!memberData || memberData.length === 0) { setGroups([]); return; }
     const groupIds = memberData.map(m => m.group_id);
-    const { data } = await supabase
-      .from('study_groups')
-      .select('*')
-      .in('id', groupIds)
-      .order('created_at', { ascending: false });
-
+    const { data } = await supabase.from('study_groups').select('*').in('id', groupIds).order('created_at', { ascending: false });
     if (data) setGroups(data as Group[]);
   };
 
   const fetchMessages = async () => {
     if (!selectedGroup) return;
-    const { data } = await supabase
-      .from('study_group_messages')
-      .select('*')
-      .eq('group_id', selectedGroup.id)
-      .order('created_at', { ascending: true })
-      .limit(200);
-
+    const { data } = await supabase.from('study_group_messages').select('*').eq('group_id', selectedGroup.id).order('created_at', { ascending: true }).limit(200);
     if (data) {
       const userIds = [...new Set(data.map((m: any) => m.user_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, display_name')
-        .in('user_id', userIds);
-
+      const { data: profiles } = await supabase.from('profiles').select('user_id, display_name').in('user_id', userIds);
       const nameMap: Record<string, string> = {};
       profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
-
       const msgMap: Record<string, any> = {};
       data.forEach((m: any) => { msgMap[m.id] = m; });
-
       setMessages(data.map((m: any) => ({
-        ...m,
-        sender_name: nameMap[m.user_id] || 'Student',
+        ...m, sender_name: nameMap[m.user_id] || 'Student',
         reply_message: m.reply_to ? (msgMap[m.reply_to]?.is_deleted ? '🚫 Deleted message' : msgMap[m.reply_to]?.message?.substring(0, 60)) : undefined,
         reply_sender: m.reply_to ? nameMap[msgMap[m.reply_to]?.user_id] || 'Student' : undefined,
       })));
-      
       if (!initialLoadDone) {
         setInitialLoadDone(true);
-        // Scroll to bottom on first load
-        setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-        }, 100);
+        setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }); }, 100);
       }
     }
   };
 
   const fetchMemberCount = async () => {
     if (!selectedGroup) return;
-    const { count } = await supabase
-      .from('study_group_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('group_id', selectedGroup.id);
+    const { count } = await supabase.from('study_group_members').select('*', { count: 'exact', head: true }).eq('group_id', selectedGroup.id);
     setMemberCount(count || 0);
   };
 
   const fetchMembers = async () => {
     if (!selectedGroup) return;
-    const { data: memberData } = await supabase
-      .from('study_group_members')
-      .select('user_id, role')
-      .eq('group_id', selectedGroup.id);
-
+    const { data: memberData } = await supabase.from('study_group_members').select('user_id, role').eq('group_id', selectedGroup.id);
     if (memberData) {
       const userIds = memberData.map(m => m.user_id);
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, display_name')
-        .in('user_id', userIds);
-
+      const { data: profiles } = await supabase.from('profiles').select('user_id, display_name').in('user_id', userIds);
       const nameMap: Record<string, string> = {};
       profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
-
-      setMembers(memberData.map(m => ({
-        user_id: m.user_id,
-        display_name: nameMap[m.user_id] || 'Student',
-        role: m.role,
-      })));
+      setMembers(memberData.map(m => ({ user_id: m.user_id, display_name: nameMap[m.user_id] || 'Student', role: m.role })));
       setMembersDialogOpen(true);
     }
   };
 
   const handleCreateGroup = async () => {
     if (!user || !newGroupName.trim()) return;
-    const { data, error } = await supabase
-      .from('study_groups')
-      .insert({ name: newGroupName.trim(), created_by: user.id, avatar_key: selectedAvatar } as any)
-      .select()
-      .single();
-
-    if (error) {
-      toast({ title: "Error", description: error.message || "Failed to create group", variant: "destructive" });
-      return;
-    }
-
-    await supabase.from('study_group_members').insert({
-      group_id: data.id,
-      user_id: user.id,
-      role: 'admin'
-    });
-
-    setNewGroupName('');
-    setSelectedAvatar('books');
-    setCreateOpen(false);
+    const { data, error } = await supabase.from('study_groups').insert({ name: newGroupName.trim(), created_by: user.id, avatar_key: selectedAvatar } as any).select().single();
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    await supabase.from('study_group_members').insert({ group_id: data.id, user_id: user.id, role: 'admin' });
+    setNewGroupName(''); setSelectedAvatar('books'); setCreateOpen(false);
     fetchGroups();
-    toast({ title: "Group created!", description: `"${data.name}" is ready. Share the invite code!` });
+    toast({ title: "Group created!", description: `"${data.name}" is ready.` });
   };
 
   const handleJoinByCode = async (code: string) => {
     if (!user) return;
-    const { data: group, error } = await supabase
-      .from('study_groups')
-      .select('*')
-      .eq('invite_code', code.trim())
-      .maybeSingle();
-
-    if (!group || error) {
+    // Use secure RPC function to lookup group by invite code
+    const { data: groupData, error } = await supabase.rpc('lookup_group_by_invite_code', { p_invite_code: code.trim() });
+    if (error || !groupData || groupData.length === 0) {
       toast({ title: "Invalid code", description: "No group found with this invite code.", variant: "destructive" });
       return;
     }
-
-    const { data: existing } = await supabase
-      .from('study_group_members')
-      .select('id')
-      .eq('group_id', group.id)
-      .eq('user_id', user.id)
-      .maybeSingle();
-
+    const group = groupData[0];
+    const { data: existing } = await supabase.from('study_group_members').select('id').eq('group_id', group.id).eq('user_id', user.id).maybeSingle();
     if (existing) {
       toast({ title: "Already joined", description: "You're already a member of this group." });
-      setSelectedGroup(group as Group);
+      // Fetch full group data after joining
+      await fetchGroups();
+      const fullGroup = groups.find(g => g.id === group.id);
+      if (fullGroup) setSelectedGroup(fullGroup);
       setJoinOpen(false);
       return;
     }
-
-    await supabase.from('study_group_members').insert({
-      group_id: group.id,
-      user_id: user.id,
-      role: 'member'
-    });
-
-    setJoinCode('');
-    setJoinOpen(false);
-    fetchGroups();
-    setSelectedGroup(group as Group);
+    await supabase.from('study_group_members').insert({ group_id: group.id, user_id: user.id, role: 'member' });
+    setJoinCode(''); setJoinOpen(false);
+    await fetchGroups();
+    // Re-fetch to get the full group object
+    const { data: fullGroupData } = await supabase.from('study_groups').select('*').eq('id', group.id).single();
+    if (fullGroupData) setSelectedGroup(fullGroupData as Group);
     toast({ title: "Joined!", description: `Welcome to "${group.name}"!` });
   };
 
   const handleSendMessage = async () => {
     if (!user || !selectedGroup || !newMessage.trim()) return;
-    
-    const insertData: any = {
-      group_id: selectedGroup.id,
-      user_id: user.id,
-      message: newMessage.trim()
-    };
-    if (replyingTo) {
-      insertData.reply_to = replyingTo.id;
-    }
-    
+    const insertData: any = { group_id: selectedGroup.id, user_id: user.id, message: newMessage.trim() };
+    if (replyingTo) insertData.reply_to = replyingTo.id;
     await supabase.from('study_group_messages').insert(insertData);
-    setNewMessage('');
-    setReplyingTo(null);
-    // Force scroll to bottom after sending
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 200);
+    setNewMessage(''); setReplyingTo(null);
+    // DON'T force scroll — let the smart scroll logic handle it
+    // The user sent this message, so they're at bottom — it will auto-scroll
   };
 
   const handleDeleteMessage = async (msgId: string, deleteForAll: boolean) => {
     if (deleteForAll) {
-      await supabase.from('study_group_messages')
-        .update({ is_deleted: true, message: '🚫 This message was deleted' } as any)
-        .eq('id', msgId);
+      await supabase.from('study_group_messages').update({ is_deleted: true, message: '🚫 This message was deleted' } as any).eq('id', msgId);
+    } else {
+      // Delete for me: use message_states to hide
+      await supabase.from('study_group_message_states').upsert({
+        message_id: msgId, user_id: user!.id, hidden_at: new Date().toISOString()
+      } as any);
     }
-    // For "delete for me" — we just hide it locally
-    // In a full implementation we'd use the message_states table
-    // For now, we soft-delete for all
     fetchMessages();
     setDeleteMessageConfirmOpen(false);
     setPendingDeleteMsg(null);
@@ -378,103 +266,93 @@ export default function StudyGroups() {
 
   const handleEditMessage = async () => {
     if (!editingMessage || !editText.trim()) return;
-    await supabase.from('study_group_messages')
-      .update({ message: editText.trim(), edited_at: new Date().toISOString() } as any)
-      .eq('id', editingMessage.id);
-    setEditingMessage(null);
-    setEditText('');
+    await supabase.from('study_group_messages').update({ message: editText.trim(), edited_at: new Date().toISOString() } as any).eq('id', editingMessage.id);
+    setEditingMessage(null); setEditText('');
     fetchMessages();
   };
 
   const canEdit = (msg: GroupMessage) => {
     if (msg.user_id !== user?.id) return false;
-    const msgTime = new Date(msg.created_at).getTime();
-    const fifteenMinutes = 15 * 60 * 1000;
-    return Date.now() - msgTime < fifteenMinutes;
+    return Date.now() - new Date(msg.created_at).getTime() < 15 * 60 * 1000;
   };
 
   const handleInvite = async () => {
     if (!selectedGroup || !inviteEmail.trim()) return;
-    await supabase.rpc('send_group_invite', {
-      p_invitee_email: inviteEmail.trim(),
-      p_group_id: selectedGroup.id,
-      p_group_name: selectedGroup.name
-    });
-    setInviteEmail('');
-    setInviteDialogOpen(false);
+    await supabase.rpc('send_group_invite', { p_invitee_email: inviteEmail.trim(), p_group_id: selectedGroup.id, p_group_name: selectedGroup.name });
+    setInviteEmail(''); setInviteDialogOpen(false);
     toast({ title: "Invite sent!", description: `Notification sent to ${inviteEmail}` });
   };
 
   const copyInviteLink = () => {
     if (!selectedGroup) return;
-    const link = `${window.location.origin}/groups?join=${selectedGroup.invite_code}`;
-    navigator.clipboard.writeText(link);
-    toast({ title: "Copied!", description: "Invite link copied to clipboard" });
+    navigator.clipboard.writeText(`${window.location.origin}/groups?join=${selectedGroup.invite_code}`);
+    toast({ title: "Copied!", description: "Invite link copied" });
   };
 
   const copyInviteCode = () => {
     if (!selectedGroup) return;
     navigator.clipboard.writeText(selectedGroup.invite_code);
-    toast({ title: "Copied!", description: "Invite code copied to clipboard" });
+    toast({ title: "Copied!", description: "Invite code copied" });
   };
 
   const handleLeaveGroup = async () => {
     if (!user || !selectedGroup) return;
-    await supabase
-      .from('study_group_members')
-      .delete()
-      .eq('group_id', selectedGroup.id)
-      .eq('user_id', user.id);
-    setSelectedGroup(null);
-    fetchGroups();
-    toast({ title: "Left group", description: "You have left the study group." });
+    await supabase.from('study_group_members').delete().eq('group_id', selectedGroup.id).eq('user_id', user.id);
+    setSelectedGroup(null); fetchGroups();
+    toast({ title: "Left group" });
   };
 
   const handleDeleteGroup = async () => {
     if (!user || !selectedGroup || selectedGroup.created_by !== user.id) return;
     await supabase.from('study_groups').delete().eq('id', selectedGroup.id);
-    setSelectedGroup(null);
-    setDeleteConfirmOpen(false);
-    fetchGroups();
+    setSelectedGroup(null); setDeleteConfirmOpen(false); fetchGroups();
     toast({ title: "Group deleted" });
   };
 
   const handleRename = async () => {
     if (!selectedGroup || !renameName.trim()) return;
-    await supabase.from('study_groups')
-      .update({ name: renameName.trim() } as any)
-      .eq('id', selectedGroup.id);
+    await supabase.from('study_groups').update({ name: renameName.trim() } as any).eq('id', selectedGroup.id);
     setSelectedGroup({ ...selectedGroup, name: renameName.trim() });
-    setRenameDialogOpen(false);
-    fetchGroups();
-    toast({ title: "Group renamed!" });
+    setRenameDialogOpen(false); fetchGroups();
   };
 
   const handleChangeAvatar = async (key: string) => {
     if (!selectedGroup) return;
-    await supabase.from('study_groups')
-      .update({ avatar_key: key } as any)
-      .eq('id', selectedGroup.id);
+    await supabase.from('study_groups').update({ avatar_key: key } as any).eq('id', selectedGroup.id);
     setSelectedGroup({ ...selectedGroup, avatar_key: key });
-    setAvatarDialogOpen(false);
-    fetchGroups();
-    toast({ title: "Avatar updated!" });
+    setAvatarDialogOpen(false); fetchGroups();
   };
 
-  const startReply = (msg: GroupMessage) => {
-    setReplyingTo(msg);
-    setEditingMessage(null);
-    inputRef.current?.focus();
+  const handlePromoteToAdmin = async (userId: string) => {
+    if (!selectedGroup) return;
+    await supabase.from('study_group_members').update({ role: 'admin' } as any).eq('group_id', selectedGroup.id).eq('user_id', userId);
+    fetchMembers();
+    toast({ title: "Promoted to Admin" });
   };
 
-  const startEdit = (msg: GroupMessage) => {
-    setEditingMessage(msg);
-    setEditText(msg.message);
-    setReplyingTo(null);
+  const handleDemoteToMember = async (userId: string) => {
+    if (!selectedGroup) return;
+    await supabase.from('study_group_members').update({ role: 'member' } as any).eq('group_id', selectedGroup.id).eq('user_id', userId);
+    fetchMembers();
+    toast({ title: "Demoted to Member" });
   };
 
-  const isGroupAdmin = selectedGroup?.created_by === user?.id;
+  const handleRemoveMember = async (userId: string) => {
+    if (!selectedGroup) return;
+    await supabase.from('study_group_members').delete().eq('group_id', selectedGroup.id).eq('user_id', userId);
+    fetchMembers(); fetchMemberCount();
+    toast({ title: "Member removed" });
+  };
+
+  const startReply = (msg: GroupMessage) => { setReplyingTo(msg); setEditingMessage(null); inputRef.current?.focus(); };
+  const startEdit = (msg: GroupMessage) => { setEditingMessage(msg); setEditText(msg.message); setReplyingTo(null); };
+
+  const isGroupAdmin = selectedGroup?.created_by === user?.id || members.find(m => m.user_id === user?.id)?.role === 'admin';
+  const isGroupCreator = selectedGroup?.created_by === user?.id;
   const groupAvatarKey = (selectedGroup as any)?.avatar_key || 'books';
+
+  // Filter out hidden messages
+  const visibleMessages = messages; // TODO: filter by message_states.hidden_at
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -489,57 +367,37 @@ export default function StudyGroups() {
                 <GroupAvatar avatarKey={groupAvatarKey} />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm sm:text-base truncate">{selectedGroup.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{memberCount} members</p>
+                  <p className="text-[11px] text-muted-foreground/80">{memberCount} members</p>
                 </div>
-                {/* Invite button */}
+                {/* Invite dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <UserPlus className="h-5 w-5" />
-                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full"><UserPlus className="h-5 w-5" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
-                    <DropdownMenuItem onClick={copyInviteLink}>
-                      <Link2 className="h-4 w-4 mr-2" /> Copy Link
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={copyInviteCode}>
-                      <Hash className="h-4 w-4 mr-2" /> Copy Code
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setInviteDialogOpen(true)}>
-                      <Mail className="h-4 w-4 mr-2" /> Invite by Email
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={copyInviteLink}><Link2 className="h-4 w-4 mr-2" /> Copy Link</DropdownMenuItem>
+                    <DropdownMenuItem onClick={copyInviteCode}><Hash className="h-4 w-4 mr-2" /> Copy Code</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setInviteDialogOpen(true)}><Mail className="h-4 w-4 mr-2" /> Invite by Email</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {/* Settings button */}
+                {/* Settings dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <Settings className="h-5 w-5" />
-                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full"><Settings className="h-5 w-5" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
-                    <DropdownMenuItem onClick={fetchMembers}>
-                      <Eye className="h-4 w-4 mr-2" /> View Members
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={fetchMembers}><Eye className="h-4 w-4 mr-2" /> View Members</DropdownMenuItem>
                     {isGroupAdmin && (
                       <>
-                        <DropdownMenuItem onClick={() => { setRenameName(selectedGroup.name); setRenameDialogOpen(true); }}>
-                          <Pencil className="h-4 w-4 mr-2" /> Change Name
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setAvatarDialogOpen(true)}>
-                          <Sparkles className="h-4 w-4 mr-2" /> Change Avatar
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setRenameName(selectedGroup.name); setRenameDialogOpen(true); }}><Pencil className="h-4 w-4 mr-2" /> Change Name</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setAvatarDialogOpen(true)}><Sparkles className="h-4 w-4 mr-2" /> Change Avatar</DropdownMenuItem>
                       </>
                     )}
                     <DropdownMenuSeparator />
-                    {isGroupAdmin ? (
-                      <DropdownMenuItem onClick={() => setDeleteConfirmOpen(true)} className="text-destructive">
-                        <Trash2 className="h-4 w-4 mr-2" /> Delete Group
-                      </DropdownMenuItem>
+                    {isGroupCreator ? (
+                      <DropdownMenuItem onClick={() => setDeleteConfirmOpen(true)} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" /> Delete Group</DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem onClick={handleLeaveGroup} className="text-destructive">
-                        <LeaveIcon className="h-4 w-4 mr-2" /> Leave Group
-                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleLeaveGroup} className="text-destructive"><LeaveIcon className="h-4 w-4 mr-2" /> Leave Group</DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -560,65 +418,39 @@ export default function StudyGroups() {
             <div className="flex gap-2">
               <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="gradient" className="flex-1">
-                    <Plus className="h-4 w-4 mr-2" /> Create Group
-                  </Button>
+                  <Button variant="gradient" className="flex-1"><Plus className="h-4 w-4 mr-2" /> Create Group</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create Study Group</DialogTitle>
-                  </DialogHeader>
+                  <DialogHeader><DialogTitle>Create Study Group</DialogTitle></DialogHeader>
                   <div className="space-y-4 pt-4">
-                    <Input
-                      placeholder="Group name (e.g., JEE 2026 Warriors)"
-                      value={newGroupName}
-                      onChange={(e) => setNewGroupName(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
-                    />
+                    <Input placeholder="Group name" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()} />
                     <div>
                       <p className="text-sm font-medium mb-2">Choose Avatar</p>
                       <div className="grid grid-cols-8 gap-2">
                         {Object.entries(GROUP_AVATARS).map(([key, avatar]) => {
                           const Icon = avatar.icon;
                           return (
-                            <button
-                              key={key}
-                              onClick={() => setSelectedAvatar(key)}
-                              className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all ${selectedAvatar === key ? 'ring-2 ring-primary ring-offset-2 scale-110' : 'opacity-60 hover:opacity-100'}`}
-                            >
+                            <button key={key} onClick={() => setSelectedAvatar(key)} className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all ${selectedAvatar === key ? 'ring-2 ring-primary ring-offset-2 scale-110' : 'opacity-60 hover:opacity-100'}`}>
                               <Icon className="h-5 w-5 text-white" />
                             </button>
                           );
                         })}
                       </div>
                     </div>
-                    <Button onClick={handleCreateGroup} className="w-full" disabled={!newGroupName.trim()}>
-                      Create
-                    </Button>
+                    <Button onClick={handleCreateGroup} className="w-full" disabled={!newGroupName.trim()}>Create</Button>
                   </div>
                 </DialogContent>
               </Dialog>
 
               <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1">
-                    <Link2 className="h-4 w-4 mr-2" /> Join Group
-                  </Button>
+                  <Button variant="outline" className="flex-1"><Link2 className="h-4 w-4 mr-2" /> Join Group</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Join Study Group</DialogTitle>
-                  </DialogHeader>
+                  <DialogHeader><DialogTitle>Join Study Group</DialogTitle></DialogHeader>
                   <div className="space-y-4 pt-4">
-                    <Input
-                      placeholder="Enter invite code"
-                      value={joinCode}
-                      onChange={(e) => setJoinCode(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleJoinByCode(joinCode)}
-                    />
-                    <Button onClick={() => handleJoinByCode(joinCode)} className="w-full" disabled={!joinCode.trim()}>
-                      Join
-                    </Button>
+                    <Input placeholder="Enter invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleJoinByCode(joinCode)} />
+                    <Button onClick={() => handleJoinByCode(joinCode)} className="w-full" disabled={!joinCode.trim()}>Join</Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -634,16 +466,10 @@ export default function StudyGroups() {
               </Card>
             ) : (
               groups.map((g) => (
-                <Card
-                  key={g.id}
-                  className="card-jee cursor-pointer hover:shadow-card transition-shadow"
-                  onClick={() => setSelectedGroup(g)}
-                >
+                <Card key={g.id} className="card-jee cursor-pointer hover:shadow-card transition-shadow" onClick={() => setSelectedGroup(g)}>
                   <CardContent className="py-4 flex items-center gap-3">
                     <GroupAvatar avatarKey={(g as any).avatar_key || 'books'} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{g.name}</p>
-                    </div>
+                    <div className="flex-1 min-w-0"><p className="font-medium truncate">{g.name}</p></div>
                   </CardContent>
                 </Card>
               ))
@@ -651,29 +477,20 @@ export default function StudyGroups() {
           </div>
         ) : (
           <div className="flex flex-col flex-1 min-h-0">
-            {/* Messages — bigger height */}
-            <div
-              ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto space-y-1.5 border border-border rounded-lg p-3 sm:p-4 bg-card/30 min-h-[300px]"
-              style={{ maxHeight: 'calc(100vh - 220px)' }}
-            >
-              {messages.length === 0 && (
-                <p className="text-center text-muted-foreground py-8 text-sm">
-                  No messages yet. Start the conversation! 💬
-                </p>
+            {/* Messages area */}
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto space-y-2 border border-border rounded-lg p-3 sm:p-4 bg-card/30" style={{ maxHeight: 'calc(100vh - 200px)', minHeight: '350px' }}>
+              {visibleMessages.length === 0 && (
+                <p className="text-center text-muted-foreground py-8 text-sm">No messages yet. Start the conversation! 💬</p>
               )}
-              {messages.map((m) => {
+              {visibleMessages.map((m) => {
                 const isOwn = m.user_id === user?.id;
                 const isDeleted = m.is_deleted;
-                
                 return (
-                  <div key={m.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  <div key={m.id} className={`group flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                     <div className={`relative max-w-[80%] sm:max-w-[75%] px-3 py-2 rounded-lg text-sm ${
-                      isDeleted
-                        ? 'bg-muted/30 italic text-muted-foreground'
-                        : isOwn
-                          ? 'bg-[hsl(180,70%,35%)] text-white rounded-br-sm'
-                          : 'bg-muted rounded-bl-sm'
+                      isDeleted ? 'bg-muted/30 italic text-muted-foreground'
+                        : isOwn ? 'bg-[hsl(180,60%,40%)] text-white rounded-br-sm'
+                        : 'bg-muted rounded-bl-sm'
                     }`}>
                       {/* Reply preview */}
                       {m.reply_message && !isDeleted && (
@@ -682,67 +499,41 @@ export default function StudyGroups() {
                           <p className="truncate">{m.reply_message}</p>
                         </div>
                       )}
-                      
                       {!isOwn && !isDeleted && (
                         <p className="text-[10px] font-semibold text-primary mb-0.5">{m.sender_name}</p>
                       )}
-                      
                       {editingMessage?.id === m.id ? (
                         <div className="flex items-center gap-1">
-                          <input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleEditMessage()}
-                            className="bg-transparent border-b border-white/50 outline-none text-sm flex-1 min-w-0"
-                            autoFocus
-                          />
+                          <input value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleEditMessage()} className="bg-transparent border-b border-white/50 outline-none text-sm flex-1 min-w-0" autoFocus />
                           <button onClick={handleEditMessage} className="p-0.5"><Check className="h-3.5 w-3.5" /></button>
                           <button onClick={() => setEditingMessage(null)} className="p-0.5"><X className="h-3.5 w-3.5" /></button>
                         </div>
                       ) : (
-                        <p className="break-words whitespace-pre-wrap pr-6">{m.message}</p>
+                        <p className="break-words whitespace-pre-wrap">{m.message}</p>
                       )}
-                      
-                      <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/70' : 'text-muted-foreground/70'}`}>
-                        <span className="text-[10px]">
-                          {new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {m.edited_at && !isDeleted && (
-                          <span className="text-[9px] italic">edited</span>
-                        )}
-                        {isOwn && !isDeleted && (
-                          <CheckCheck className="h-3 w-3 ml-0.5" />
-                        )}
+                      <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/60' : 'text-muted-foreground/60'}`}>
+                        <span className="text-[10px]">{new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                        {m.edited_at && !isDeleted && <span className="text-[9px] italic">edited</span>}
+                        {isOwn && !isDeleted && <CheckCheck className="h-3 w-3 ml-0.5 text-white/80" />}
                       </div>
 
-                      {/* Message actions — positioned outside message bounds to prevent layout shift */}
+                      {/* 3-dot menu — ALWAYS visible, positioned outside bubble */}
                       {!isDeleted && (
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
-                            <button className={`absolute -top-1 ${isOwn ? '-left-6' : '-right-6'} p-1 rounded-full bg-card border border-border shadow-sm opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity`}>
-                              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                            <button className={`absolute top-1 ${isOwn ? '-left-7' : '-right-7'} p-1 rounded-full bg-card border border-border shadow-sm opacity-60 group-hover:opacity-100 transition-opacity`}>
+                              <MoreVertical className="h-3 w-3 text-muted-foreground" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-36">
-                            <DropdownMenuItem onClick={() => startReply(m)}>
-                              <Reply className="h-3.5 w-3.5 mr-2" /> Reply
-                            </DropdownMenuItem>
+                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-40" sideOffset={4}>
+                            <DropdownMenuItem onClick={() => startReply(m)}><Reply className="h-3.5 w-3.5 mr-2" /> Reply</DropdownMenuItem>
                             {isOwn && canEdit(m) && (
-                              <DropdownMenuItem onClick={() => startEdit(m)}>
-                                <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => startEdit(m)}><Pencil className="h-3.5 w-3.5 mr-2" /> Edit</DropdownMenuItem>
                             )}
                             {isOwn && (
-                              <DropdownMenuItem onClick={() => confirmDeleteMessage(m.id, true)} className="text-destructive">
-                                <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => confirmDeleteMessage(m.id, true)} className="text-destructive"><Trash2 className="h-3.5 w-3.5 mr-2" /> Delete</DropdownMenuItem>
                             )}
-                            <DropdownMenuItem onClick={() => {
-                              navigator.clipboard.writeText(m.message);
-                              toast({ title: "Copied!" });
-                            }}>
-                              <Copy className="h-3.5 w-3.5 mr-2" /> Copy
-                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(m.message); toast({ title: "Copied!" }); }}><Copy className="h-3.5 w-3.5 mr-2" /> Copy</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}
@@ -753,7 +544,7 @@ export default function StudyGroups() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Reply preview bar */}
+            {/* Reply preview */}
             {replyingTo && (
               <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-muted/50 rounded-t-lg border border-b-0 border-border">
                 <Reply className="h-4 w-4 text-primary shrink-0" />
@@ -761,56 +552,34 @@ export default function StudyGroups() {
                   <p className="text-[10px] font-semibold text-primary">{replyingTo.sender_name}</p>
                   <p className="text-xs text-muted-foreground truncate">{replyingTo.message}</p>
                 </div>
-                <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-muted rounded">
-                  <X className="h-3.5 w-3.5" />
-                </button>
+                <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-muted rounded"><X className="h-3.5 w-3.5" /></button>
               </div>
             )}
 
             {/* Input */}
             <div className={`flex gap-2 ${replyingTo ? '' : 'mt-3'}`}>
-              <Input
-                ref={inputRef}
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                className="flex-1"
-              />
-              <Button onClick={handleSendMessage} disabled={!newMessage.trim()} size="icon">
-                <Send className="h-4 w-4" />
-              </Button>
+              <Input ref={inputRef} placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()} className="flex-1" />
+              <Button onClick={handleSendMessage} disabled={!newMessage.trim()} size="icon"><Send className="h-4 w-4" /></Button>
             </div>
           </div>
         )}
       </main>
 
-      {/* Invite by email dialog */}
+      {/* Invite by email */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Invite by Email</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Invite by Email</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-4">
-            <Input
-              placeholder="Enter email address"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
-            />
-            <Button onClick={handleInvite} className="w-full" disabled={!inviteEmail.trim()}>
-              Send Invite
-            </Button>
+            <Input placeholder="Enter email address" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleInvite()} />
+            <Button onClick={handleInvite} className="w-full" disabled={!inviteEmail.trim()}>Send Invite</Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* View members dialog */}
+      {/* View members with role management */}
       <Dialog open={membersDialogOpen} onOpenChange={setMembersDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Group Members ({members.length})</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Group Members ({members.length})</DialogTitle></DialogHeader>
           <div className="space-y-2 pt-4 max-h-[60vh] overflow-y-auto">
             {members.map(m => (
               <div key={m.user_id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
@@ -819,9 +588,36 @@ export default function StudyGroups() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{m.display_name}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {m.user_id === selectedGroup?.created_by ? 'Creator' : m.role === 'admin' ? 'Admin' : 'Member'}
+                  </p>
                 </div>
                 {m.role === 'admin' && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">Admin</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                    {m.user_id === selectedGroup?.created_by ? 'Creator' : 'Admin'}
+                  </span>
+                )}
+                {/* Admin actions: promote/demote/remove (only creator can manage) */}
+                {isGroupCreator && m.user_id !== user?.id && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7"><MoreVertical className="h-3.5 w-3.5" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-36">
+                      {m.role === 'member' ? (
+                        <DropdownMenuItem onClick={() => handlePromoteToAdmin(m.user_id)}>
+                          <Crown className="h-3.5 w-3.5 mr-2" /> Make Admin
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={() => handleDemoteToMember(m.user_id)}>
+                          <Users className="h-3.5 w-3.5 mr-2" /> Make Member
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={() => handleRemoveMember(m.user_id)} className="text-destructive">
+                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </div>
             ))}
@@ -829,40 +625,26 @@ export default function StudyGroups() {
         </DialogContent>
       </Dialog>
 
-      {/* Rename dialog */}
+      {/* Rename */}
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rename Group</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Rename Group</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-4">
-            <Input
-              value={renameName}
-              onChange={(e) => setRenameName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleRename()}
-            />
-            <Button onClick={handleRename} className="w-full" disabled={!renameName.trim()}>
-              Rename
-            </Button>
+            <Input value={renameName} onChange={(e) => setRenameName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleRename()} />
+            <Button onClick={handleRename} className="w-full" disabled={!renameName.trim()}>Rename</Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Change avatar dialog */}
+      {/* Change avatar */}
       <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Choose Group Avatar</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Choose Group Avatar</DialogTitle></DialogHeader>
           <div className="grid grid-cols-8 gap-3 pt-4">
             {Object.entries(GROUP_AVATARS).map(([key, avatar]) => {
               const Icon = avatar.icon;
               return (
-                <button
-                  key={key}
-                  onClick={() => handleChangeAvatar(key)}
-                  className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all hover:scale-110 ${groupAvatarKey === key ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'}`}
-                >
+                <button key={key} onClick={() => handleChangeAvatar(key)} className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all hover:scale-110 ${groupAvatarKey === key ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'}`}>
                   <Icon className="h-5 w-5 text-white" />
                 </button>
               );
@@ -876,34 +658,35 @@ export default function StudyGroups() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Group?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete "{selectedGroup?.name}" and all messages. This action cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogDescription>This will permanently delete "{selectedGroup?.name}" and all messages. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteGroup} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteGroup} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete message confirmation */}
+      {/* Delete message — 3 options: delete for me, delete for everyone, cancel */}
       <AlertDialog open={deleteMessageConfirmOpen} onOpenChange={setDeleteMessageConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Message?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This message will be deleted for everyone and replaced with "This message was deleted".
-            </AlertDialogDescription>
+            <AlertDialogDescription>Choose how to delete this message.</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => pendingDeleteMsg && handleDeleteMessage(pendingDeleteMsg.id, true)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete for everyone
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          <div className="flex flex-col gap-2 py-2">
+            <Button variant="outline" onClick={() => pendingDeleteMsg && handleDeleteMessage(pendingDeleteMsg.id, false)}>
+              Delete for me
+            </Button>
+            {pendingDeleteMsg?.isOwn && (
+              <Button variant="destructive" onClick={() => pendingDeleteMsg && handleDeleteMessage(pendingDeleteMsg.id, true)}>
+                Delete for everyone
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => { setDeleteMessageConfirmOpen(false); setPendingDeleteMsg(null); }}>
+              Cancel
+            </Button>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>
