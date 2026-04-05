@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Eye, CheckCheck, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Eye, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles, Mic, MicOff, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -50,6 +50,16 @@ function GroupAvatar({ avatarKey, size = 'md' }: { avatarKey: string; size?: 'sm
   );
 }
 
+// WhatsApp-style double tick SVG
+function DoubleTick({ read, className }: { read?: boolean; className?: string }) {
+  return (
+    <svg viewBox="0 0 16 11" className={`h-3.5 w-4 ${className || ''}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11.071 0.653L4.214 7.51L1.429 4.725L0 6.154L4.214 10.368L12.5 2.082L11.071 0.653Z" fill={read ? 'white' : 'currentColor'} />
+      <path d="M14.071 0.653L7.214 7.51L6.5 6.796L5.071 8.225L7.214 10.368L15.5 2.082L14.071 0.653Z" fill={read ? 'white' : 'currentColor'} />
+    </svg>
+  );
+}
+
 interface Group {
   id: string; name: string; created_by: string; invite_code: string; max_members: number; created_at: string; avatar_key?: string;
 }
@@ -89,11 +99,15 @@ export default function StudyGroups() {
   const [replyingTo, setReplyingTo] = useState<GroupMessage | null>(null);
   const [editingMessage, setEditingMessage] = useState<GroupMessage | null>(null);
   const [editText, setEditText] = useState('');
+  const [hiddenMessageIds, setHiddenMessageIds] = useState<Set<string>>(new Set());
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const lastMsgCountRef = useRef(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Scroll to top when landing on groups page (no group selected)
   useEffect(() => {
@@ -117,12 +131,26 @@ export default function StudyGroups() {
     }
   }, [routeLocation.state?.openGroupId, groups]);
 
+  // Fetch hidden message IDs for current user
+  const fetchHiddenMessages = useCallback(async () => {
+    if (!user || !selectedGroup) return;
+    const { data } = await supabase
+      .from('study_group_message_states')
+      .select('message_id')
+      .eq('user_id', user.id)
+      .not('hidden_at', 'is', null);
+    if (data) {
+      setHiddenMessageIds(new Set(data.map(d => d.message_id)));
+    }
+  }, [user, selectedGroup]);
+
   useEffect(() => {
     if (selectedGroup) {
       setInitialLoadDone(false);
       lastMsgCountRef.current = 0;
       fetchMessages();
       fetchMemberCount();
+      fetchHiddenMessages();
       const channel = supabase
         .channel(`group-${selectedGroup.id}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'study_group_messages', filter: `group_id=eq.${selectedGroup.id}` }, () => fetchMessages())
@@ -135,7 +163,6 @@ export default function StudyGroups() {
   useEffect(() => {
     if (!initialLoadDone) return;
     if (messages.length > lastMsgCountRef.current && lastMsgCountRef.current > 0) {
-      // New message arrived — only scroll if user is near bottom
       const container = messagesContainerRef.current;
       if (container) {
         const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
@@ -209,7 +236,6 @@ export default function StudyGroups() {
 
   const handleJoinByCode = async (code: string) => {
     if (!user) return;
-    // Use secure RPC function to lookup group by invite code
     const { data: groupData, error } = await supabase.rpc('lookup_group_by_invite_code', { p_invite_code: code.trim() });
     if (error || !groupData || groupData.length === 0) {
       toast({ title: "Invalid code", description: "No group found with this invite code.", variant: "destructive" });
@@ -219,7 +245,6 @@ export default function StudyGroups() {
     const { data: existing } = await supabase.from('study_group_members').select('id').eq('group_id', group.id).eq('user_id', user.id).maybeSingle();
     if (existing) {
       toast({ title: "Already joined", description: "You're already a member of this group." });
-      // Fetch full group data after joining
       await fetchGroups();
       const fullGroup = groups.find(g => g.id === group.id);
       if (fullGroup) setSelectedGroup(fullGroup);
@@ -229,7 +254,6 @@ export default function StudyGroups() {
     await supabase.from('study_group_members').insert({ group_id: group.id, user_id: user.id, role: 'member' });
     setJoinCode(''); setJoinOpen(false);
     await fetchGroups();
-    // Re-fetch to get the full group object
     const { data: fullGroupData } = await supabase.from('study_groups').select('*').eq('id', group.id).single();
     if (fullGroupData) setSelectedGroup(fullGroupData as Group);
     toast({ title: "Joined!", description: `Welcome to "${group.name}"!` });
@@ -237,20 +261,31 @@ export default function StudyGroups() {
 
   const handleSendMessage = async () => {
     if (!user || !selectedGroup || !newMessage.trim()) return;
-    const insertData: any = { group_id: selectedGroup.id, user_id: user.id, message: newMessage.trim() };
-    if (replyingTo) insertData.reply_to = replyingTo.id;
-    await supabase.from('study_group_messages').insert(insertData);
-    setNewMessage(''); setReplyingTo(null);
-    // DON'T force scroll — let the smart scroll logic handle it
-    // The user sent this message, so they're at bottom — it will auto-scroll
+    const msgText = newMessage.trim();
+    const replyId = replyingTo?.id || null;
+    setNewMessage('');
+    setReplyingTo(null);
+    const insertData: any = { group_id: selectedGroup.id, user_id: user.id, message: msgText };
+    if (replyId) insertData.reply_to = replyId;
+    const { error } = await supabase.from('study_group_messages').insert(insertData);
+    if (error) {
+      toast({ title: "Error sending message", variant: "destructive" });
+      return;
+    }
+    // Force fetch to show message immediately (don't wait for realtime)
+    await fetchMessages();
+    // Scroll to bottom since user just sent
+    setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 50);
   };
 
   const handleDeleteMessage = async (msgId: string, deleteForAll: boolean) => {
     if (deleteForAll) {
       await supabase.from('study_group_messages').update({ is_deleted: true, message: '🚫 This message was deleted' } as any).eq('id', msgId);
     } else {
-      // Delete for me: use message_states to hide
-      await supabase.from('study_group_message_states').upsert({
+      // Delete for me: add to local hidden set and persist
+      setHiddenMessageIds(prev => new Set([...prev, msgId]));
+      // Insert into message_states (no unique constraint needed, just insert)
+      await supabase.from('study_group_message_states').insert({
         message_id: msgId, user_id: user!.id, hidden_at: new Date().toISOString()
       } as any);
     }
@@ -344,6 +379,40 @@ export default function StudyGroups() {
     toast({ title: "Member removed" });
   };
 
+  // Voice recording
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        if (audioChunksRef.current.length > 0) {
+          toast({ title: "🎤 Voice recorded", description: "Voice messages will be available soon!" });
+        }
+      };
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch {
+      toast({ title: "Microphone access denied", variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const handleImageUpload = () => {
+    toast({ title: "📸 Coming soon", description: "Image sharing will be available soon!" });
+  };
+
   const startReply = (msg: GroupMessage) => { setReplyingTo(msg); setEditingMessage(null); inputRef.current?.focus(); };
   const startEdit = (msg: GroupMessage) => { setEditingMessage(msg); setEditText(msg.message); setReplyingTo(null); };
 
@@ -352,27 +421,27 @@ export default function StudyGroups() {
   const groupAvatarKey = (selectedGroup as any)?.avatar_key || 'books';
 
   // Filter out hidden messages
-  const visibleMessages = messages; // TODO: filter by message_states.hidden_at
+  const visibleMessages = messages.filter(m => !hiddenMessageIds.has(m.id));
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => selectedGroup ? setSelectedGroup(null) : navigate('/home')}>
-              <ArrowLeft className="h-5 w-5" />
+        <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => selectedGroup ? setSelectedGroup(null) : navigate('/home')}>
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             {selectedGroup ? (
               <>
-                <GroupAvatar avatarKey={groupAvatarKey} />
+                <GroupAvatar avatarKey={groupAvatarKey} size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm sm:text-base truncate">{selectedGroup.name}</p>
-                  <p className="text-[11px] text-muted-foreground/80">{memberCount} members</p>
+                  <p className="font-bold text-xs sm:text-sm truncate">{selectedGroup.name}</p>
+                  <p className="text-[10px] text-muted-foreground/80">{memberCount} members</p>
                 </div>
                 {/* Invite dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full"><UserPlus className="h-5 w-5" /></Button>
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0"><UserPlus className="h-4 w-4" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={copyInviteLink}><Link2 className="h-4 w-4 mr-2" /> Copy Link</DropdownMenuItem>
@@ -383,7 +452,7 @@ export default function StudyGroups() {
                 {/* Settings dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full"><Settings className="h-5 w-5" /></Button>
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0"><Settings className="h-4 w-4" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={fetchMembers}><Eye className="h-4 w-4 mr-2" /> View Members</DropdownMenuItem>
@@ -404,21 +473,21 @@ export default function StudyGroups() {
               </>
             ) : (
               <>
-                <img src={logo} alt="JEElytics" className="h-8 w-8 rounded" />
-                <span className="text-xl font-bold text-gradient-primary">Study Groups</span>
+                <img src={logo} alt="JEElytics" className="h-7 w-7 rounded shrink-0" />
+                <span className="text-lg sm:text-xl font-bold text-gradient-primary truncate">Study Groups</span>
               </>
             )}
           </div>
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 max-w-3xl flex flex-col">
+      <main className="flex-1 w-full px-2 sm:px-4 py-3 sm:py-4 max-w-3xl mx-auto flex flex-col overflow-x-hidden">
         {!selectedGroup ? (
           <div className="space-y-4">
             <div className="flex gap-2">
               <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="gradient" className="flex-1"><Plus className="h-4 w-4 mr-2" /> Create Group</Button>
+                  <Button variant="gradient" className="flex-1 text-xs sm:text-sm"><Plus className="h-4 w-4 mr-1 sm:mr-2" /> Create Group</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader><DialogTitle>Create Study Group</DialogTitle></DialogHeader>
@@ -430,8 +499,8 @@ export default function StudyGroups() {
                         {Object.entries(GROUP_AVATARS).map(([key, avatar]) => {
                           const Icon = avatar.icon;
                           return (
-                            <button key={key} onClick={() => setSelectedAvatar(key)} className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all ${selectedAvatar === key ? 'ring-2 ring-primary ring-offset-2 scale-110' : 'opacity-60 hover:opacity-100'}`}>
-                              <Icon className="h-5 w-5 text-white" />
+                            <button key={key} onClick={() => setSelectedAvatar(key)} className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all ${selectedAvatar === key ? 'ring-2 ring-primary ring-offset-2 scale-110' : 'opacity-60 hover:opacity-100'}`}>
+                              <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                             </button>
                           );
                         })}
@@ -444,7 +513,7 @@ export default function StudyGroups() {
 
               <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1"><Link2 className="h-4 w-4 mr-2" /> Join Group</Button>
+                  <Button variant="outline" className="flex-1 text-xs sm:text-sm"><Link2 className="h-4 w-4 mr-1 sm:mr-2" /> Join Group</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader><DialogTitle>Join Study Group</DialogTitle></DialogHeader>
@@ -478,7 +547,7 @@ export default function StudyGroups() {
         ) : (
           <div className="flex flex-col flex-1 min-h-0">
             {/* Messages area */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto space-y-2 border border-border rounded-lg p-3 sm:p-4 bg-card/30" style={{ maxHeight: 'calc(100vh - 200px)', minHeight: '350px' }}>
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden space-y-2 border border-border rounded-lg p-2 sm:p-4 bg-card/30" style={{ maxHeight: 'calc(100vh - 180px)', minHeight: '300px' }}>
               {visibleMessages.length === 0 && (
                 <p className="text-center text-muted-foreground py-8 text-sm">No messages yet. Start the conversation! 💬</p>
               )}
@@ -486,8 +555,8 @@ export default function StudyGroups() {
                 const isOwn = m.user_id === user?.id;
                 const isDeleted = m.is_deleted;
                 return (
-                  <div key={m.id} className={`group flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`relative max-w-[80%] sm:max-w-[75%] px-3 py-2 rounded-lg text-sm ${
+                  <div key={m.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`relative max-w-[85%] sm:max-w-[75%] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-sm ${
                       isDeleted ? 'bg-muted/30 italic text-muted-foreground'
                         : isOwn ? 'bg-[hsl(180,60%,40%)] text-white rounded-br-sm'
                         : 'bg-muted rounded-bl-sm'
@@ -514,14 +583,14 @@ export default function StudyGroups() {
                       <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/60' : 'text-muted-foreground/60'}`}>
                         <span className="text-[10px]">{new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                         {m.edited_at && !isDeleted && <span className="text-[9px] italic">edited</span>}
-                        {isOwn && !isDeleted && <CheckCheck className="h-3 w-3 ml-0.5 text-white/80" />}
+                        {isOwn && !isDeleted && <DoubleTick className="ml-0.5 text-white/60" />}
                       </div>
 
-                      {/* 3-dot menu — ALWAYS visible, positioned outside bubble */}
+                      {/* 3-dot menu — ALWAYS visible */}
                       {!isDeleted && (
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
-                            <button className={`absolute top-1 ${isOwn ? '-left-7' : '-right-7'} p-1 rounded-full bg-card border border-border shadow-sm opacity-60 group-hover:opacity-100 transition-opacity`}>
+                            <button className={`absolute top-1 ${isOwn ? '-left-6' : '-right-6'} p-0.5 rounded-full bg-card border border-border shadow-sm`}>
                               <MoreVertical className="h-3 w-3 text-muted-foreground" />
                             </button>
                           </DropdownMenuTrigger>
@@ -530,9 +599,7 @@ export default function StudyGroups() {
                             {isOwn && canEdit(m) && (
                               <DropdownMenuItem onClick={() => startEdit(m)}><Pencil className="h-3.5 w-3.5 mr-2" /> Edit</DropdownMenuItem>
                             )}
-                            {isOwn && (
-                              <DropdownMenuItem onClick={() => confirmDeleteMessage(m.id, true)} className="text-destructive"><Trash2 className="h-3.5 w-3.5 mr-2" /> Delete</DropdownMenuItem>
-                            )}
+                            <DropdownMenuItem onClick={() => confirmDeleteMessage(m.id, isOwn)} className="text-destructive"><Trash2 className="h-3.5 w-3.5 mr-2" /> Delete</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(m.message); toast({ title: "Copied!" }); }}><Copy className="h-3.5 w-3.5 mr-2" /> Copy</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -556,10 +623,19 @@ export default function StudyGroups() {
               </div>
             )}
 
-            {/* Input */}
-            <div className={`flex gap-2 ${replyingTo ? '' : 'mt-3'}`}>
-              <Input ref={inputRef} placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()} className="flex-1" />
-              <Button onClick={handleSendMessage} disabled={!newMessage.trim()} size="icon"><Send className="h-4 w-4" /></Button>
+            {/* Input with voice & upload buttons */}
+            <div className={`flex items-center gap-1 sm:gap-2 ${replyingTo ? '' : 'mt-3'}`}>
+              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 sm:h-9 sm:w-9" onClick={handleImageUpload}>
+                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              </Button>
+              <Input ref={inputRef} placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()} className="flex-1 h-8 sm:h-9 text-sm" />
+              {newMessage.trim() ? (
+                <Button onClick={handleSendMessage} size="icon" className="shrink-0 h-8 w-8 sm:h-9 sm:w-9"><Send className="h-4 w-4" /></Button>
+              ) : (
+                <Button variant={isRecording ? "destructive" : "ghost"} size="icon" className="shrink-0 h-8 w-8 sm:h-9 sm:w-9" onClick={isRecording ? stopRecording : startRecording}>
+                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -592,12 +668,11 @@ export default function StudyGroups() {
                     {m.user_id === selectedGroup?.created_by ? 'Creator' : m.role === 'admin' ? 'Admin' : 'Member'}
                   </p>
                 </div>
-                {m.role === 'admin' && (
+                {(m.role === 'admin' || m.user_id === selectedGroup?.created_by) && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
                     {m.user_id === selectedGroup?.created_by ? 'Creator' : 'Admin'}
                   </span>
                 )}
-                {/* Admin actions: promote/demote/remove (only creator can manage) */}
                 {isGroupCreator && m.user_id !== user?.id && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -644,8 +719,8 @@ export default function StudyGroups() {
             {Object.entries(GROUP_AVATARS).map(([key, avatar]) => {
               const Icon = avatar.icon;
               return (
-                <button key={key} onClick={() => handleChangeAvatar(key)} className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all hover:scale-110 ${groupAvatarKey === key ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'}`}>
-                  <Icon className="h-5 w-5 text-white" />
+                <button key={key} onClick={() => handleChangeAvatar(key)} className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center transition-all hover:scale-110 ${groupAvatarKey === key ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'}`}>
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </button>
               );
             })}
@@ -667,7 +742,7 @@ export default function StudyGroups() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete message — 3 options: delete for me, delete for everyone, cancel */}
+      {/* Delete message — 3 options */}
       <AlertDialog open={deleteMessageConfirmOpen} onOpenChange={setDeleteMessageConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
