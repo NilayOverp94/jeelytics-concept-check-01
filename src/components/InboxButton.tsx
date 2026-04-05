@@ -82,22 +82,36 @@ export function InboxButton() {
     fetchNotifications();
   };
 
-  const handleNotificationClick = (n: Notification) => {
+  const handleNotificationClick = async (n: Notification) => {
     markAsRead(n.id);
     setOpen(false);
-    // Smart navigation based on notification type
     if (n.type === 'test_reminder') {
       navigate('/home', { state: { tab: 'tests' } });
     } else if (n.type === 'weak_subject') {
-      // Extract subject from message and open classes tab
       const subjectMatch = n.message.match(/(Physics|Chemistry|Mathematics)/i);
       navigate('/home', { state: { tab: 'classes', subject: subjectMatch?.[1] || '' } });
     } else if (n.type === 'subscription_expiry') {
       navigate('/pricing');
     } else if (n.type === 'group_invite' && n.link) {
-      // Group invite links contain group ID — navigate to groups page and auto-join
+      // Group invite: extract group ID and auto-join the user
       const groupId = n.link.split('/groups/')[1];
-      if (groupId) {
+      if (groupId && user) {
+        // Check if already a member
+        const { data: existing } = await supabase
+          .from('study_group_members')
+          .select('id')
+          .eq('group_id', groupId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (!existing) {
+          // Auto-join the group
+          await supabase.from('study_group_members').insert({
+            group_id: groupId,
+            user_id: user.id,
+            role: 'member'
+          });
+        }
         navigate('/groups', { state: { openGroupId: groupId } });
       } else {
         navigate('/groups');

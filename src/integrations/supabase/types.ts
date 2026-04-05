@@ -542,6 +542,15 @@ export type Database = {
         Returns: boolean
       }
       is_premium_user: { Args: { p_user_id: string }; Returns: boolean }
+      lookup_group_by_invite_code: {
+        Args: { p_invite_code: string }
+        Returns: {
+          avatar_key: string
+          id: string
+          max_members: number
+          name: string
+        }[]
+      }
       send_group_invite: {
         Args: {
           p_group_id: string

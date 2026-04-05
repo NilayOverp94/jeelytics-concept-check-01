@@ -78,7 +78,12 @@ export function FeedbackButton() {
       {/* Feedback form */}
       {open && (
         <div className="fixed bottom-14 left-4 z-[9999] w-80 bg-card border border-border rounded-xl shadow-2xl p-4 animate-fade-in">
-          <h3 className="font-semibold text-sm mb-3">Report a Problem</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-sm">Report a Problem</h3>
+            <button onClick={() => setOpen(false)} className="p-1 hover:bg-muted rounded-full">
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
           {cooldownRemaining > 0 && (
             <div className="flex items-center gap-1.5 mb-2 text-xs text-amber-500">
               <AlertCircle className="h-3.5 w-3.5" />
