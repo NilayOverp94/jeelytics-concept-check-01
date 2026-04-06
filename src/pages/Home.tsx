@@ -172,9 +172,8 @@ function HomeContent() {
                 className="h-7 w-7 sm:h-8 sm:w-8 rounded"
                 loading="eager"
               />
-              <h1 className="text-base sm:text-2xl font-bold text-gradient-primary whitespace-nowrap">
-                JEEly
-                <span className="hidden sm:inline">tics</span>
+              <h1 className="text-sm sm:text-2xl font-bold text-gradient-primary whitespace-nowrap">
+                JEElytics
               </h1>
             </Link>
             <div className="flex items-center gap-0.5 sm:gap-2 ml-auto">
