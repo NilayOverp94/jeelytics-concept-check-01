@@ -17,7 +17,11 @@ import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import Profile from "./pages/Profile";
 import StudyGroups from "./pages/StudyGroups";
+import About from "./pages/About";
+import Refund from "./pages/Refund";
 import SiteFooter from "./components/SiteFooter";
+import ScrollToTop from "./components/ScrollToTop";
+import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +31,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
@@ -40,9 +45,12 @@ const App = () => (
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/refund" element={<Refund />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <SiteFooter />
+        <CookieConsent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
