@@ -92,11 +92,19 @@ export function InboxButton() {
       navigate('/home', { state: { tab: 'classes', subject: subjectMatch?.[1] || '' } });
     } else if (n.type === 'subscription_expiry') {
       navigate('/pricing');
+    } else if (n.type === 'streak_reminder') {
+      navigate('/home', { state: { tab: 'tests' } });
+    } else if (n.type === 'pyq_reminder') {
+      navigate('/home', { state: { tab: 'pyq' } });
+    } else if (n.type === 'new_feature') {
+      navigate(n.link || '/home');
+    } else if (n.type === 'study_tip') {
+      navigate('/about#tips-and-strategy');
+    } else if (n.type === 'milestone') {
+      navigate('/profile');
     } else if (n.type === 'group_invite' && n.link) {
-      // Group invite: extract group ID and auto-join the user
       const groupId = n.link.split('/groups/')[1];
       if (groupId && user) {
-        // Check if already a member
         const { data: existing } = await supabase
           .from('study_group_members')
           .select('id')
@@ -105,7 +113,6 @@ export function InboxButton() {
           .maybeSingle();
         
         if (!existing) {
-          // Auto-join the group
           await supabase.from('study_group_members').insert({
             group_id: groupId,
             user_id: user.id,
@@ -116,6 +123,8 @@ export function InboxButton() {
       } else {
         navigate('/groups');
       }
+    } else if (n.type === 'group_message') {
+      navigate('/groups');
     } else if (n.link) {
       navigate(n.link);
     }
