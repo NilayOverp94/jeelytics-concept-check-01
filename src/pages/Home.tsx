@@ -404,8 +404,41 @@ function HomeContent() {
                   {isStartDisabled ? 'Select Subject & Topic' : 'Start Test 🚀'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+             </CardContent>
+           </Card>
+
+           {/* Blog Banners */}
+           <div className="mt-8">
+             <h3 className="text-lg font-bold mb-4 text-center">📖 Not Sure About JEE? Read Our Guides</h3>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <Link to="/about#what-is-jee">
+                 <Card className="card-jee hover:scale-[1.02] transition-transform cursor-pointer border-primary/20">
+                   <CardContent className="pt-4 pb-4">
+                     <div className="flex items-center gap-3">
+                       <GraduationCap className="h-8 w-8 text-primary shrink-0" />
+                       <div>
+                         <h4 className="font-semibold text-sm">What is JEE?</h4>
+                         <p className="text-xs text-muted-foreground">Everything you need to know about JEE Mains & Advanced</p>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </Link>
+               <Link to="/about#how-to-use">
+                 <Card className="card-jee hover:scale-[1.02] transition-transform cursor-pointer border-secondary/20">
+                   <CardContent className="pt-4 pb-4">
+                     <div className="flex items-center gap-3">
+                       <Sparkles className="h-8 w-8 text-secondary shrink-0" />
+                       <div>
+                         <h4 className="font-semibold text-sm">How to Use JEElytics</h4>
+                         <p className="text-xs text-muted-foreground">A complete guide to maximize your preparation</p>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </Link>
+             </div>
+           </div>
 
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
