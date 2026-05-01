@@ -20,6 +20,7 @@ import logo from '@/assets/logo.png';
 import { ClassesSection } from '@/components/ClassesSection';
 import { PYQSection } from '@/components/PYQSection';
 import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
+import WelcomeTour from '@/components/WelcomeTour';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
