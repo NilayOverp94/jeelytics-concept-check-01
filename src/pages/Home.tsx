@@ -215,15 +215,15 @@ function HomeContent() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-12 sm:h-14">
-              <TabsTrigger value="tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
+              <TabsTrigger value="tests" data-tour="tab-tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
                 <ClipboardList className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Tests
               </TabsTrigger>
-              <TabsTrigger value="classes" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
+              <TabsTrigger value="classes" data-tour="tab-classes" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
                 <GraduationCap className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Classes
               </TabsTrigger>
-              <TabsTrigger value="pyq" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">
+              <TabsTrigger value="pyq" data-tour="tab-pyq" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">
                 <ScrollText className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 PYQs
               </TabsTrigger>
