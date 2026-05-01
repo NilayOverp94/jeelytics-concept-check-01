@@ -20,6 +20,7 @@ import logo from '@/assets/logo.png';
 import { ClassesSection } from '@/components/ClassesSection';
 import { PYQSection } from '@/components/PYQSection';
 import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
+import WelcomeTour from '@/components/WelcomeTour';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
@@ -178,26 +179,31 @@ function HomeContent() {
             </Link>
             <div className="flex items-center gap-0.5 sm:gap-2 ml-auto">
               <UserStatusBadge />
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center" data-tour="inbox">
                 <InboxButton />
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Inbox</span>
               </div>
-              <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/groups')}>
+              <div className="flex flex-col items-center" data-tour="groups">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/groups')} aria-label="Study Groups">
                   <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Groups</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center" data-tour="theme">
                 <ThemeToggle />
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Theme</span>
               </div>
-              <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/profile')}>
+              <div className="flex flex-col items-center" data-tour="profile">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/profile')} aria-label="Profile">
                   <User className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Profile</span>
               </div>
               <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 text-destructive" onClick={handleLogout}>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 text-destructive" onClick={handleLogout} aria-label="Logout">
                   <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Logout</span>
               </div>
             </div>
           </div>
@@ -210,15 +216,15 @@ function HomeContent() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-12 sm:h-14">
-              <TabsTrigger value="tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
+              <TabsTrigger value="tests" data-tour="tab-tests" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">
                 <ClipboardList className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Tests
               </TabsTrigger>
-              <TabsTrigger value="classes" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
+              <TabsTrigger value="classes" data-tour="tab-classes" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">
                 <GraduationCap className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Classes
               </TabsTrigger>
-              <TabsTrigger value="pyq" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">
+              <TabsTrigger value="pyq" data-tour="tab-pyq" className="text-sm sm:text-lg h-10 sm:h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">
                 <ScrollText className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 PYQs
               </TabsTrigger>
@@ -487,6 +493,7 @@ function HomeContent() {
       {/* AI Assistant - Floating */}
       <AIAssistant />
       <FeedbackButton />
+      <WelcomeTour />
     </div>
   );
 }

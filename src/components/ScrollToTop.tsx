@@ -5,28 +5,14 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const unlockScroll = () => {
-      for (const element of [document.documentElement, document.body]) {
-        element.style.removeProperty("overflow");
-        element.style.removeProperty("overflow-x");
-        element.style.removeProperty("overflow-y");
-        element.style.removeProperty("height");
-        element.style.removeProperty("max-height");
-        element.style.removeProperty("pointer-events");
-        element.removeAttribute("data-scroll-locked");
-      }
-    };
-
-    unlockScroll();
+    // Clear any leftover scroll lock from a previously-open Radix dialog
+    // (only runs on route change, doesn't interfere with currently-open modals)
+    for (const element of [document.documentElement, document.body]) {
+      element.style.removeProperty("overflow");
+      element.style.removeProperty("pointer-events");
+      element.removeAttribute("data-scroll-locked");
+    }
     window.scrollTo({ top: 0, left: 0 });
-
-    const fastReset = window.setTimeout(unlockScroll, 50);
-    const slowReset = window.setTimeout(unlockScroll, 250);
-
-    return () => {
-      window.clearTimeout(fastReset);
-      window.clearTimeout(slowReset);
-    };
   }, [pathname]);
 
   return null;
