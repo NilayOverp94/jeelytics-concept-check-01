@@ -492,6 +492,7 @@ function HomeContent() {
       {/* AI Assistant - Floating */}
       <AIAssistant />
       <FeedbackButton />
+      <WelcomeTour />
     </div>
   );
 }
