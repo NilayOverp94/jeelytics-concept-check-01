@@ -625,7 +625,20 @@ export default function StudyGroups() {
                           <button onClick={() => setEditingMessage(null)} className="p-0.5"><X className="h-3.5 w-3.5" /></button>
                         </div>
                       ) : (
-                        <p className="break-words whitespace-pre-wrap">{m.message}</p>
+                        (() => {
+                          const mediaMatch = m.message.match(/^\[(image|voice|file)\](https?:\/\/[^\s|]+)(?:\|(.+))?$/);
+                          if (mediaMatch) {
+                            const [, kind, url, name] = mediaMatch;
+                            if (kind === 'image') {
+                              return <a href={url} target="_blank" rel="noreferrer"><img src={url} alt="shared" className="rounded-md max-w-[220px] max-h-[260px] object-cover" /></a>;
+                            }
+                            if (kind === 'voice') {
+                              return <audio controls src={url} className="max-w-[220px]" />;
+                            }
+                            return <a href={url} target="_blank" rel="noreferrer" className={`underline break-all text-xs ${isOwn ? 'text-white' : 'text-primary'}`}>📎 {name || 'file'}</a>;
+                          }
+                          return <p className="break-words whitespace-pre-wrap">{m.message}</p>;
+                        })()
                       )}
                       <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/60' : 'text-muted-foreground/60'}`}>
                         <span className="text-[10px]">{new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
