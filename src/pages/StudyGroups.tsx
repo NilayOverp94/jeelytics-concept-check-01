@@ -379,6 +379,38 @@ export default function StudyGroups() {
     toast({ title: "Member removed" });
   };
 
+  // Upload a Blob/File to chat-media bucket and send as a message
+  const uploadAndSendMedia = async (blob: Blob, ext: string, kind: 'image' | 'voice' | 'file', originalName?: string) => {
+    if (!user || !selectedGroup) return;
+    try {
+      const fileName = `${user.id}/${selectedGroup.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('chat-media').upload(fileName, blob, {
+        contentType: blob.type || 'application/octet-stream',
+        upsert: false,
+      });
+      if (upErr) {
+        toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
+        return;
+      }
+      const { data: pub } = supabase.storage.from('chat-media').getPublicUrl(fileName);
+      const url = pub.publicUrl;
+      // Encode media as a tagged message string parsed in render
+      const payload = `[${kind}]${url}${originalName ? `|${originalName}` : ''}`;
+      const insertData: any = { group_id: selectedGroup.id, user_id: user.id, message: payload };
+      if (replyingTo?.id) insertData.reply_to = replyingTo.id;
+      const { error } = await supabase.from('study_group_messages').insert(insertData);
+      if (error) {
+        toast({ title: "Error sending media", variant: "destructive" });
+        return;
+      }
+      setReplyingTo(null);
+      await fetchMessages();
+      setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 50);
+    } catch (e: any) {
+      toast({ title: "Upload error", description: e?.message || 'Unknown error', variant: "destructive" });
+    }
+  };
+
   // Voice recording
   const startRecording = async () => {
     try {
@@ -389,10 +421,11 @@ export default function StudyGroups() {
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         if (audioChunksRef.current.length > 0) {
-          toast({ title: "🎤 Voice recorded", description: "Voice messages will be available soon!" });
+          const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          await uploadAndSendMedia(blob, 'webm', 'voice');
         }
       };
       mediaRecorder.start();
@@ -410,7 +443,21 @@ export default function StudyGroups() {
   };
 
   const handleImageUpload = () => {
-    toast({ title: "📸 Coming soon", description: "Image sharing will be available soon!" });
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,application/pdf,.doc,.docx,.txt,.zip';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      if (file.size > 25 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Max 25 MB", variant: "destructive" });
+        return;
+      }
+      const ext = (file.name.split('.').pop() || 'bin').toLowerCase();
+      const isImage = file.type.startsWith('image/');
+      await uploadAndSendMedia(file, ext, isImage ? 'image' : 'file', file.name);
+    };
+    input.click();
   };
 
   const startReply = (msg: GroupMessage) => { setReplyingTo(msg); setEditingMessage(null); inputRef.current?.focus(); };
@@ -578,7 +625,20 @@ export default function StudyGroups() {
                           <button onClick={() => setEditingMessage(null)} className="p-0.5"><X className="h-3.5 w-3.5" /></button>
                         </div>
                       ) : (
-                        <p className="break-words whitespace-pre-wrap">{m.message}</p>
+                        (() => {
+                          const mediaMatch = m.message.match(/^\[(image|voice|file)\](https?:\/\/[^\s|]+)(?:\|(.+))?$/);
+                          if (mediaMatch) {
+                            const [, kind, url, name] = mediaMatch;
+                            if (kind === 'image') {
+                              return <a href={url} target="_blank" rel="noreferrer"><img src={url} alt="shared" className="rounded-md max-w-[220px] max-h-[260px] object-cover" /></a>;
+                            }
+                            if (kind === 'voice') {
+                              return <audio controls src={url} className="max-w-[220px]" />;
+                            }
+                            return <a href={url} target="_blank" rel="noreferrer" className={`underline break-all text-xs ${isOwn ? 'text-white' : 'text-primary'}`}>📎 {name || 'file'}</a>;
+                          }
+                          return <p className="break-words whitespace-pre-wrap">{m.message}</p>;
+                        })()
                       )}
                       <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/60' : 'text-muted-foreground/60'}`}>
                         <span className="text-[10px]">{new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
