@@ -21,6 +21,7 @@ import { ClassesSection } from '@/components/ClassesSection';
 import { PYQSection } from '@/components/PYQSection';
 import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
 import WelcomeTour from '@/components/WelcomeTour';
+import { useGroupUnread } from '@/hooks/useGroupUnread';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
@@ -35,6 +36,7 @@ const SUBJECT_COLORS: Record<Subject, string> = {
 
 function HomeContent() {
   const { activeTab, setActiveTab } = useAICommand();
+  const hasGroupUnread = useGroupUnread();
   
   useSEO({
     title: "Dashboard | JEElytics - Your JEE Practice Hub",
@@ -184,8 +186,11 @@ function HomeContent() {
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Inbox</span>
               </div>
               <div className="flex flex-col items-center" data-tour="groups">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/groups')} aria-label="Study Groups">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 relative" onClick={() => navigate('/groups')} aria-label="Study Groups">
                   <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                  {hasGroupUnread && (
+                    <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+                  )}
                 </Button>
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Groups</span>
               </div>
