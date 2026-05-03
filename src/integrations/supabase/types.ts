@@ -550,6 +550,7 @@ export type Database = {
           topic: string
         }[]
       }
+      get_group_invite_code: { Args: { p_group_id: string }; Returns: string }
       get_remaining_tests: { Args: { p_user_id: string }; Returns: number }
       increment_daily_test_count: {
         Args: { p_user_id: string }
@@ -560,6 +561,7 @@ export type Database = {
         Returns: boolean
       }
       is_premium_user: { Args: { p_user_id: string }; Returns: boolean }
+      join_group_with_code: { Args: { p_invite_code: string }; Returns: string }
       lookup_group_by_invite_code: {
         Args: { p_invite_code: string }
         Returns: {
