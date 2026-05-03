@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
+import { markGroupSeen } from '@/hooks/useGroupUnread';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
@@ -61,7 +62,7 @@ function DoubleTick({ read, className }: { read?: boolean; className?: string })
 }
 
 interface Group {
-  id: string; name: string; created_by: string; invite_code: string; max_members: number; created_at: string; avatar_key?: string;
+  id: string; name: string; created_by: string; invite_code?: string | null; max_members: number; created_at: string; avatar_key?: string;
 }
 interface GroupMessage {
   id: string; group_id: string; user_id: string; message: string; created_at: string; sender_name?: string;
@@ -146,6 +147,7 @@ export default function StudyGroups() {
 
   useEffect(() => {
     if (selectedGroup) {
+      markGroupSeen(selectedGroup.id);
       setInitialLoadDone(false);
       lastMsgCountRef.current = 0;
       fetchMessages();
@@ -236,27 +238,16 @@ export default function StudyGroups() {
 
   const handleJoinByCode = async (code: string) => {
     if (!user) return;
-    const { data: groupData, error } = await supabase.rpc('lookup_group_by_invite_code', { p_invite_code: code.trim() });
-    if (error || !groupData || groupData.length === 0) {
-      toast({ title: "Invalid code", description: "No group found with this invite code.", variant: "destructive" });
+    const { data: groupId, error } = await supabase.rpc('join_group_with_code', { p_invite_code: code.trim() });
+    if (error || !groupId) {
+      toast({ title: "Invalid code", description: error?.message || "No group found with this invite code.", variant: "destructive" });
       return;
     }
-    const group = groupData[0];
-    const { data: existing } = await supabase.from('study_group_members').select('id').eq('group_id', group.id).eq('user_id', user.id).maybeSingle();
-    if (existing) {
-      toast({ title: "Already joined", description: "You're already a member of this group." });
-      await fetchGroups();
-      const fullGroup = groups.find(g => g.id === group.id);
-      if (fullGroup) setSelectedGroup(fullGroup);
-      setJoinOpen(false);
-      return;
-    }
-    await supabase.from('study_group_members').insert({ group_id: group.id, user_id: user.id, role: 'member' });
     setJoinCode(''); setJoinOpen(false);
     await fetchGroups();
-    const { data: fullGroupData } = await supabase.from('study_groups').select('*').eq('id', group.id).single();
+    const { data: fullGroupData } = await supabase.from('study_groups').select('*').eq('id', groupId as string).maybeSingle();
     if (fullGroupData) setSelectedGroup(fullGroupData as Group);
-    toast({ title: "Joined!", description: `Welcome to "${group.name}"!` });
+    toast({ title: "Joined!", description: `Welcome!` });
   };
 
   const handleSendMessage = async () => {
@@ -318,15 +309,27 @@ export default function StudyGroups() {
     toast({ title: "Invite sent!", description: `Notification sent to ${inviteEmail}` });
   };
 
-  const copyInviteLink = () => {
-    if (!selectedGroup) return;
-    navigator.clipboard.writeText(`${window.location.origin}/groups?join=${selectedGroup.invite_code}`);
+  const fetchInviteCode = async (): Promise<string | null> => {
+    if (!selectedGroup) return null;
+    const { data } = await supabase.rpc('get_group_invite_code', { p_group_id: selectedGroup.id });
+    if (!data) {
+      toast({ title: "Not allowed", description: "Only admins can share invite codes.", variant: "destructive" });
+      return null;
+    }
+    return data as string;
+  };
+
+  const copyInviteLink = async () => {
+    const code = await fetchInviteCode();
+    if (!code) return;
+    navigator.clipboard.writeText(`${window.location.origin}/groups?join=${code}`);
     toast({ title: "Copied!", description: "Invite link copied" });
   };
 
-  const copyInviteCode = () => {
-    if (!selectedGroup) return;
-    navigator.clipboard.writeText(selectedGroup.invite_code);
+  const copyInviteCode = async () => {
+    const code = await fetchInviteCode();
+    if (!code) return;
+    navigator.clipboard.writeText(code);
     toast({ title: "Copied!", description: "Invite code copied" });
   };
 

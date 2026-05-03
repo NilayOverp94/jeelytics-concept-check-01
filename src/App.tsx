@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import StudyGroups from "./pages/StudyGroups";
 import About from "./pages/About";
 import Refund from "./pages/Refund";
+import StudyTools from "./pages/StudyTools";
 import SiteFooter from "./components/SiteFooter";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/groups" element={<ProtectedRoute><StudyGroups /></ProtectedRoute>} />
+          <Route path="/tools" element={<ProtectedRoute><StudyTools /></ProtectedRoute>} />
           <Route path="/quiz" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
           <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
           <Route path="/pricing" element={<Pricing />} />
