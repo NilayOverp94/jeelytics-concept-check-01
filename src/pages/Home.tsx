@@ -194,6 +194,12 @@ function HomeContent() {
                 </Button>
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Groups</span>
               </div>
+              <div className="flex flex-col items-center">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/tools')} aria-label="Study Tools">
+                  <Calculator className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Tools</span>
+              </div>
               <div className="flex flex-col items-center" data-tour="theme">
                 <ThemeToggle />
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Theme</span>
