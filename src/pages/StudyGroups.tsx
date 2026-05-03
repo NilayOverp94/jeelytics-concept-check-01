@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
+import { markGroupSeen } from '@/hooks/useGroupUnread';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
@@ -146,6 +147,7 @@ export default function StudyGroups() {
 
   useEffect(() => {
     if (selectedGroup) {
+      markGroupSeen(selectedGroup.id);
       setInitialLoadDone(false);
       lastMsgCountRef.current = 0;
       fetchMessages();
