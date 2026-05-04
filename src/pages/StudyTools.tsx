@@ -138,46 +138,8 @@ function GraphPlotter() {
   );
 }
 
-// ---------- Step-by-step solver (AI) ----------
-function StepSolver() {
-  const [problem, setProblem] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-
-  const solve = async () => {
-    if (!problem.trim()) return;
-    setLoading(true); setAnswer('');
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { messages: [
-          { role: 'system', content: 'You are a JEE tutor. Solve the problem with clear numbered steps. Use LaTeX with $ delimiters for all math.' },
-          { role: 'user', content: problem }
-        ] }
-      });
-      if (error) throw error;
-      const text = data?.message || data?.choices?.[0]?.message?.content || data?.response || JSON.stringify(data);
-      setAnswer(text);
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to solve', variant: 'destructive' });
-    } finally { setLoading(false); }
-  };
-
-  return (
-    <div className="space-y-3">
-      <Textarea value={problem} onChange={e => setProblem(e.target.value)} rows={4} placeholder="Paste your physics/chemistry/maths problem here..." />
-      <Button onClick={solve} disabled={loading || !problem.trim()} className="w-full">
-        {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Solving...</> : <><Sparkles className="h-4 w-4 mr-2" /> Solve step-by-step</>}
-      </Button>
-      {answer && (
-        <Card><CardContent className="p-4 whitespace-pre-wrap text-sm">{answer}</CardContent></Card>
-      )}
-    </div>
-  );
-}
-
 export default function StudyTools() {
-  useSEO({ title: 'Study Tools | JEElytics', description: 'Calculator, unit converter, graph plotter and AI step-by-step solver for JEE.' });
+  useSEO({ title: 'Study Tools | JEElytics', description: 'Scientific calculator, unit converter and graph plotter for JEE.' });
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background">
@@ -189,16 +151,14 @@ export default function StudyTools() {
       </header>
       <main className="container mx-auto px-3 py-4 max-w-3xl">
         <Tabs defaultValue="calc">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="calc"><CalcIcon className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Calculator</span></TabsTrigger>
             <TabsTrigger value="unit"><Ruler className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Units</span></TabsTrigger>
             <TabsTrigger value="graph"><LineIcon className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Graph</span></TabsTrigger>
-            <TabsTrigger value="solve"><Sparkles className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Solver</span></TabsTrigger>
           </TabsList>
           <TabsContent value="calc"><Card><CardHeader><CardTitle>Scientific Calculator</CardTitle></CardHeader><CardContent><ScientificCalculator /></CardContent></Card></TabsContent>
           <TabsContent value="unit"><Card><CardHeader><CardTitle>Unit Converter</CardTitle></CardHeader><CardContent><UnitConverter /></CardContent></Card></TabsContent>
-          <TabsContent value="graph"><Card><CardHeader><CardTitle>Graph Plotter</CardTitle></CardHeader><CardContent><GraphPlotter /></CardContent></Card></TabsContent>
-          <TabsContent value="solve"><Card><CardHeader><CardTitle>AI Step-by-Step Solver</CardTitle></CardHeader><CardContent><StepSolver /></CardContent></Card></TabsContent>
+          <TabsContent value="graph"><Card><CardHeader><CardTitle>Graph Plotter (x-min and x-max define the visible range of x)</CardTitle></CardHeader><CardContent><GraphPlotter /></CardContent></Card></TabsContent>
         </Tabs>
       </main>
     </div>
