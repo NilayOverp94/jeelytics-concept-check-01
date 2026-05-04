@@ -161,6 +161,12 @@ export default function StudyGroups() {
     }
   }, [selectedGroup]);
 
+  // Helper: scroll only the messages container, never the page
+  const scrollMessagesToBottom = (smooth = true) => {
+    const c = messagesContainerRef.current;
+    if (c) c.scrollTo({ top: c.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+  };
+
   // Smart scroll: only auto-scroll on NEW messages (not initial load)
   useEffect(() => {
     if (!initialLoadDone) return;
@@ -168,9 +174,7 @@ export default function StudyGroups() {
       const container = messagesContainerRef.current;
       if (container) {
         const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
-        if (isNearBottom) {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (isNearBottom) scrollMessagesToBottom(true);
       }
     }
     lastMsgCountRef.current = messages.length;
@@ -202,7 +206,7 @@ export default function StudyGroups() {
       })));
       if (!initialLoadDone) {
         setInitialLoadDone(true);
-        setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }); }, 100);
+        setTimeout(() => { scrollMessagesToBottom(false); }, 100);
       }
     }
   };
@@ -266,7 +270,7 @@ export default function StudyGroups() {
     // Force fetch to show message immediately (don't wait for realtime)
     await fetchMessages();
     // Scroll to bottom since user just sent
-    setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 50);
+    setTimeout(() => { scrollMessagesToBottom(true); }, 50);
   };
 
   const handleDeleteMessage = async (msgId: string, deleteForAll: boolean) => {
@@ -408,7 +412,7 @@ export default function StudyGroups() {
       }
       setReplyingTo(null);
       await fetchMessages();
-      setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 50);
+      setTimeout(() => { scrollMessagesToBottom(true); }, 50);
     } catch (e: any) {
       toast({ title: "Upload error", description: e?.message || 'Unknown error', variant: "destructive" });
     }
