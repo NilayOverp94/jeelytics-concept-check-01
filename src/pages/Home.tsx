@@ -22,6 +22,7 @@ import { PYQSection } from '@/components/PYQSection';
 import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
 import WelcomeTour from '@/components/WelcomeTour';
 import { useGroupUnread } from '@/hooks/useGroupUnread';
+import { FloatingTools } from '@/components/FloatingTools';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
@@ -212,16 +213,7 @@ function HomeContent() {
               </div>
             </div>
 
-            {/* Floating Tools button (mirror of AI Assistant on right) */}
-            <Button
-              variant="gradient"
-              size="icon"
-              className="fixed bottom-16 left-4 z-50 h-12 w-12 rounded-full shadow-glow"
-              onClick={() => navigate('/tools')}
-              aria-label="Study Tools"
-            >
-              <Calculator className="h-5 w-5" />
-            </Button>
+            <FloatingTools />
           </div>
         </div>
       </header>
