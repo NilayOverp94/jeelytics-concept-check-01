@@ -181,9 +181,11 @@ function HomeContent() {
             </Link>
             <div className="flex items-center gap-0.5 sm:gap-2 ml-auto">
               <UserStatusBadge />
-              <div className="flex flex-col items-center" data-tour="inbox">
-                <InboxButton />
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Inbox</span>
+              <div className="flex flex-col items-center" data-tour="profile">
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/profile')} aria-label="Profile">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Profile</span>
               </div>
               <div className="flex flex-col items-center" data-tour="groups">
                 <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 relative" onClick={() => navigate('/groups')} aria-label="Study Groups">
@@ -194,21 +196,13 @@ function HomeContent() {
                 </Button>
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Groups</span>
               </div>
-              <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/tools')} aria-label="Study Tools">
-                  <Calculator className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Tools</span>
+              <div className="flex flex-col items-center" data-tour="inbox">
+                <InboxButton />
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Inbox</span>
               </div>
               <div className="flex flex-col items-center" data-tour="theme">
                 <ThemeToggle />
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Theme</span>
-              </div>
-              <div className="flex flex-col items-center" data-tour="profile">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/profile')} aria-label="Profile">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Profile</span>
               </div>
               <div className="flex flex-col items-center">
                 <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 text-destructive" onClick={handleLogout} aria-label="Logout">
@@ -217,6 +211,17 @@ function HomeContent() {
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Logout</span>
               </div>
             </div>
+
+            {/* Floating Tools button (mirror of AI Assistant on right) */}
+            <Button
+              variant="gradient"
+              size="icon"
+              className="fixed bottom-16 left-4 z-50 h-12 w-12 rounded-full shadow-glow"
+              onClick={() => navigate('/tools')}
+              aria-label="Study Tools"
+            >
+              <Calculator className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </header>
