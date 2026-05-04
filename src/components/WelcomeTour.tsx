@@ -15,39 +15,49 @@ const STORAGE_KEY = "jeelytics_welcome_tour_v1";
 const STEPS: Step[] = [
   {
     selector: '[data-tour="tab-tests"]',
-    title: "📝 Tests",
-    body: "Pick a subject, topic, number of questions and difficulty — then start an AI-generated assessment.",
+    title: "👋 Welcome to JEElytics!",
+    body: "Your AI-powered JEE prep companion. Let's take a quick tour so you know exactly where everything lives. This first tab is Tests — pick a Subject (Physics / Chemistry / Maths), choose a Topic, set the number of questions (3, 5 or 25) and difficulty (CBSE, JEE Mains or JEE Advanced), then hit Start. Free users get 10 tests per month, Premium gets unlimited.",
     scroll: true,
   },
   {
     selector: '[data-tour="tab-classes"]',
     title: "🎬 Classes & Notes",
-    body: "Watch curated lectures and read PDF notes for every topic. (Premium content unlocked with subscription.)",
+    body: "Curated video lectures organised chapter-wise for every subject, with downloadable PDF notes. Lectures play inline (tap thumbnail to load — saves your data). Premium unlocks the full library.",
   },
   {
     selector: '[data-tour="tab-pyq"]',
     title: "📚 Previous Year Questions",
-    body: "Browse JEE Main (2019-2025) and Advanced (2007-2025) past papers.",
-  },
-  {
-    selector: '[data-tour="inbox"]',
-    title: "🔔 Inbox",
-    body: "Test reminders, streak alerts, weak-subject tips and study suggestions land here.",
-  },
-  {
-    selector: '[data-tour="groups"]',
-    title: "👥 Study Groups",
-    body: "Chat with other JEE aspirants, share doubts and study together in real time.",
-  },
-  {
-    selector: '[data-tour="theme"]',
-    title: "🎨 Theme",
-    body: "Toggle between light and dark mode — pick what's easier on your eyes.",
+    body: "Full archive of JEE Main (2019-2025), JEE Advanced (2007-2025), BITSAT, CUET and MHT-CET papers. View-only, no download — exactly like a real exam booklet. Premium feature.",
   },
   {
     selector: '[data-tour="profile"]',
     title: "👤 Profile",
-    body: "View your stats, manage your subscription, change your avatar and read our blog from About.",
+    body: "First in the top bar: your stats, accuracy graphs, subscription status, avatar upload, and links to About / Blog / Pricing / Refund pages.",
+  },
+  {
+    selector: '[data-tour="groups"]',
+    title: "👥 Study Groups",
+    body: "WhatsApp-style chat with fellow JEE aspirants. Create or join groups using an invite code, share doubts, images and notes in real-time. A red dot here means there are unread messages.",
+  },
+  {
+    selector: '[data-tour="inbox"]',
+    title: "🔔 Inbox",
+    body: "Personal notifications: streak reminders, weak-subject suggestions, group invites, system updates and more. Tap items to jump straight to the relevant page.",
+  },
+  {
+    selector: '[data-tour="theme"]',
+    title: "🎨 Theme Toggle",
+    body: "Flip between light and dark mode. Your choice is remembered on this device.",
+  },
+  {
+    selector: '[data-tour="tools"]',
+    title: "🧰 Study Tools",
+    body: "Bottom-left button. Tap it to expand a ladder of quick tools: Scientific Calculator, Unit Converter and a Desmos-style Graph Plotter (drag to pan, scroll to zoom, plot multiple equations). Perfect during practice.",
+  },
+  {
+    selector: '[data-tour="ai"]',
+    title: "🤖 ASK AI",
+    body: "Bottom-right button. Your 24/7 doubt solver — it explains concepts, solves problems step-by-step in LaTeX, and can even open lectures, start tests or jump to PYQ sections via chat commands. Voice input supported.",
   },
 ];
 
