@@ -414,6 +414,7 @@ export function AIAssistant() {
           onClick={() => setIsExpanded(true)}
           className="w-14 h-14 rounded-full shadow-elegant bg-primary hover:bg-primary/90 text-primary-foreground"
           size="icon"
+          data-tour="ai"
         >
           <MessageCircle className="h-6 w-6" />
         </Button>
