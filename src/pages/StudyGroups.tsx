@@ -64,12 +64,16 @@ function DoubleTick({ read, className }: { read?: boolean; className?: string })
 }
 
 interface Group {
-  id: string; name: string; created_by: string; invite_code?: string | null; max_members: number; created_at: string; avatar_key?: string;
+  id: string; name: string; created_by: string; invite_code?: string | null; max_members: number; created_at: string; avatar_key?: string; description?: string | null;
 }
+interface Reaction { emoji: string; count: number; mine: boolean; }
 interface GroupMessage {
   id: string; group_id: string; user_id: string; message: string; created_at: string; sender_name?: string;
   reply_to?: string | null; is_deleted?: boolean; edited_at?: string | null; reply_message?: string; reply_sender?: string;
+  is_pinned?: boolean; reactions?: Reaction[];
 }
+
+const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🎉', '🔥'];
 
 export default function StudyGroups() {
   useSEO({ title: "Study Groups | JEElytics", description: "Create and join study groups to discuss doubts with fellow JEE aspirants." });
