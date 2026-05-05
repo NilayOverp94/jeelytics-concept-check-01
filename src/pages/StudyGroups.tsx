@@ -663,10 +663,21 @@ export default function StudyGroups() {
           </div>
         ) : (
           <div className="flex flex-col flex-1 min-h-0">
+            {showSearch && (
+              <div className="mb-2">
+                <Input placeholder="Search messages..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-8 text-sm" />
+              </div>
+            )}
+            {pinnedMessages.length > 0 && !searchQuery && (
+              <div className="mb-2 px-2 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-xs flex items-center gap-2 overflow-hidden">
+                <Pin className="h-3 w-3 text-amber-600 shrink-0" />
+                <p className="truncate text-amber-700 dark:text-amber-400"><span className="font-semibold">{pinnedMessages[0].sender_name}:</span> {pinnedMessages[0].message.substring(0, 80)}</p>
+              </div>
+            )}
             {/* Messages area */}
             <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden space-y-2 border border-border rounded-lg p-2 sm:p-4 bg-card/30" style={{ maxHeight: 'calc(100vh - 180px)', minHeight: '300px' }}>
               {visibleMessages.length === 0 && (
-                <p className="text-center text-muted-foreground py-8 text-sm">No messages yet. Start the conversation! 💬</p>
+                <p className="text-center text-muted-foreground py-8 text-sm">{searchQuery ? 'No matches found.' : 'No messages yet. Start the conversation! 💬'}</p>
               )}
               {visibleMessages.map((m) => {
                 const isOwn = m.user_id === user?.id;
