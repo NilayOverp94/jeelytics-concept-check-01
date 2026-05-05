@@ -530,8 +530,10 @@ export default function StudyGroups() {
   const isGroupCreator = selectedGroup?.created_by === user?.id;
   const groupAvatarKey = (selectedGroup as any)?.avatar_key || 'books';
 
-  // Filter out hidden messages
-  const visibleMessages = messages.filter(m => !hiddenMessageIds.has(m.id));
+  const visibleMessages = messages
+    .filter(m => !hiddenMessageIds.has(m.id))
+    .filter(m => !searchQuery.trim() || m.message.toLowerCase().includes(searchQuery.toLowerCase()));
+  const pinnedMessages = messages.filter(m => m.is_pinned && !m.is_deleted && !hiddenMessageIds.has(m.id));
 
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
