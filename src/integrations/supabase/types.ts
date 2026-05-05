@@ -91,6 +91,30 @@ export type Database = {
         }
         Relationships: []
       }
+      message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -264,6 +288,7 @@ export type Database = {
           group_id: string
           id: string
           is_deleted: boolean
+          is_pinned: boolean
           message: string
           reply_to: string | null
           user_id: string
@@ -274,6 +299,7 @@ export type Database = {
           group_id: string
           id?: string
           is_deleted?: boolean
+          is_pinned?: boolean
           message: string
           reply_to?: string | null
           user_id: string
@@ -284,6 +310,7 @@ export type Database = {
           group_id?: string
           id?: string
           is_deleted?: boolean
+          is_pinned?: boolean
           message?: string
           reply_to?: string | null
           user_id?: string
@@ -310,6 +337,7 @@ export type Database = {
           avatar_key: string
           created_at: string
           created_by: string
+          description: string | null
           id: string
           invite_code: string
           max_members: number | null
@@ -320,6 +348,7 @@ export type Database = {
           avatar_key?: string
           created_at?: string
           created_by: string
+          description?: string | null
           id?: string
           invite_code?: string
           max_members?: number | null
@@ -330,6 +359,7 @@ export type Database = {
           avatar_key?: string
           created_at?: string
           created_by?: string
+          description?: string | null
           id?: string
           invite_code?: string
           max_members?: number | null
@@ -406,6 +436,27 @@ export type Database = {
           topic?: string
           total_questions?: number
           user_answers?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_key: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_key: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_key?: string
+          earned_at?: string
+          id?: string
           user_id?: string
         }
         Relationships: []
@@ -499,6 +550,30 @@ export type Database = {
           },
         ]
       }
+      user_xp: {
+        Row: {
+          level: number
+          points: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          level?: number
+          points?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          level?: number
+          points?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -513,6 +588,14 @@ export type Database = {
           p_subscription_id: string
         }
         Returns: undefined
+      }
+      award_xp: {
+        Args: { p_amount: number }
+        Returns: {
+          leveled_up: boolean
+          new_level: number
+          new_xp: number
+        }[]
       }
       can_take_test: { Args: { p_user_id: string }; Returns: boolean }
       fetch_random_questions: {
@@ -579,6 +662,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      toggle_pin_message: { Args: { p_message_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
