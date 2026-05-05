@@ -238,6 +238,13 @@ export default function Profile() {
           </Card>
         </div>
 
+        {/* Gamification: Level & Badges */}
+        <GamificationCard
+          totalTests={userStats.totalTests}
+          streak={userStats.streak}
+          hadPerfectScore={testHistory.some(t => t.score === t.total_questions && t.total_questions > 0)}
+        />
+
         {/* Subject Performance */}
         {Object.keys(subjectStats).length > 0 && (
           <Card className="card-jee">
