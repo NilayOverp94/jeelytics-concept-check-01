@@ -115,6 +115,12 @@ export default function StudyGroups() {
   const lastMsgCountRef = useRef(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [descDialogOpen, setDescDialogOpen] = useState(false);
+  const [editDescription, setEditDescription] = useState('');
+  const [showInfo, setShowInfo] = useState(false);
+  const { grantBadge, awardXP } = useGamification();
 
   // Scroll to top when landing on groups page (no group selected)
   useEffect(() => {
