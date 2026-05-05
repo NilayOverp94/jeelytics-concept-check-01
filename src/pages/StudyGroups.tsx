@@ -546,10 +546,13 @@ export default function StudyGroups() {
             {selectedGroup ? (
               <>
                 <GroupAvatar avatarKey={groupAvatarKey} size="sm" />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setShowInfo(true)}>
                   <p className="font-bold text-xs sm:text-sm truncate">{selectedGroup.name}</p>
-                  <p className="text-[10px] text-muted-foreground/80">{memberCount} members</p>
+                  <p className="text-[10px] text-muted-foreground/80">{memberCount} members{selectedGroup.description ? ' • tap for info' : ''}</p>
                 </div>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" onClick={() => setShowSearch(s => !s)}>
+                  <Search className="h-4 w-4" />
+                </Button>
                 {/* Invite dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
