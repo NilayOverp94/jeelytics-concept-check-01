@@ -200,7 +200,18 @@ export default function Results() {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      // Update user stats with retry logic
+      // Award XP for test completion
+      try {
+        const xpAmount = 10 + (score * 2) + (score === totalQuestions ? 50 : 0);
+        const { data: xpResult } = await supabase.rpc('award_xp', { p_amount: xpAmount });
+        const r = (xpResult as any)?.[0];
+        if (r?.leveled_up) {
+          toast({ title: `🎉 Level Up!`, description: `You reached level ${r.new_level}!` });
+        } else {
+          toast({ title: `+${xpAmount} XP earned!` });
+        }
+      } catch (e) { console.warn('XP award failed', e); }
+
       console.log('📊 Updating user stats...');
       
       const { data: existingStats, error: fetchError } = await supabase

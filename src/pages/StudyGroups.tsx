@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Eye, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles, Mic, MicOff, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Eye, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles, Mic, MicOff, ImageIcon, Pin, PinOff, Search, Info } from 'lucide-react';
+import { useGamification } from '@/hooks/useGamification';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -62,12 +63,16 @@ function DoubleTick({ read, className }: { read?: boolean; className?: string })
 }
 
 interface Group {
-  id: string; name: string; created_by: string; invite_code?: string | null; max_members: number; created_at: string; avatar_key?: string;
+  id: string; name: string; created_by: string; invite_code?: string | null; max_members: number; created_at: string; avatar_key?: string; description?: string | null;
 }
+interface Reaction { emoji: string; count: number; mine: boolean; }
 interface GroupMessage {
   id: string; group_id: string; user_id: string; message: string; created_at: string; sender_name?: string;
   reply_to?: string | null; is_deleted?: boolean; edited_at?: string | null; reply_message?: string; reply_sender?: string;
+  is_pinned?: boolean; reactions?: Reaction[];
 }
+
+const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🎉', '🔥'];
 
 export default function StudyGroups() {
   useSEO({ title: "Study Groups | JEElytics", description: "Create and join study groups to discuss doubts with fellow JEE aspirants." });
@@ -109,6 +114,12 @@ export default function StudyGroups() {
   const lastMsgCountRef = useRef(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [descDialogOpen, setDescDialogOpen] = useState(false);
+  const [editDescription, setEditDescription] = useState('');
+  const [showInfo, setShowInfo] = useState(false);
+  const { grantBadge, awardXP } = useGamification();
 
   // Scroll to top when landing on groups page (no group selected)
   useEffect(() => {
@@ -199,16 +210,54 @@ export default function StudyGroups() {
       profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
       const msgMap: Record<string, any> = {};
       data.forEach((m: any) => { msgMap[m.id] = m; });
+      const msgIds = data.map((m: any) => m.id);
+      const { data: rx } = msgIds.length
+        ? await supabase.from('message_reactions').select('message_id, user_id, emoji').in('message_id', msgIds)
+        : { data: [] as any[] };
+      const rxMap: Record<string, Reaction[]> = {};
+      (rx || []).forEach((r: any) => {
+        const arr = rxMap[r.message_id] = rxMap[r.message_id] || [];
+        const ex = arr.find(x => x.emoji === r.emoji);
+        if (ex) { ex.count++; if (r.user_id === user?.id) ex.mine = true; }
+        else arr.push({ emoji: r.emoji, count: 1, mine: r.user_id === user?.id });
+      });
       setMessages(data.map((m: any) => ({
         ...m, sender_name: nameMap[m.user_id] || 'Student',
         reply_message: m.reply_to ? (msgMap[m.reply_to]?.is_deleted ? '🚫 Deleted message' : msgMap[m.reply_to]?.message?.substring(0, 60)) : undefined,
         reply_sender: m.reply_to ? nameMap[msgMap[m.reply_to]?.user_id] || 'Student' : undefined,
+        reactions: rxMap[m.id] || [],
       })));
       if (!initialLoadDone) {
         setInitialLoadDone(true);
         setTimeout(() => { scrollMessagesToBottom(false); }, 100);
       }
     }
+  };
+
+  const toggleReaction = async (messageId: string, emoji: string) => {
+    if (!user) return;
+    const msg = messages.find(m => m.id === messageId);
+    const mine = msg?.reactions?.find(r => r.emoji === emoji)?.mine;
+    if (mine) {
+      await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', user.id).eq('emoji', emoji);
+    } else {
+      await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji } as any);
+    }
+    fetchMessages();
+  };
+
+  const togglePin = async (messageId: string) => {
+    const { error } = await supabase.rpc('toggle_pin_message', { p_message_id: messageId });
+    if (error) { toast({ title: "Cannot pin", description: error.message, variant: "destructive" }); return; }
+    fetchMessages();
+  };
+
+  const saveDescription = async () => {
+    if (!selectedGroup) return;
+    await supabase.from('study_groups').update({ description: editDescription } as any).eq('id', selectedGroup.id);
+    setSelectedGroup({ ...selectedGroup, description: editDescription });
+    setDescDialogOpen(false);
+    fetchGroups();
   };
 
   const fetchMemberCount = async () => {
@@ -267,10 +316,16 @@ export default function StudyGroups() {
       toast({ title: "Error sending message", variant: "destructive" });
       return;
     }
-    // Force fetch to show message immediately (don't wait for realtime)
     await fetchMessages();
-    // Scroll to bottom since user just sent
     setTimeout(() => { scrollMessagesToBottom(true); }, 50);
+    const r = await awardXP(2);
+    if (r?.leveled_up) toast({ title: `Level up! 🎉`, description: `You're now level ${r.new_level}` });
+    if (r?.new_level && r.new_level >= 5) grantBadge('level_5');
+    if (r?.new_level && r.new_level >= 10) grantBadge('level_10');
+    const sentKey = `msgs_sent_${user.id}`;
+    const sent = (parseInt(localStorage.getItem(sentKey) || '0', 10) || 0) + 1;
+    localStorage.setItem(sentKey, String(sent));
+    if (sent >= 50) grantBadge('social');
   };
 
   const handleDeleteMessage = async (msgId: string, deleteForAll: boolean) => {
@@ -474,8 +529,10 @@ export default function StudyGroups() {
   const isGroupCreator = selectedGroup?.created_by === user?.id;
   const groupAvatarKey = (selectedGroup as any)?.avatar_key || 'books';
 
-  // Filter out hidden messages
-  const visibleMessages = messages.filter(m => !hiddenMessageIds.has(m.id));
+  const visibleMessages = messages
+    .filter(m => !hiddenMessageIds.has(m.id))
+    .filter(m => !searchQuery.trim() || m.message.toLowerCase().includes(searchQuery.toLowerCase()));
+  const pinnedMessages = messages.filter(m => m.is_pinned && !m.is_deleted && !hiddenMessageIds.has(m.id));
 
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
@@ -488,10 +545,13 @@ export default function StudyGroups() {
             {selectedGroup ? (
               <>
                 <GroupAvatar avatarKey={groupAvatarKey} size="sm" />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setShowInfo(true)}>
                   <p className="font-bold text-xs sm:text-sm truncate">{selectedGroup.name}</p>
-                  <p className="text-[10px] text-muted-foreground/80">{memberCount} members</p>
+                  <p className="text-[10px] text-muted-foreground/80">{memberCount} members{selectedGroup.description ? ' • tap for info' : ''}</p>
                 </div>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" onClick={() => setShowSearch(s => !s)}>
+                  <Search className="h-4 w-4" />
+                </Button>
                 {/* Invite dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -510,10 +570,12 @@ export default function StudyGroups() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={fetchMembers}><Eye className="h-4 w-4 mr-2" /> View Members</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowInfo(true)}><Info className="h-4 w-4 mr-2" /> Group Info</DropdownMenuItem>
                     {isGroupAdmin && (
                       <>
                         <DropdownMenuItem onClick={() => { setRenameName(selectedGroup.name); setRenameDialogOpen(true); }}><Pencil className="h-4 w-4 mr-2" /> Change Name</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setAvatarDialogOpen(true)}><Sparkles className="h-4 w-4 mr-2" /> Change Avatar</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setEditDescription(selectedGroup.description || ''); setDescDialogOpen(true); }}><Pencil className="h-4 w-4 mr-2" /> Edit Description</DropdownMenuItem>
                       </>
                     )}
                     <DropdownMenuSeparator />
@@ -600,10 +662,21 @@ export default function StudyGroups() {
           </div>
         ) : (
           <div className="flex flex-col flex-1 min-h-0">
+            {showSearch && (
+              <div className="mb-2">
+                <Input placeholder="Search messages..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-8 text-sm" />
+              </div>
+            )}
+            {pinnedMessages.length > 0 && !searchQuery && (
+              <div className="mb-2 px-2 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-xs flex items-center gap-2 overflow-hidden">
+                <Pin className="h-3 w-3 text-amber-600 shrink-0" />
+                <p className="truncate text-amber-700 dark:text-amber-400"><span className="font-semibold">{pinnedMessages[0].sender_name}:</span> {pinnedMessages[0].message.substring(0, 80)}</p>
+              </div>
+            )}
             {/* Messages area */}
             <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden space-y-2 border border-border rounded-lg p-2 sm:p-4 bg-card/30" style={{ maxHeight: 'calc(100vh - 180px)', minHeight: '300px' }}>
               {visibleMessages.length === 0 && (
-                <p className="text-center text-muted-foreground py-8 text-sm">No messages yet. Start the conversation! 💬</p>
+                <p className="text-center text-muted-foreground py-8 text-sm">{searchQuery ? 'No matches found.' : 'No messages yet. Start the conversation! 💬'}</p>
               )}
               {visibleMessages.map((m) => {
                 const isOwn = m.user_id === user?.id;
@@ -647,6 +720,21 @@ export default function StudyGroups() {
                           return <p className="break-words whitespace-pre-wrap">{m.message}</p>;
                         })()
                       )}
+                      {m.is_pinned && !isDeleted && (
+                        <div className={`flex items-center gap-0.5 text-[9px] mb-0.5 ${isOwn ? 'text-white/70' : 'text-amber-600'}`}>
+                          <Pin className="h-2.5 w-2.5" /> Pinned
+                        </div>
+                      )}
+                      {m.reactions && m.reactions.length > 0 && !isDeleted && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {m.reactions.map(r => (
+                            <button key={r.emoji} onClick={() => toggleReaction(m.id, r.emoji)}
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full border ${r.mine ? 'bg-primary/20 border-primary/40' : 'bg-background/50 border-border'}`}>
+                              {r.emoji} {r.count}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/60' : 'text-muted-foreground/60'}`}>
                         <span className="text-[10px]">{new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                         {m.edited_at && !isDeleted && <span className="text-[9px] italic">edited</span>}
@@ -661,8 +749,18 @@ export default function StudyGroups() {
                               <MoreVertical className="h-3 w-3 text-muted-foreground" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-40" sideOffset={4}>
+                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-44" sideOffset={4}>
+                            <div className="flex justify-around px-1 py-1.5 border-b border-border">
+                              {QUICK_EMOJIS.map(e => (
+                                <button key={e} className="text-base hover:scale-125 transition-transform" onClick={() => toggleReaction(m.id, e)}>{e}</button>
+                              ))}
+                            </div>
                             <DropdownMenuItem onClick={() => startReply(m)}><Reply className="h-3.5 w-3.5 mr-2" /> Reply</DropdownMenuItem>
+                            {isGroupAdmin && (
+                              <DropdownMenuItem onClick={() => togglePin(m.id)}>
+                                {m.is_pinned ? <><PinOff className="h-3.5 w-3.5 mr-2" /> Unpin</> : <><Pin className="h-3.5 w-3.5 mr-2" /> Pin</>}
+                              </DropdownMenuItem>
+                            )}
                             {isOwn && canEdit(m) && (
                               <DropdownMenuItem onClick={() => startEdit(m)}><Pencil className="h-3.5 w-3.5 mr-2" /> Edit</DropdownMenuItem>
                             )}
@@ -831,6 +929,46 @@ export default function StudyGroups() {
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit description */}
+      <Dialog open={descDialogOpen} onOpenChange={setDescDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Group Description</DialogTitle></DialogHeader>
+          <div className="space-y-4 pt-4">
+            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={4}
+              placeholder="What is this group about?"
+              className="w-full rounded-md border border-border bg-background p-2 text-sm" maxLength={500} />
+            <Button onClick={saveDescription} className="w-full">Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Group info */}
+      <Dialog open={showInfo} onOpenChange={setShowInfo}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{selectedGroup?.name}</DialogTitle></DialogHeader>
+          <div className="space-y-3 pt-2">
+            <div className="flex justify-center"><GroupAvatar avatarKey={groupAvatarKey} size="lg" /></div>
+            <p className="text-center text-sm text-muted-foreground">{memberCount} members</p>
+            {selectedGroup?.description ? (
+              <div className="p-3 rounded-md bg-muted/50">
+                <p className="text-xs font-semibold text-muted-foreground mb-1">DESCRIPTION</p>
+                <p className="text-sm whitespace-pre-wrap">{selectedGroup.description}</p>
+              </div>
+            ) : (
+              <p className="text-center text-xs text-muted-foreground italic">No description yet</p>
+            )}
+            {pinnedMessages.length > 0 && (
+              <div className="p-3 rounded-md bg-amber-500/10">
+                <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1"><Pin className="h-3 w-3" /> PINNED ({pinnedMessages.length})</p>
+                {pinnedMessages.slice(0, 3).map(p => (
+                  <p key={p.id} className="text-xs truncate"><span className="font-medium">{p.sender_name}:</span> {p.message}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

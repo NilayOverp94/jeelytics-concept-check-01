@@ -8,6 +8,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
+import { GamificationCard } from '@/components/GamificationCard';
 
 const DEFAULT_AVATARS = [
   '🧑‍🔬', '👨‍🎓', '🦸', '🧠', '🚀'
@@ -236,6 +237,13 @@ export default function Profile() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Gamification: Level & Badges */}
+        <GamificationCard
+          totalTests={userStats.totalTests}
+          streak={userStats.streak}
+          hadPerfectScore={testHistory.some(t => t.score === t.total_questions && t.total_questions > 0)}
+        />
 
         {/* Subject Performance */}
         {Object.keys(subjectStats).length > 0 && (
