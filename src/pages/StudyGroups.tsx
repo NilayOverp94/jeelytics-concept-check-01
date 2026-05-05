@@ -571,10 +571,12 @@ export default function StudyGroups() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={fetchMembers}><Eye className="h-4 w-4 mr-2" /> View Members</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowInfo(true)}><Info className="h-4 w-4 mr-2" /> Group Info</DropdownMenuItem>
                     {isGroupAdmin && (
                       <>
                         <DropdownMenuItem onClick={() => { setRenameName(selectedGroup.name); setRenameDialogOpen(true); }}><Pencil className="h-4 w-4 mr-2" /> Change Name</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setAvatarDialogOpen(true)}><Sparkles className="h-4 w-4 mr-2" /> Change Avatar</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setEditDescription(selectedGroup.description || ''); setDescDialogOpen(true); }}><Pencil className="h-4 w-4 mr-2" /> Edit Description</DropdownMenuItem>
                       </>
                     )}
                     <DropdownMenuSeparator />
