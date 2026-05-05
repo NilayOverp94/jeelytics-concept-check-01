@@ -317,10 +317,16 @@ export default function StudyGroups() {
       toast({ title: "Error sending message", variant: "destructive" });
       return;
     }
-    // Force fetch to show message immediately (don't wait for realtime)
     await fetchMessages();
-    // Scroll to bottom since user just sent
     setTimeout(() => { scrollMessagesToBottom(true); }, 50);
+    const r = await awardXP(2);
+    if (r?.leveled_up) toast({ title: `Level up! 🎉`, description: `You're now level ${r.new_level}` });
+    if (r?.new_level && r.new_level >= 5) grantBadge('level_5');
+    if (r?.new_level && r.new_level >= 10) grantBadge('level_10');
+    const sentKey = `msgs_sent_${user.id}`;
+    const sent = (parseInt(localStorage.getItem(sentKey) || '0', 10) || 0) + 1;
+    localStorage.setItem(sentKey, String(sent));
+    if (sent >= 50) grantBadge('social');
   };
 
   const handleDeleteMessage = async (msgId: string, deleteForAll: boolean) => {
