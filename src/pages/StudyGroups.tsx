@@ -930,6 +930,46 @@ export default function StudyGroups() {
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit description */}
+      <Dialog open={descDialogOpen} onOpenChange={setDescDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Group Description</DialogTitle></DialogHeader>
+          <div className="space-y-4 pt-4">
+            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={4}
+              placeholder="What is this group about?"
+              className="w-full rounded-md border border-border bg-background p-2 text-sm" maxLength={500} />
+            <Button onClick={saveDescription} className="w-full">Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Group info */}
+      <Dialog open={showInfo} onOpenChange={setShowInfo}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{selectedGroup?.name}</DialogTitle></DialogHeader>
+          <div className="space-y-3 pt-2">
+            <div className="flex justify-center"><GroupAvatar avatarKey={groupAvatarKey} size="lg" /></div>
+            <p className="text-center text-sm text-muted-foreground">{memberCount} members</p>
+            {selectedGroup?.description ? (
+              <div className="p-3 rounded-md bg-muted/50">
+                <p className="text-xs font-semibold text-muted-foreground mb-1">DESCRIPTION</p>
+                <p className="text-sm whitespace-pre-wrap">{selectedGroup.description}</p>
+              </div>
+            ) : (
+              <p className="text-center text-xs text-muted-foreground italic">No description yet</p>
+            )}
+            {pinnedMessages.length > 0 && (
+              <div className="p-3 rounded-md bg-amber-500/10">
+                <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1"><Pin className="h-3 w-3" /> PINNED ({pinnedMessages.length})</p>
+                {pinnedMessages.slice(0, 3).map(p => (
+                  <p key={p.id} className="text-xs truncate"><span className="font-medium">{p.sender_name}:</span> {p.message}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
