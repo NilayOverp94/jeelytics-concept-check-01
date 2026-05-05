@@ -211,16 +211,54 @@ export default function StudyGroups() {
       profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
       const msgMap: Record<string, any> = {};
       data.forEach((m: any) => { msgMap[m.id] = m; });
+      const msgIds = data.map((m: any) => m.id);
+      const { data: rx } = msgIds.length
+        ? await supabase.from('message_reactions').select('message_id, user_id, emoji').in('message_id', msgIds)
+        : { data: [] as any[] };
+      const rxMap: Record<string, Reaction[]> = {};
+      (rx || []).forEach((r: any) => {
+        const arr = rxMap[r.message_id] = rxMap[r.message_id] || [];
+        const ex = arr.find(x => x.emoji === r.emoji);
+        if (ex) { ex.count++; if (r.user_id === user?.id) ex.mine = true; }
+        else arr.push({ emoji: r.emoji, count: 1, mine: r.user_id === user?.id });
+      });
       setMessages(data.map((m: any) => ({
         ...m, sender_name: nameMap[m.user_id] || 'Student',
         reply_message: m.reply_to ? (msgMap[m.reply_to]?.is_deleted ? '🚫 Deleted message' : msgMap[m.reply_to]?.message?.substring(0, 60)) : undefined,
         reply_sender: m.reply_to ? nameMap[msgMap[m.reply_to]?.user_id] || 'Student' : undefined,
+        reactions: rxMap[m.id] || [],
       })));
       if (!initialLoadDone) {
         setInitialLoadDone(true);
         setTimeout(() => { scrollMessagesToBottom(false); }, 100);
       }
     }
+  };
+
+  const toggleReaction = async (messageId: string, emoji: string) => {
+    if (!user) return;
+    const msg = messages.find(m => m.id === messageId);
+    const mine = msg?.reactions?.find(r => r.emoji === emoji)?.mine;
+    if (mine) {
+      await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', user.id).eq('emoji', emoji);
+    } else {
+      await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji } as any);
+    }
+    fetchMessages();
+  };
+
+  const togglePin = async (messageId: string) => {
+    const { error } = await supabase.rpc('toggle_pin_message', { p_message_id: messageId });
+    if (error) { toast({ title: "Cannot pin", description: error.message, variant: "destructive" }); return; }
+    fetchMessages();
+  };
+
+  const saveDescription = async () => {
+    if (!selectedGroup) return;
+    await supabase.from('study_groups').update({ description: editDescription } as any).eq('id', selectedGroup.id);
+    setSelectedGroup({ ...selectedGroup, description: editDescription });
+    setDescDialogOpen(false);
+    fetchGroups();
   };
 
   const fetchMemberCount = async () => {
