@@ -721,6 +721,21 @@ export default function StudyGroups() {
                           return <p className="break-words whitespace-pre-wrap">{m.message}</p>;
                         })()
                       )}
+                      {m.is_pinned && !isDeleted && (
+                        <div className={`flex items-center gap-0.5 text-[9px] mb-0.5 ${isOwn ? 'text-white/70' : 'text-amber-600'}`}>
+                          <Pin className="h-2.5 w-2.5" /> Pinned
+                        </div>
+                      )}
+                      {m.reactions && m.reactions.length > 0 && !isDeleted && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {m.reactions.map(r => (
+                            <button key={r.emoji} onClick={() => toggleReaction(m.id, r.emoji)}
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full border ${r.mine ? 'bg-primary/20 border-primary/40' : 'bg-background/50 border-border'}`}>
+                              {r.emoji} {r.count}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <div className={`flex items-center gap-1 mt-0.5 ${isOwn ? 'text-white/60' : 'text-muted-foreground/60'}`}>
                         <span className="text-[10px]">{new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                         {m.edited_at && !isDeleted && <span className="text-[9px] italic">edited</span>}
