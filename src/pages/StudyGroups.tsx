@@ -750,8 +750,18 @@ export default function StudyGroups() {
                               <MoreVertical className="h-3 w-3 text-muted-foreground" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-40" sideOffset={4}>
+                          <DropdownMenuContent align={isOwn ? "start" : "end"} className="w-44" sideOffset={4}>
+                            <div className="flex justify-around px-1 py-1.5 border-b border-border">
+                              {QUICK_EMOJIS.map(e => (
+                                <button key={e} className="text-base hover:scale-125 transition-transform" onClick={() => toggleReaction(m.id, e)}>{e}</button>
+                              ))}
+                            </div>
                             <DropdownMenuItem onClick={() => startReply(m)}><Reply className="h-3.5 w-3.5 mr-2" /> Reply</DropdownMenuItem>
+                            {isGroupAdmin && (
+                              <DropdownMenuItem onClick={() => togglePin(m.id)}>
+                                {m.is_pinned ? <><PinOff className="h-3.5 w-3.5 mr-2" /> Unpin</> : <><Pin className="h-3.5 w-3.5 mr-2" /> Pin</>}
+                              </DropdownMenuItem>
+                            )}
                             {isOwn && canEdit(m) && (
                               <DropdownMenuItem onClick={() => startEdit(m)}><Pencil className="h-3.5 w-3.5 mr-2" /> Edit</DropdownMenuItem>
                             )}
