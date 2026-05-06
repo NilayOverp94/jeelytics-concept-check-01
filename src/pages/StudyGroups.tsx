@@ -263,12 +263,14 @@ export default function StudyGroups() {
   const toggleReaction = async (messageId: string, emoji: string) => {
     if (!user) return;
     const msg = messages.find(m => m.id === messageId);
-    const mine = msg?.reactions?.find(r => r.emoji === emoji)?.mine;
-    if (mine) {
-      await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', user.id).eq('emoji', emoji);
-    } else {
-      await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji } as any);
+    const mineReaction = msg?.reactions?.find(r => r.mine);
+    // Remove any existing reaction by me on this message (one reaction per user per message)
+    if (mineReaction) {
+      await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', user.id);
+      // If clicking the same emoji, just remove it (toggle off)
+      if (mineReaction.emoji === emoji) { fetchMessages(); return; }
     }
+    await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji } as any);
     fetchMessages();
   };
 
