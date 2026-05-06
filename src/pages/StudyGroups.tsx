@@ -120,6 +120,31 @@ export default function StudyGroups() {
   const [editDescription, setEditDescription] = useState('');
   const [showInfo, setShowInfo] = useState(false);
   const { grantBadge, awardXP } = useGamification();
+  const [memberStats, setMemberStats] = useState<{ name: string; xp: number; level: number; badges: string[] } | null>(null);
+  const [memberStatsOpen, setMemberStatsOpen] = useState(false);
+
+  const openMemberStats = async (userId: string, name: string) => {
+    const { data } = await supabase.rpc('get_user_public_stats', { p_user_id: userId });
+    const row: any = Array.isArray(data) ? data[0] : data;
+    setMemberStats({ name, xp: row?.xp || 0, level: row?.level || 1, badges: row?.badges || [] });
+    setMemberStatsOpen(true);
+  };
+
+  // Auto-load members when info dialog opens
+  useEffect(() => {
+    if (showInfo && selectedGroup && members.length === 0) {
+      (async () => {
+        const { data: memberData } = await supabase.from('study_group_members').select('user_id, role').eq('group_id', selectedGroup.id);
+        if (memberData) {
+          const userIds = memberData.map(m => m.user_id);
+          const { data: profiles } = await supabase.from('profiles').select('user_id, display_name').in('user_id', userIds);
+          const nameMap: Record<string, string> = {};
+          profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
+          setMembers(memberData.map(m => ({ user_id: m.user_id, display_name: nameMap[m.user_id] || 'Student', role: m.role })));
+        }
+      })();
+    }
+  }, [showInfo, selectedGroup]);
 
   // Scroll to top when landing on groups page (no group selected)
   useEffect(() => {
