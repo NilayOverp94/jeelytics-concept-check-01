@@ -23,6 +23,7 @@ import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
 import WelcomeTour from '@/components/WelcomeTour';
 import { useGroupUnread } from '@/hooks/useGroupUnread';
 import { FloatingTools } from '@/components/FloatingTools';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
@@ -131,19 +132,15 @@ function HomeContent() {
     }
   };
 
-  const handleLogout = async () => {
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const handleLogout = () => setLogoutConfirmOpen(true);
+  const confirmLogout = async () => {
+    setLogoutConfirmOpen(false);
     try {
       await signOut();
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out."
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive"
-      });
+      toast({ title: "Logged out", description: "You have been successfully logged out." });
+    } catch {
+      toast({ title: "Error", description: "Failed to log out. Please try again.", variant: "destructive" });
     }
   };
 
@@ -212,8 +209,6 @@ function HomeContent() {
                 <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Logout</span>
               </div>
             </div>
-
-            <FloatingTools />
           </div>
         </div>
       </header>
@@ -500,8 +495,21 @@ function HomeContent() {
 
       {/* AI Assistant - Floating */}
       <AIAssistant />
+      <FloatingTools />
       <FeedbackButton />
       <WelcomeTour />
+      <AlertDialog open={logoutConfirmOpen} onOpenChange={setLogoutConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out?</AlertDialogTitle>
+            <AlertDialogDescription>You'll need to sign in again to access your account.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Log out</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, Plus, Users, Send, Copy, Link2, LogOut as LeaveIcon, Trash2, MoreVertical, Reply, Pencil, Check, X, Settings, UserPlus, Mail, Hash, Eye, BookOpen, Beaker, Calculator as CalcIcon, Rocket, Heart, Star, Gamepad2, Music, Code, Globe, Flame, Zap, Crown, Shield, Target, Sparkles, Mic, MicOff, ImageIcon, Pin, PinOff, Search, Info } from 'lucide-react';
 import { useGamification } from '@/hooks/useGamification';
+import { BADGES } from '@/hooks/useGamification';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -120,6 +121,31 @@ export default function StudyGroups() {
   const [editDescription, setEditDescription] = useState('');
   const [showInfo, setShowInfo] = useState(false);
   const { grantBadge, awardXP } = useGamification();
+  const [memberStats, setMemberStats] = useState<{ name: string; xp: number; level: number; badges: string[] } | null>(null);
+  const [memberStatsOpen, setMemberStatsOpen] = useState(false);
+
+  const openMemberStats = async (userId: string, name: string) => {
+    const { data } = await supabase.rpc('get_user_public_stats', { p_user_id: userId });
+    const row: any = Array.isArray(data) ? data[0] : data;
+    setMemberStats({ name, xp: row?.xp || 0, level: row?.level || 1, badges: row?.badges || [] });
+    setMemberStatsOpen(true);
+  };
+
+  // Auto-load members when info dialog opens
+  useEffect(() => {
+    if (showInfo && selectedGroup && members.length === 0) {
+      (async () => {
+        const { data: memberData } = await supabase.from('study_group_members').select('user_id, role').eq('group_id', selectedGroup.id);
+        if (memberData) {
+          const userIds = memberData.map(m => m.user_id);
+          const { data: profiles } = await supabase.from('profiles').select('user_id, display_name').in('user_id', userIds);
+          const nameMap: Record<string, string> = {};
+          profiles?.forEach((p: any) => { nameMap[p.user_id] = p.display_name || 'Student'; });
+          setMembers(memberData.map(m => ({ user_id: m.user_id, display_name: nameMap[m.user_id] || 'Student', role: m.role })));
+        }
+      })();
+    }
+  }, [showInfo, selectedGroup]);
 
   // Scroll to top when landing on groups page (no group selected)
   useEffect(() => {
@@ -237,12 +263,14 @@ export default function StudyGroups() {
   const toggleReaction = async (messageId: string, emoji: string) => {
     if (!user) return;
     const msg = messages.find(m => m.id === messageId);
-    const mine = msg?.reactions?.find(r => r.emoji === emoji)?.mine;
-    if (mine) {
-      await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', user.id).eq('emoji', emoji);
-    } else {
-      await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji } as any);
+    const mineReaction = msg?.reactions?.find(r => r.mine);
+    // Remove any existing reaction by me on this message (one reaction per user per message)
+    if (mineReaction) {
+      await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', user.id);
+      // If clicking the same emoji, just remove it (toggle off)
+      if (mineReaction.emoji === emoji) { fetchMessages(); return; }
     }
+    await supabase.from('message_reactions').insert({ message_id: messageId, user_id: user.id, emoji } as any);
     fetchMessages();
   };
 
@@ -549,13 +577,19 @@ export default function StudyGroups() {
                   <p className="font-bold text-xs sm:text-sm truncate">{selectedGroup.name}</p>
                   <p className="text-[10px] text-muted-foreground/80">{memberCount} members{selectedGroup.description ? ' • tap for info' : ''}</p>
                 </div>
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" onClick={() => setShowSearch(s => !s)}>
-                  <Search className="h-4 w-4" />
-                </Button>
+                <div className="flex flex-col items-center">
+                  <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" onClick={() => setShowSearch(s => !s)} aria-label="search">
+                    <Search className="h-4 w-4" />
+                  </Button>
+                  <span className="text-[8px] text-muted-foreground leading-none">search</span>
+                </div>
                 {/* Invite dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0"><UserPlus className="h-4 w-4" /></Button>
+                    <div className="flex flex-col items-center">
+                      <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" aria-label="add member"><UserPlus className="h-4 w-4" /></Button>
+                      <span className="text-[8px] text-muted-foreground leading-none">add member</span>
+                    </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={copyInviteLink}><Link2 className="h-4 w-4 mr-2" /> Copy Link</DropdownMenuItem>
@@ -566,7 +600,10 @@ export default function StudyGroups() {
                 {/* Settings dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0"><Settings className="h-4 w-4" /></Button>
+                    <div className="flex flex-col items-center">
+                      <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" aria-label="settings"><Settings className="h-4 w-4" /></Button>
+                      <span className="text-[8px] text-muted-foreground leading-none">settings</span>
+                    </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={fetchMembers}><Eye className="h-4 w-4 mr-2" /> View Members</DropdownMenuItem>
@@ -966,7 +1003,64 @@ export default function StudyGroups() {
                 ))}
               </div>
             )}
+            {members.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">MEMBERS ({members.length})</p>
+                <div className="space-y-1.5 max-h-[40vh] overflow-y-auto">
+                  {members.map(m => (
+                    <button key={m.user_id} onClick={() => openMemberStats(m.user_id, m.display_name)}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/60 transition text-left">
+                      <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                        <Users className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{m.display_name}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {m.user_id === selectedGroup?.created_by ? 'Creator' : m.role === 'admin' ? 'Admin' : 'Member'}
+                        </p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">View →</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Member XP & badges */}
+      <Dialog open={memberStatsOpen} onOpenChange={setMemberStatsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{memberStats?.name}</DialogTitle></DialogHeader>
+          {memberStats && (
+            <div className="space-y-4 pt-2">
+              <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-center">
+                <p className="text-3xl font-bold text-primary">Level {memberStats.level}</p>
+                <p className="text-sm text-muted-foreground mt-1">{memberStats.xp} XP earned</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">BADGES ({memberStats.badges.length}/10)</p>
+                {memberStats.badges.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic text-center py-3">No badges yet</p>
+                ) : (
+                  <div className="grid grid-cols-5 gap-2">
+                    {memberStats.badges.map(key => {
+                      const badge = BADGES.find(b => b.key === key);
+                      if (!badge) return null;
+                      return (
+                        <div key={key} title={`${badge.name}: ${badge.desc}`}
+                          className="aspect-square rounded-lg flex flex-col items-center justify-center text-center p-1 bg-primary/10 border border-primary/30">
+                          <span className="text-xl">{badge.emoji}</span>
+                          <span className="text-[8px] leading-tight mt-0.5 line-clamp-2">{badge.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
