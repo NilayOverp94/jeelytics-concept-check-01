@@ -549,13 +549,19 @@ export default function StudyGroups() {
                   <p className="font-bold text-xs sm:text-sm truncate">{selectedGroup.name}</p>
                   <p className="text-[10px] text-muted-foreground/80">{memberCount} members{selectedGroup.description ? ' • tap for info' : ''}</p>
                 </div>
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" onClick={() => setShowSearch(s => !s)}>
-                  <Search className="h-4 w-4" />
-                </Button>
+                <div className="flex flex-col items-center">
+                  <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" onClick={() => setShowSearch(s => !s)} aria-label="search">
+                    <Search className="h-4 w-4" />
+                  </Button>
+                  <span className="text-[8px] text-muted-foreground leading-none">search</span>
+                </div>
                 {/* Invite dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0"><UserPlus className="h-4 w-4" /></Button>
+                    <div className="flex flex-col items-center">
+                      <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" aria-label="add member"><UserPlus className="h-4 w-4" /></Button>
+                      <span className="text-[8px] text-muted-foreground leading-none">add member</span>
+                    </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={copyInviteLink}><Link2 className="h-4 w-4 mr-2" /> Copy Link</DropdownMenuItem>
@@ -566,7 +572,10 @@ export default function StudyGroups() {
                 {/* Settings dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0"><Settings className="h-4 w-4" /></Button>
+                    <div className="flex flex-col items-center">
+                      <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 shrink-0" aria-label="settings"><Settings className="h-4 w-4" /></Button>
+                      <span className="text-[8px] text-muted-foreground leading-none">settings</span>
+                    </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={fetchMembers}><Eye className="h-4 w-4 mr-2" /> View Members</DropdownMenuItem>
