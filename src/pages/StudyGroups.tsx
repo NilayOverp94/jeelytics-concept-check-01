@@ -1000,7 +1000,64 @@ export default function StudyGroups() {
                 ))}
               </div>
             )}
+            {members.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">MEMBERS ({members.length})</p>
+                <div className="space-y-1.5 max-h-[40vh] overflow-y-auto">
+                  {members.map(m => (
+                    <button key={m.user_id} onClick={() => openMemberStats(m.user_id, m.display_name)}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/60 transition text-left">
+                      <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                        <Users className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{m.display_name}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {m.user_id === selectedGroup?.created_by ? 'Creator' : m.role === 'admin' ? 'Admin' : 'Member'}
+                        </p>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">View →</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Member XP & badges */}
+      <Dialog open={memberStatsOpen} onOpenChange={setMemberStatsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{memberStats?.name}</DialogTitle></DialogHeader>
+          {memberStats && (
+            <div className="space-y-4 pt-2">
+              <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-center">
+                <p className="text-3xl font-bold text-primary">Level {memberStats.level}</p>
+                <p className="text-sm text-muted-foreground mt-1">{memberStats.xp} XP earned</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">BADGES ({memberStats.badges.length}/10)</p>
+                {memberStats.badges.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic text-center py-3">No badges yet</p>
+                ) : (
+                  <div className="grid grid-cols-5 gap-2">
+                    {memberStats.badges.map(key => {
+                      const badge = BADGES.find(b => b.key === key);
+                      if (!badge) return null;
+                      return (
+                        <div key={key} title={`${badge.name}: ${badge.desc}`}
+                          className="aspect-square rounded-lg flex flex-col items-center justify-center text-center p-1 bg-primary/10 border border-primary/30">
+                          <span className="text-xl">{badge.emoji}</span>
+                          <span className="text-[8px] leading-tight mt-0.5 line-clamp-2">{badge.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
