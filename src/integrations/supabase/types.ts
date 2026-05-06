@@ -635,6 +635,14 @@ export type Database = {
       }
       get_group_invite_code: { Args: { p_group_id: string }; Returns: string }
       get_remaining_tests: { Args: { p_user_id: string }; Returns: number }
+      get_user_public_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          badges: string[]
+          level: number
+          xp: number
+        }[]
+      }
       increment_daily_test_count: {
         Args: { p_user_id: string }
         Returns: undefined
