@@ -23,6 +23,7 @@ import { AICommandProvider, useAICommand } from '@/contexts/AICommandContext';
 import WelcomeTour from '@/components/WelcomeTour';
 import { useGroupUnread } from '@/hooks/useGroupUnread';
 import { FloatingTools } from '@/components/FloatingTools';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 const SUBJECT_ICONS: Record<Subject, any> = {
   Physics: Zap,
   Chemistry: BookOpen,
