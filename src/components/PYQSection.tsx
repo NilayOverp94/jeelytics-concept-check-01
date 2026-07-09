@@ -174,48 +174,29 @@ const JEE_MAIN_YEARS: { year: number; items: PYQItem[] }[] = [
 
 const makePlainItems = (labels: string[]): PYQItem[] => labels.map(l => ({ label: l, pdfPath: null }));
 
-const CUET_YEARS = [
-  { year: 2024, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
-  { year: 2023, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
-  { year: 2022, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
-];
-
-const MHTCET_YEARS: { year: number; items: PYQItem[] }[] = [
+const CUET_YEARS: { year: number; items: PYQItem[] }[] = [
+  { year: 2025, items: [
+    { label: 'Physics', pdfPath: 'https://image-static.collegedunia.com/public/image/CUET_2025_PHYSICS_QUESTION_PAPER_519464873cfe3b4e6a4cc1bf91d11aa0.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://image-static.collegedunia.com/public/image/CUET_2025_CHEMISTRY_QUESTION_PAPER_207ffbde9e4cb62514dc92e5857c6a06.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://image-static.collegedunia.com/public/image/CUET_2025_MATHEMATICS_QUESTION_PAPER_3146e4fad345fc76e08807f699cd84ed.pdf' },
+  ]},
   { year: 2024, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
+    { label: 'Physics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_UG_2024_Physics_Question_Paper_322_E_SET_A_7f30afd4be997af037a1f43f649f7fc9.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_Chemistry_Question_Paper_2024_306_E_MSS_Set_A_1be150837f3b05a9e67d51c5d7d4a44f.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_UG_2024_Mathematics_Question_Paper_319_E_SET_A_6e59be7905c783387abd163fd894e5d4.pdf' },
   ]},
   { year: 2023, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
+    { label: 'Physics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_Physics_fefef6119f0024b3c9de602e1882865b.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://assets.collegedunia.com/public/image/Paper_20240420121718_b5e9150c2aa02a868c1baf40ca1b0b9b.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://assets.collegedunia.com/public/image/Paper_20240419141051_98f50fae72dacd08caf2b5a0392ab609.pdf' },
   ]},
   { year: 2022, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
-  ]},
-  { year: 2021, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
-  ]},
-  { year: 2020, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
-  ]},
-  { year: 2019, items: [
-    { label: 'PCM Combined', pdfPath: null },
-  ]},
-  { year: 2018, items: [
-    { label: 'PCM Combined', pdfPath: null },
-  ]},
-  { year: 2017, items: [
-    { label: 'PCM Combined', pdfPath: null },
+    { label: 'Physics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_2022_Physics_Question_Paper_cf29f1c7f290881715fbe5f93798c6e2.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_2022_Chemistry_Question_Paper_750ad74c52e18a0f08e1e0cacc03fb43.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_2022_Mathematics_Applied_Mathematics_Question_Paper_d4d3027c70947d0c3e81abacac482397.pdf' },
   ]},
 ];
+
 
 // BITSAT with PDFs (2019-2024)
 const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
@@ -228,37 +209,50 @@ const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
   { year: 2019, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2019.pdf' }] },
 ];
 
-// NDA PYQ data (2021-2024)
+// NDA PYQ data (2021-2026)
 const NDA_YEARS: { year: number; items: PYQItem[] }[] = [
+  { year: 2026, items: [
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-I-26-GENERAL-ABILITY-TEST-130426.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-I-26-MATHEMATICS-130426.pdf' },
+  ]},
+  { year: 2025, items: [
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-I-25-GENERAL-ABILITY-TEST-150425.pdf' },
+    { label: 'Math (I)', pdfPath: 'http://upsc.gov.in/sites/default/files/QP-NDA-NA-I-25-MATHEMATICS-150425.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-25-GENERAL-ABILITY-TEST-150925.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-25-MATHEMATICS-150925.pdf' },
+  ]},
   { year: 2024, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_GENERAL-ABILITY-TEST_22042024.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_MATHEMATICS_22042024.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP_NDANAI2024_GENERAL-ABILITY-TEST_22042024.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP_NDANAI2024_MATHEMATICS_22042024.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-II-24-GENERAL-ABILITY-TEST-020924.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-II-24-MATHEMATICS-020924.pdf' },
   ]},
   { year: 2023, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-23-GENERAL-ABILITY-TEST-170423.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-23-MATHEMATICS-170423.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-23-GENERAL-ABILITY-TEST-170423.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-23-MATHEMATICS-170423.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-2023-GAT-04092023.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-2023-Maths-04092023.pdf' },
   ]},
   { year: 2022, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-22-MATHEMATICS-120422.pdf' },
-    { label: 'GAT (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-II-22-GENERAL-ABILITY-TEST-050922.pdf' },
-    { label: 'Math (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-II-MATHEMATICS-050922.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-II-22-GENERAL-ABILITY-TEST-050922.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-II-MATHEMATICS-050922.pdf' },
   ]},
   { year: 2021, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-21-GENERAL_ABILITY_TEST.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-21-MATHEMATICS.pdf' },
-    { label: 'GAT (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-GAT-NDANA-EXAM-II-2021-161121.pdf' },
-    { label: 'Math (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-MATH-NDANA-EXAM-II-2021-161121.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-21-GENERAL_ABILITY_TEST.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-21-MATHEMATICS.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-GAT-NDANA-EXAM-II-2021-161121.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-MATH-NDANA-EXAM-II-2021-161121.pdf' },
   ]},
 ];
 
-type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'mhtcet' | 'bitsat' | 'nda';
+type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'bitsat' | 'nda';
 
 const EXAM_COLORS: Record<ExamType, string> = {
   'jee-main': 'bg-primary/20 text-primary',
   'jee-advanced': 'bg-accent/20 text-accent',
   'cuet': 'bg-secondary/20 text-secondary',
-  'mhtcet': 'bg-emerald-500/20 text-emerald-500',
   'bitsat': 'bg-violet-500/20 text-violet-500',
   'nda': 'bg-rose-500/20 text-rose-500',
 };
@@ -267,10 +261,10 @@ const EXAM_LABELS: Record<ExamType, string> = {
   'jee-main': 'JEE Main',
   'jee-advanced': 'JEE Advanced',
   'cuet': 'CUET',
-  'mhtcet': 'MHTCET',
   'bitsat': 'BITSAT',
   'nda': 'NDA',
 };
+
 
 export function PYQSection() {
   const navigate = useNavigate();
@@ -284,7 +278,7 @@ export function PYQSection() {
       const examMap: Record<string, ExamType> = {
         'jee-main': 'jee-main', 'jee main': 'jee-main', 'jee-mains': 'jee-main', 'jee mains': 'jee-main',
         'jee-advanced': 'jee-advanced', 'jee advanced': 'jee-advanced', 'jee-adv': 'jee-advanced',
-        'cuet': 'cuet', 'mhtcet': 'mhtcet', 'bitsat': 'bitsat', 'nda': 'nda',
+        'cuet': 'cuet', 'bitsat': 'bitsat', 'nda': 'nda',
       };
       setActiveExam(examMap[pendingPyqExam.toLowerCase()] || 'jee-main');
       clearPendingPyqExam();
@@ -356,7 +350,7 @@ export function PYQSection() {
       case 'jee-main': return JEE_MAIN_YEARS;
       case 'jee-advanced': return JEE_ADVANCED_YEARS;
       case 'cuet': return CUET_YEARS;
-      case 'mhtcet': return MHTCET_YEARS;
+      
       case 'bitsat': return BITSAT_YEARS;
       case 'nda': return NDA_YEARS;
       default: return [];
@@ -385,17 +379,21 @@ export function PYQSection() {
       </div>
 
       <Tabs defaultValue="jee-main" value={activeExam} onValueChange={(v) => setActiveExam(v as ExamType)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-6 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 mb-6 h-auto p-1">
           <TabsTrigger value="jee-main" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white">JEE Main</TabsTrigger>
           <TabsTrigger value="jee-advanced" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-accent-glow data-[state=active]:text-white">JEE Adv</TabsTrigger>
           <TabsTrigger value="cuet" className="text-xs sm:text-sm py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary data-[state=active]:to-secondary-glow data-[state=active]:text-white">CUET</TabsTrigger>
-          <TabsTrigger value="mhtcet" className="text-xs sm:text-sm py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white">MHTCET</TabsTrigger>
           <TabsTrigger value="bitsat" className="text-xs sm:text-sm py-2 data-[state=active]:bg-violet-500 data-[state=active]:text-white">BITSAT</TabsTrigger>
           <TabsTrigger value="nda" className="text-xs sm:text-sm py-2 data-[state=active]:bg-rose-500 data-[state=active]:text-white">NDA</TabsTrigger>
         </TabsList>
 
-        {(['jee-main', 'jee-advanced', 'cuet', 'mhtcet', 'bitsat', 'nda'] as ExamType[]).map((exam) => (
+        {(['jee-main', 'jee-advanced', 'cuet', 'bitsat', 'nda'] as ExamType[]).map((exam) => (
           <TabsContent key={exam} value={exam}>
+            {exam === 'bitsat' && (
+              <p className="text-xs text-muted-foreground text-center mb-4 italic">
+                (BITSAT doesn't release papers officially, so all information is memory based)
+              </p>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {getExamData(exam).map((item) => (
                 <PYQCard key={item.year} year={item.year} items={item.items} examType={exam} />
