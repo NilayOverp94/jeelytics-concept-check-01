@@ -278,7 +278,7 @@ export function PYQSection() {
       const examMap: Record<string, ExamType> = {
         'jee-main': 'jee-main', 'jee main': 'jee-main', 'jee-mains': 'jee-main', 'jee mains': 'jee-main',
         'jee-advanced': 'jee-advanced', 'jee advanced': 'jee-advanced', 'jee-adv': 'jee-advanced',
-        'cuet': 'cuet', 'mhtcet': 'mhtcet', 'bitsat': 'bitsat', 'nda': 'nda',
+        'cuet': 'cuet', 'bitsat': 'bitsat', 'nda': 'nda',
       };
       setActiveExam(examMap[pendingPyqExam.toLowerCase()] || 'jee-main');
       clearPendingPyqExam();
