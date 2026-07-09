@@ -350,7 +350,7 @@ export function PYQSection() {
       case 'jee-main': return JEE_MAIN_YEARS;
       case 'jee-advanced': return JEE_ADVANCED_YEARS;
       case 'cuet': return CUET_YEARS;
-      case 'mhtcet': return MHTCET_YEARS;
+      
       case 'bitsat': return BITSAT_YEARS;
       case 'nda': return NDA_YEARS;
       default: return [];
