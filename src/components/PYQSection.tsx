@@ -389,6 +389,11 @@ export function PYQSection() {
 
         {(['jee-main', 'jee-advanced', 'cuet', 'bitsat', 'nda'] as ExamType[]).map((exam) => (
           <TabsContent key={exam} value={exam}>
+            {exam === 'bitsat' && (
+              <p className="text-xs text-muted-foreground text-center mb-4 italic">
+                (BITSAT doesn't release papers officially, so all information is memory based)
+              </p>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {getExamData(exam).map((item) => (
                 <PYQCard key={item.year} year={item.year} items={item.items} examType={exam} />
