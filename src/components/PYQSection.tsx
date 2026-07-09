@@ -174,48 +174,29 @@ const JEE_MAIN_YEARS: { year: number; items: PYQItem[] }[] = [
 
 const makePlainItems = (labels: string[]): PYQItem[] => labels.map(l => ({ label: l, pdfPath: null }));
 
-const CUET_YEARS = [
-  { year: 2024, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
-  { year: 2023, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
-  { year: 2022, items: makePlainItems(['Physics', 'Chemistry', 'Mathematics']) },
-];
-
-const MHTCET_YEARS: { year: number; items: PYQItem[] }[] = [
+const CUET_YEARS: { year: number; items: PYQItem[] }[] = [
+  { year: 2025, items: [
+    { label: 'Physics', pdfPath: 'https://image-static.collegedunia.com/public/image/CUET_2025_PHYSICS_QUESTION_PAPER_519464873cfe3b4e6a4cc1bf91d11aa0.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://image-static.collegedunia.com/public/image/CUET_2025_CHEMISTRY_QUESTION_PAPER_207ffbde9e4cb62514dc92e5857c6a06.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://image-static.collegedunia.com/public/image/CUET_2025_MATHEMATICS_QUESTION_PAPER_3146e4fad345fc76e08807f699cd84ed.pdf' },
+  ]},
   { year: 2024, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
+    { label: 'Physics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_UG_2024_Physics_Question_Paper_322_E_SET_A_7f30afd4be997af037a1f43f649f7fc9.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_Chemistry_Question_Paper_2024_306_E_MSS_Set_A_1be150837f3b05a9e67d51c5d7d4a44f.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_UG_2024_Mathematics_Question_Paper_319_E_SET_A_6e59be7905c783387abd163fd894e5d4.pdf' },
   ]},
   { year: 2023, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
+    { label: 'Physics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_Physics_fefef6119f0024b3c9de602e1882865b.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://assets.collegedunia.com/public/image/Paper_20240420121718_b5e9150c2aa02a868c1baf40ca1b0b9b.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://assets.collegedunia.com/public/image/Paper_20240419141051_98f50fae72dacd08caf2b5a0392ab609.pdf' },
   ]},
   { year: 2022, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
-  ]},
-  { year: 2021, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
-  ]},
-  { year: 2020, items: [
-    { label: 'Physics', pdfPath: null },
-    { label: 'Chemistry', pdfPath: null },
-    { label: 'Mathematics', pdfPath: null },
-  ]},
-  { year: 2019, items: [
-    { label: 'PCM Combined', pdfPath: null },
-  ]},
-  { year: 2018, items: [
-    { label: 'PCM Combined', pdfPath: null },
-  ]},
-  { year: 2017, items: [
-    { label: 'PCM Combined', pdfPath: null },
+    { label: 'Physics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_2022_Physics_Question_Paper_cf29f1c7f290881715fbe5f93798c6e2.pdf' },
+    { label: 'Chemistry', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_2022_Chemistry_Question_Paper_750ad74c52e18a0f08e1e0cacc03fb43.pdf' },
+    { label: 'Mathematics', pdfPath: 'https://assets.collegedunia.com/public/image/CUET_2022_Mathematics_Applied_Mathematics_Question_Paper_d4d3027c70947d0c3e81abacac482397.pdf' },
   ]},
 ];
+
 
 // BITSAT with PDFs (2019-2024)
 const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
