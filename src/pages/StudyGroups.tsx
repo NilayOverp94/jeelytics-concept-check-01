@@ -741,16 +741,16 @@ export default function StudyGroups() {
                         </div>
                       ) : (
                         (() => {
-                          const mediaMatch = m.message.match(/^\[(image|voice|file)\](https?:\/\/[^\s|]+)(?:\|(.+))?$/);
+                          const mediaMatch = m.message.match(/^\[(image|voice|file)\]([^\s|]+)(?:\|(.+))?$/);
                           if (mediaMatch) {
-                            const [, kind, url, name] = mediaMatch;
+                            const [, kind, ref, name] = mediaMatch;
                             if (kind === 'image') {
-                              return <a href={url} target="_blank" rel="noreferrer"><img src={url} alt="shared" className="rounded-md max-w-[220px] max-h-[260px] object-cover" /></a>;
+                              return <ChatImage src={ref} />;
                             }
                             if (kind === 'voice') {
-                              return <audio controls src={url} className="max-w-[220px]" />;
+                              return <ChatAudio src={ref} />;
                             }
-                            return <a href={url} target="_blank" rel="noreferrer" className={`underline break-all text-xs ${isOwn ? 'text-white' : 'text-primary'}`}>📎 {name || 'file'}</a>;
+                            return <ChatFileLink src={ref} name={name} className={`underline break-all text-xs ${isOwn ? 'text-white' : 'text-primary'}`} />;
                           }
                           return <p className="break-words whitespace-pre-wrap">{m.message}</p>;
                         })()
