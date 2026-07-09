@@ -209,37 +209,50 @@ const BITSAT_YEARS: { year: number; items: PYQItem[] }[] = [
   { year: 2019, items: [{ label: 'Full Paper', pdfPath: '/pyq/bitsat/2019.pdf' }] },
 ];
 
-// NDA PYQ data (2021-2024)
+// NDA PYQ data (2021-2026)
 const NDA_YEARS: { year: number; items: PYQItem[] }[] = [
+  { year: 2026, items: [
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-I-26-GENERAL-ABILITY-TEST-130426.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-I-26-MATHEMATICS-130426.pdf' },
+  ]},
+  { year: 2025, items: [
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-I-25-GENERAL-ABILITY-TEST-150425.pdf' },
+    { label: 'Math (I)', pdfPath: 'http://upsc.gov.in/sites/default/files/QP-NDA-NA-I-25-MATHEMATICS-150425.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-25-GENERAL-ABILITY-TEST-150925.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-25-MATHEMATICS-150925.pdf' },
+  ]},
   { year: 2024, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_GENERAL-ABILITY-TEST_22042024.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP_NDANAI2024_MATHEMATICS_22042024.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP_NDANAI2024_GENERAL-ABILITY-TEST_22042024.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP_NDANAI2024_MATHEMATICS_22042024.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-II-24-GENERAL-ABILITY-TEST-020924.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-NA-II-24-MATHEMATICS-020924.pdf' },
   ]},
   { year: 2023, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-23-GENERAL-ABILITY-TEST-170423.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-23-MATHEMATICS-170423.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-23-GENERAL-ABILITY-TEST-170423.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-23-MATHEMATICS-170423.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-2023-GAT-04092023.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDANA-II-2023-Maths-04092023.pdf' },
   ]},
   { year: 2022, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-22-MATHEMATICS-120422.pdf' },
-    { label: 'GAT (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-II-22-GENERAL-ABILITY-TEST-050922.pdf' },
-    { label: 'Math (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-II-MATHEMATICS-050922.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-22-GENERAL-ABILITY-TEST-120422.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-II-22-GENERAL-ABILITY-TEST-050922.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-II-MATHEMATICS-050922.pdf' },
   ]},
   { year: 2021, items: [
-    { label: 'GAT (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-21-GENERAL_ABILITY_TEST.pdf' },
-    { label: 'Math (I)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-NDA-I-21-MATHEMATICS.pdf' },
-    { label: 'GAT (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-GAT-NDANA-EXAM-II-2021-161121.pdf' },
-    { label: 'Math (II)', pdfPath: 'https://upsc.gov.in/sites/default/files/QP-MATH-NDANA-EXAM-II-2021-161121.pdf' },
+    { label: 'GAT (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-21-GENERAL_ABILITY_TEST.pdf' },
+    { label: 'Math (I)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-NDA-I-21-MATHEMATICS.pdf' },
+    { label: 'GAT (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-GAT-NDANA-EXAM-II-2021-161121.pdf' },
+    { label: 'Math (II)', pdfPath: 'https://www.upsc.gov.in/sites/default/files/QP-MATH-NDANA-EXAM-II-2021-161121.pdf' },
   ]},
 ];
 
-type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'mhtcet' | 'bitsat' | 'nda';
+type ExamType = 'jee-main' | 'jee-advanced' | 'cuet' | 'bitsat' | 'nda';
 
 const EXAM_COLORS: Record<ExamType, string> = {
   'jee-main': 'bg-primary/20 text-primary',
   'jee-advanced': 'bg-accent/20 text-accent',
   'cuet': 'bg-secondary/20 text-secondary',
-  'mhtcet': 'bg-emerald-500/20 text-emerald-500',
   'bitsat': 'bg-violet-500/20 text-violet-500',
   'nda': 'bg-rose-500/20 text-rose-500',
 };
@@ -248,10 +261,10 @@ const EXAM_LABELS: Record<ExamType, string> = {
   'jee-main': 'JEE Main',
   'jee-advanced': 'JEE Advanced',
   'cuet': 'CUET',
-  'mhtcet': 'MHTCET',
   'bitsat': 'BITSAT',
   'nda': 'NDA',
 };
+
 
 export function PYQSection() {
   const navigate = useNavigate();
