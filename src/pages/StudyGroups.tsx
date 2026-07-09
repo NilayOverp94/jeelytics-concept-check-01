@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import { markGroupSeen } from '@/hooks/useGroupUnread';
+import { ChatImage, ChatAudio, ChatFileLink } from '@/components/ChatMedia';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
