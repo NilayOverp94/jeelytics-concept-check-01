@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import useSEO from '@/hooks/useSEO';
 import logo from '@/assets/logo.png';
 import { markGroupSeen } from '@/hooks/useGroupUnread';
+import { ChatImage, ChatAudio, ChatFileLink } from '@/components/ChatMedia';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
@@ -482,10 +483,8 @@ export default function StudyGroups() {
         toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
         return;
       }
-      const { data: pub } = supabase.storage.from('chat-media').getPublicUrl(fileName);
-      const url = pub.publicUrl;
-      // Encode media as a tagged message string parsed in render
-      const payload = `[${kind}]${url}${originalName ? `|${originalName}` : ''}`;
+      // Store the storage path (not a public URL) — bucket is private, signed URLs are generated on render
+      const payload = `[${kind}]storage://chat-media/${fileName}${originalName ? `|${originalName}` : ''}`;
       const insertData: any = { group_id: selectedGroup.id, user_id: user.id, message: payload };
       if (replyingTo?.id) insertData.reply_to = replyingTo.id;
       const { error } = await supabase.from('study_group_messages').insert(insertData);
@@ -743,16 +742,16 @@ export default function StudyGroups() {
                         </div>
                       ) : (
                         (() => {
-                          const mediaMatch = m.message.match(/^\[(image|voice|file)\](https?:\/\/[^\s|]+)(?:\|(.+))?$/);
+                          const mediaMatch = m.message.match(/^\[(image|voice|file)\]([^\s|]+)(?:\|(.+))?$/);
                           if (mediaMatch) {
-                            const [, kind, url, name] = mediaMatch;
+                            const [, kind, ref, name] = mediaMatch;
                             if (kind === 'image') {
-                              return <a href={url} target="_blank" rel="noreferrer"><img src={url} alt="shared" className="rounded-md max-w-[220px] max-h-[260px] object-cover" /></a>;
+                              return <ChatImage src={ref} />;
                             }
                             if (kind === 'voice') {
-                              return <audio controls src={url} className="max-w-[220px]" />;
+                              return <ChatAudio src={ref} />;
                             }
-                            return <a href={url} target="_blank" rel="noreferrer" className={`underline break-all text-xs ${isOwn ? 'text-white' : 'text-primary'}`}>📎 {name || 'file'}</a>;
+                            return <ChatFileLink src={ref} name={name} className={`underline break-all text-xs ${isOwn ? 'text-white' : 'text-primary'}`} />;
                           }
                           return <p className="break-words whitespace-pre-wrap">{m.message}</p>;
                         })()
