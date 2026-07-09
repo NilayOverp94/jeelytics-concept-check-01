@@ -482,10 +482,8 @@ export default function StudyGroups() {
         toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
         return;
       }
-      const { data: pub } = supabase.storage.from('chat-media').getPublicUrl(fileName);
-      const url = pub.publicUrl;
-      // Encode media as a tagged message string parsed in render
-      const payload = `[${kind}]${url}${originalName ? `|${originalName}` : ''}`;
+      // Store the storage path (not a public URL) — bucket is private, signed URLs are generated on render
+      const payload = `[${kind}]storage://chat-media/${fileName}${originalName ? `|${originalName}` : ''}`;
       const insertData: any = { group_id: selectedGroup.id, user_id: user.id, message: payload };
       if (replyingTo?.id) insertData.reply_to = replyingTo.id;
       const { error } = await supabase.from('study_group_messages').insert(insertData);
