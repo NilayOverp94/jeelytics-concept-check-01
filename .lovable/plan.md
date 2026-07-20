@@ -1,104 +1,60 @@
+## Goal
+Turn JEElytics into an MCP server that ChatGPT, Claude, Cursor, and other AI assistants can connect to. Students will be able to say things like *"Start a JEE Main Physics test for me"* and the AI will call JEElytics tools securely under their own account.
 
+## Important prerequisite
+This project uses an **external (bring-your-own) Supabase project**. Before the MCP server can be secured with OAuth, **OAuth 2.1 + Dynamic Client Registration must be enabled in your Supabase dashboard**:
+https://supabase.com/dashboard/project/qoemuymleuoaymuenxjs/auth/providers
 
-# Phase 2: Razorpay Payment Integration
+If it is not enabled, the MCP server cannot verify tokens and we must pause until you turn it on. We will not bypass this with service-role keys or public access.
 
-## Security First
+## What will be built
 
-Your Razorpay credentials will be stored as encrypted Supabase secrets:
-- `RAZORPAY_KEY_ID` → `rzp_live_SDVTINuTBSUwq5`  
-- `RAZORPAY_KEY_SECRET` → (your secret key)
+### 1. MCP server entry and Vite plugin
+- Create `src/lib/mcp/index.ts` with `defineMcp`.
+- Add `mcpPlugin()` to `vite.config.ts`.
+- The plugin auto-generates `supabase/functions/mcp/index.ts` at build time.
 
-These are **LIVE keys** - real payments will be processed. Consider testing carefully before going public.
+### 2. OAuth-secured auth config
+- `auth.oauth.issuer` pointing to `https://qoemuymleuoaymuenxjs.supabase.co/auth/v1`.
+- Tools will forward the caller's bearer token to Supabase so RLS runs as that user.
 
----
+### 3. Consent screen
+- Create `src/pages/OAuthConsent.tsx` at `/.lovable/oauth/consent`.
+- Update `src/pages/Login.tsx` and signup flow to preserve `?next=` redirect back to the consent screen after sign-in.
 
-## Implementation Steps
+### 4. First batch of tools (test/voice priority)
+These tools match your priority use case and are read-safe or user-scoped:
+- `get_profile` — read the signed-in user's profile, XP, level, badges, and subscription status.
+- `get_weak_chapters` — list the user's weak subjects/chapters based on recent test results.
+- `get_test_history` — fetch recent test results with scores.
+- `start_test` — create a new test session for a subject/topic/difficulty and return the first question set.
+- `submit_answer` — submit an answer for an active test question.
+- `list_pyqs` — list available PYQ papers for an exam and year.
 
-### Step 1: Store Razorpay Secrets
-Add both credentials as Supabase secrets for use in edge functions.
+### 5. Second batch of tools (full app control expansion)
+After the first batch works, expand to:
+- `send_group_message` — send a text/image/voice message in a study group the user belongs to.
+- `list_group_members` — list members of a group.
+- `create_study_group` — create a new group.
+- `join_group_by_code` — join a group using an invite code.
+- `get_notifications` — read the user's inbox notifications.
+- `mark_notification_read` — mark a notification as read.
 
-### Step 2: Create Edge Functions
+### 6. UI and deployment
+- Add a favicon if missing (required for the connector list icon).
+- Deploy the `mcp` edge function.
+- Run `app_mcp_server--extract_mcp_manifest` to generate `.lovable/mcp/manifest.json`.
+- The app then appears in Lovable's **More → Agent integrations** panel.
 
-**`razorpay-create-order`**
-- Creates a Razorpay order when user clicks "Subscribe"
-- Returns `order_id` for frontend checkout
-- Stores pending order in `user_subscriptions`
+## Security model
+- Every tool runs as the signed-in user. No service-role escalation inside tool handlers.
+- All database access uses the forwarded bearer token, so existing RLS policies continue to protect data.
+- No tool will expose another user's data or bypass group membership checks.
+- The `full app control` scope is implemented as user-scoped actions only — the AI can do what the user themselves can do, nothing more.
 
-**`razorpay-verify-payment`**  
-- Verifies payment signature after successful payment
-- Activates subscription in database
-- Sets `expires_at` based on plan duration
+## Out of scope for this plan
+- Building a chatbot inside JEElytics itself (MCP is for external AI clients, not an in-app assistant).
+- Making any data public or weakening RLS.
 
-### Step 3: Frontend Integration
-
-**Add Razorpay Checkout Script** (`index.html`)
-```html
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-```
-
-**Create Payment Hook** (`src/hooks/useRazorpay.ts`)
-- Handles checkout flow
-- Calls edge functions
-- Updates UI on success/failure
-
-### Step 4: Remove "New Features" Box
-Delete the announcement box from Home.tsx (lines 215-247) as requested.
-
----
-
-## Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `supabase/functions/razorpay-create-order/index.ts` | Create |
-| `supabase/functions/razorpay-verify-payment/index.ts` | Create |
-| `index.html` | Add Razorpay script |
-| `src/hooks/useRazorpay.ts` | Create |
-| `src/hooks/useSubscription.ts` | Create |
-| `src/pages/Home.tsx` | Remove announcement box |
-
----
-
-## Payment Flow
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                      User clicks "Subscribe"                 │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Frontend calls razorpay-create-order edge function         │
-│  → Creates Razorpay order                                   │
-│  → Stores pending subscription in DB                        │
-│  → Returns order_id                                         │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Razorpay Checkout opens (payment modal)                    │
-│  → User completes payment (UPI/Card/NetBanking)             │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Frontend calls razorpay-verify-payment                     │
-│  → Verifies signature with Razorpay                         │
-│  → Activates subscription                                   │
-│  → Sets expiry date                                         │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────────┐
-│  User is now Premium! Unlimited tests + PYQ access          │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## After This Phase
-
-Once payment integration is complete, we'll proceed to:
-- Phase 3: Access control (test limits, PYQ lock)
-- Phase 4: Pricing page and upgrade prompts
-
+## First step
+Please confirm whether OAuth 2.1 is enabled in your Supabase dashboard. If yes, I will proceed with implementation immediately. If not, enable it and then tell me to continue.
