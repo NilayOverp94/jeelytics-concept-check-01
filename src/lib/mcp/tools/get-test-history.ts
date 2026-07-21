@@ -35,7 +35,7 @@ export default defineTool({
       .select("id, subject, topic, score, total_questions, time_spent, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(limit);
+      .limit(safeLimit);
 
     if (error) {
       return {
