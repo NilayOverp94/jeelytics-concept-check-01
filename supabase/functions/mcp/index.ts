@@ -408,8 +408,8 @@ var submit_answer_default = defineTool6({
   title: "Submit a test answer",
   description: "Submit an answer for the current question in an active MCP test session. Returns whether it was correct, the explanation, and the next question or final score.",
   inputSchema: {
-    session_id: z5.string().uuid().describe("The test session ID returned by start_test."),
-    answer: z5.string().min(1).describe("The selected option label (e.g. 'A') or integer answer.")
+    session_id: z5.string().describe("The test session ID returned by start_test."),
+    answer: z5.string().describe("The selected option label (e.g. 'A') or integer answer.")
   },
   annotations: {
     readOnlyHint: false,

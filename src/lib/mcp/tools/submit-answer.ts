@@ -8,8 +8,8 @@ export default defineTool({
   description:
     "Submit an answer for the current question in an active MCP test session. Returns whether it was correct, the explanation, and the next question or final score.",
   inputSchema: {
-    session_id: z.string().uuid().describe("The test session ID returned by start_test."),
-    answer: z.string().min(1).describe("The selected option label (e.g. 'A') or integer answer."),
+    session_id: z.string().describe("The test session ID returned by start_test."),
+    answer: z.string().describe("The selected option label (e.g. 'A') or integer answer."),
   },
   annotations: {
     readOnlyHint: false,
