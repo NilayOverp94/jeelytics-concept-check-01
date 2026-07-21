@@ -77,7 +77,7 @@ var get_test_history_default = defineTool2({
   title: "Get test history",
   description: "Fetch the signed-in user's recent JEElytics test results with scores, subjects, topics, and dates.",
   inputSchema: {
-    limit: z.number().int().min(1).max(50).optional().describe("Maximum number of recent tests to return (default 10).")
+    limit: z.number().int().optional().describe("Maximum number of recent tests to return (default 10, max 50).")
   },
   annotations: {
     readOnlyHint: true,

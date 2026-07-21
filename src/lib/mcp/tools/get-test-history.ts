@@ -11,10 +11,8 @@ export default defineTool({
     limit: z
       .number()
       .int()
-      .min(1)
-      .max(50)
       .optional()
-      .describe("Maximum number of recent tests to return (default 10)."),
+      .describe("Maximum number of recent tests to return (default 10, max 50)."),
   },
   annotations: {
     readOnlyHint: true,
