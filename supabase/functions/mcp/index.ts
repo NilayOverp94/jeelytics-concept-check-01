@@ -141,6 +141,7 @@ var get_weak_chapters_default = defineTool3({
         isError: true
       };
     }
+    const safeMinTests = Math.max(1, Number(min_tests) || 1);
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId();
     let query = supabase.from("test_results").select("subject, topic, score, total_questions, created_at").eq("user_id", userId);

@@ -30,6 +30,7 @@ export default defineTool({
         isError: true,
       };
     }
+    const safeMinTests = Math.max(1, Number(min_tests) || 1);
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId()!;
 
