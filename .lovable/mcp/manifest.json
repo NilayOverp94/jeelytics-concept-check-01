@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://qoemuymleuoaymuenxjs.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "jeelytics-mcp",
+      "version": "1.0.0",
+      "title": "JEElytics MCP"
+    },
+    "tools": [
+      {
+        "name": "get_profile",
+        "title": "Get user profile",
+        "description": "Read the signed-in user's JEElytics profile, XP, level, badges, and premium status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": null,
+        "outputSchema": null
+      },
+      {
+        "name": "get_test_history",
+        "title": "Get test history",
+        "description": "Fetch the signed-in user's recent JEElytics test results with scores, subjects, topics, and dates.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Maximum number of recent tests to return (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_weak_chapters",
+        "title": "Get weak chapters",
+        "description": "Analyze the signed-in user's recent test results and return the subjects and chapters where they score lowest.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "subject": {
+              "description": "Optional subject filter.",
+              "type": "string",
+              "enum": [
+                "Physics",
+                "Chemistry",
+                "Mathematics"
+              ]
+            },
+            "min_tests": {
+              "description": "Minimum number of tests on a topic before it is considered (default 1).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_pyqs",
+        "title": "List previous year questions",
+        "description": "Return the available previous-year question (PYQ) papers in JEElytics, grouped by exam and year, with links to open them in the app.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "exam": {
+              "description": "Optional exam filter.",
+              "type": "string",
+              "enum": [
+                "JEE Main",
+                "JEE Advanced",
+                "NDA",
+                "CUET",
+                "BITSAT"
+              ]
+            },
+            "year": {
+              "description": "Optional year filter.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "start_test",
+        "title": "Start a JEE practice test",
+        "description": "Start a new JEElytics practice test for the signed-in user on a subject and topic. Generates AI questions, creates a test session, and returns the first question. Defaults to 5 questions to stay within client timeouts.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "subject": {
+              "type": "string",
+              "enum": [
+                "Physics",
+                "Chemistry",
+                "Mathematics"
+              ],
+              "description": "Subject for the test."
+            },
+            "topic": {
+              "type": "string",
+              "description": "Topic within the subject."
+            },
+            "difficulty": {
+              "description": "Difficulty level (default jee-mains).",
+              "type": "string",
+              "enum": [
+                "cbse",
+                "jee-mains",
+                "jee-advanced"
+              ]
+            },
+            "question_count": {
+              "description": "Number of questions (default 5, max 10 for MCP).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "subject",
+            "topic"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "submit_answer",
+        "title": "Submit a test answer",
+        "description": "Submit an answer for the current question in an active MCP test session. Returns whether it was correct, the explanation, and the next question or final score.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The test session ID returned by start_test."
+            },
+            "answer": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The selected option label (e.g. 'A') or integer answer."
+            }
+          },
+          "required": [
+            "session_id",
+            "answer"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

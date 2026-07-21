@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -23,12 +24,18 @@ export default function Login() {
     password: ''
   });
 
+  const nextParam = searchParams.get("next");
+  const safeNext =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/home";
+
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/home');
+      navigate(safeNext);
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, safeNext]);
 
   useSEO({
     title: "Login | JEElytics - AI-Powered JEE Concept Checker",
@@ -57,7 +64,7 @@ export default function Login() {
           title: "Welcome back!",
           description: "Successfully logged in."
         });
-        navigate('/home');
+        navigate(safeNext);
       }
     } catch (error) {
       toast({
@@ -82,7 +89,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/home`,
+          redirectTo: `${window.location.origin}${safeNext}`,
         },
       });
       if (error) {
