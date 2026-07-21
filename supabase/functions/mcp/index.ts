@@ -127,7 +127,7 @@ var get_weak_chapters_default = defineTool3({
   description: "Analyze the signed-in user's recent test results and return the subjects and chapters where they score lowest.",
   inputSchema: {
     subject: z2.enum(["Physics", "Chemistry", "Mathematics"]).optional().describe("Optional subject filter."),
-    min_tests: z2.number().int().min(1).optional().describe("Minimum number of tests on a topic before it is considered (default 1).")
+    min_tests: z2.number().int().optional().describe("Minimum number of tests on a topic before it is considered (default 1).")
   },
   annotations: {
     readOnlyHint: true,

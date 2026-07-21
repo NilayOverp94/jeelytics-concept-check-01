@@ -15,7 +15,6 @@ export default defineTool({
     min_tests: z
       .number()
       .int()
-      .min(1)
       .optional()
       .describe("Minimum number of tests on a topic before it is considered (default 1)."),
   },

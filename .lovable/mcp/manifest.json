@@ -76,7 +76,7 @@
             "min_tests": {
               "description": "Minimum number of tests on a topic before it is considered (default 1).",
               "type": "integer",
-              "minimum": 1,
+              "minimum": -9007199254740991,
               "maximum": 9007199254740991
             }
           }
