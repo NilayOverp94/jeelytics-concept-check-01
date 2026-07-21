@@ -122,9 +122,9 @@ export default defineTool({
       .insert({
         user_id: userId,
         subject,
-        topic,
+        topic: trimmedTopic,
         difficulty,
-        question_count: questions.length,
+        question_count: safeQuestionCount,
         questions,
         correct_answers: questions.map((q) => q.correctAnswer),
         user_answers: new Array(questions.length).fill(""),
