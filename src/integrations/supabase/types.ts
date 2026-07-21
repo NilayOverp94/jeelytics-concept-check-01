@@ -440,6 +440,63 @@ export type Database = {
         }
         Relationships: []
       }
+      test_sessions: {
+        Row: {
+          correct_answers: Json
+          created_at: string
+          current_index: number
+          difficulty: string
+          finished_at: string | null
+          id: string
+          question_count: number
+          questions: Json
+          score: number
+          started_at: string
+          status: string
+          subject: string
+          topic: string
+          updated_at: string
+          user_answers: Json
+          user_id: string
+        }
+        Insert: {
+          correct_answers?: Json
+          created_at?: string
+          current_index?: number
+          difficulty?: string
+          finished_at?: string | null
+          id?: string
+          question_count?: number
+          questions?: Json
+          score?: number
+          started_at?: string
+          status?: string
+          subject: string
+          topic: string
+          updated_at?: string
+          user_answers?: Json
+          user_id: string
+        }
+        Update: {
+          correct_answers?: Json
+          created_at?: string
+          current_index?: number
+          difficulty?: string
+          finished_at?: string | null
+          id?: string
+          question_count?: number
+          questions?: Json
+          score?: number
+          started_at?: string
+          status?: string
+          subject?: string
+          topic?: string
+          updated_at?: string
+          user_answers?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_key: string

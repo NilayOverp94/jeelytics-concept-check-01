@@ -20,6 +20,7 @@ import StudyGroups from "./pages/StudyGroups";
 import About from "./pages/About";
 import Refund from "./pages/Refund";
 import StudyTools from "./pages/StudyTools";
+import OAuthConsent from "./pages/OAuthConsent";
 import SiteFooter from "./components/SiteFooter";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/about" element={<About />} />
           <Route path="/refund" element={<Refund />} />
+          <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <SiteFooter />

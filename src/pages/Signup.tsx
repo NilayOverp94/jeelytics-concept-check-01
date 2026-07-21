@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,7 @@ const signupSchema = z.object({
 
 export default function Signup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -48,12 +49,18 @@ export default function Signup() {
     confirmPassword: ''
   });
 
+  const nextParam = searchParams.get("next");
+  const safeNext =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/home";
+
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/home');
+      navigate(safeNext);
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, safeNext]);
 
   useSEO({
     title: "Sign Up | JEElytics - Start Your JEE Preparation Journey",
@@ -70,7 +77,7 @@ export default function Signup() {
       signupSchema.parse(formData);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const firstError = error.errors[0];
+        const firstError = error.issues[0];
         toast({
           title: "Validation Error",
           description: firstError.message,
@@ -88,7 +95,8 @@ export default function Signup() {
         options: {
           data: {
             name: formData.name,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}${safeNext}`,
         }
       });
 
@@ -103,7 +111,7 @@ export default function Signup() {
           title: "Account Created!",
           description: "Please check your email to verify your account.",
         });
-        navigate('/login');
+        navigate(`/login?next=${encodeURIComponent(safeNext)}`);
       }
     } catch (error) {
       toast({
@@ -234,7 +242,7 @@ export default function Signup() {
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Already have an account? </span>
               <Link
-                to="/login"
+                to={`/login${nextParam ? `?next=${encodeURIComponent(nextParam)}` : ""}`}
                 className="text-primary hover:text-primary-glow font-medium touch-target inline-block py-1"
               >
                 Sign in
