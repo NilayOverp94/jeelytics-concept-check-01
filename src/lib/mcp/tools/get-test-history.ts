@@ -26,6 +26,7 @@ export default defineTool({
         isError: true,
       };
     }
+    const safeLimit = Math.max(1, Math.min(50, Number(limit) || 10));
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId()!;
 

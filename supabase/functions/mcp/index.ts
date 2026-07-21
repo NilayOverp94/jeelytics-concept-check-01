@@ -91,6 +91,7 @@ var get_test_history_default = defineTool2({
         isError: true
       };
     }
+    const safeLimit = Math.max(1, Math.min(50, Number(limit) || 10));
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId();
     const { data, error } = await supabase.from("test_results").select("id, subject, topic, score, total_questions, time_spent, created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(limit);
