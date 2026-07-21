@@ -452,9 +452,9 @@ var submit_answer_default = defineTool6({
     const currentIdx = session.current_index;
     const currentQuestion = questions[currentIdx];
     const correctAnswer = session.correct_answers[currentIdx];
-    const isCorrect = answer.trim().toUpperCase() === correctAnswer.trim().toUpperCase();
+    const isCorrect = trimmedAnswer.toUpperCase() === correctAnswer.trim().toUpperCase();
     const userAnswers = [...session.user_answers];
-    userAnswers[currentIdx] = answer.trim();
+    userAnswers[currentIdx] = trimmedAnswer;
     const newScore = session.score + (isCorrect ? 1 : 0);
     const nextIndex = currentIdx + 1;
     const isFinished = nextIndex >= questions.length;

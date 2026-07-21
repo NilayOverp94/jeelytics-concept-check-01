@@ -63,10 +63,10 @@ export default defineTool({
     const currentIdx = session.current_index;
     const currentQuestion = questions[currentIdx];
     const correctAnswer = (session.correct_answers as string[])[currentIdx];
-    const isCorrect = answer.trim().toUpperCase() === correctAnswer.trim().toUpperCase();
+    const isCorrect = trimmedAnswer.toUpperCase() === correctAnswer.trim().toUpperCase();
 
     const userAnswers = [...(session.user_answers as string[])];
-    userAnswers[currentIdx] = answer.trim();
+    userAnswers[currentIdx] = trimmedAnswer;
 
     const newScore = session.score + (isCorrect ? 1 : 0);
     const nextIndex = currentIdx + 1;
