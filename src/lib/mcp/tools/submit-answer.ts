@@ -45,7 +45,7 @@ export default defineTool({
     const { data: session, error: fetchError } = await supabase
       .from("test_sessions")
       .select("*")
-      .eq("id", session_id)
+      .eq("id", trimmedSessionId)
       .eq("user_id", userId)
       .eq("status", "active")
       .single();

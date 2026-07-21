@@ -439,7 +439,7 @@ var submit_answer_default = defineTool6({
     }
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId();
-    const { data: session, error: fetchError } = await supabase.from("test_sessions").select("*").eq("id", session_id).eq("user_id", userId).eq("status", "active").single();
+    const { data: session, error: fetchError } = await supabase.from("test_sessions").select("*").eq("id", trimmedSessionId).eq("user_id", userId).eq("status", "active").single();
     if (fetchError || !session) {
       return {
         content: [
