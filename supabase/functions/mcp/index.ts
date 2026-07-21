@@ -423,6 +423,20 @@ var submit_answer_default = defineTool6({
         isError: true
       };
     }
+    const trimmedSessionId = session_id?.trim();
+    const trimmedAnswer = answer?.trim();
+    if (!trimmedSessionId || !/^[0-9a-fA-F-]{36}$/.test(trimmedSessionId)) {
+      return {
+        content: [{ type: "text", text: "A valid test session ID is required." }],
+        isError: true
+      };
+    }
+    if (!trimmedAnswer) {
+      return {
+        content: [{ type: "text", text: "An answer is required." }],
+        isError: true
+      };
+    }
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId();
     const { data: session, error: fetchError } = await supabase.from("test_sessions").select("*").eq("id", session_id).eq("user_id", userId).eq("status", "active").single();

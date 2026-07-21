@@ -23,6 +23,22 @@ export default defineTool({
         isError: true,
       };
     }
+
+    const trimmedSessionId = session_id?.trim();
+    const trimmedAnswer = answer?.trim();
+    if (!trimmedSessionId || !/^[0-9a-fA-F-]{36}$/.test(trimmedSessionId)) {
+      return {
+        content: [{ type: "text" as const, text: "A valid test session ID is required." }],
+        isError: true,
+      };
+    }
+    if (!trimmedAnswer) {
+      return {
+        content: [{ type: "text" as const, text: "An answer is required." }],
+        isError: true,
+      };
+    }
+
     const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId()!;
 
