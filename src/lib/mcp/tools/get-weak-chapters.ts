@@ -75,7 +75,7 @@ export default defineTool({
     }
 
     const weak = Object.values(byTopic)
-      .filter((t) => t.tests >= min_tests)
+      .filter((t) => t.tests >= safeMinTests)
       .map((t) => ({
         ...t,
         percentage: t.total > 0 ? Math.round((t.correct / t.total) * 100) : 0,

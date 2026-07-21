@@ -172,7 +172,7 @@ var get_weak_chapters_default = defineTool3({
       byTopic[key].correct += r.score;
       byTopic[key].tests += 1;
     }
-    const weak = Object.values(byTopic).filter((t) => t.tests >= min_tests).map((t) => ({
+    const weak = Object.values(byTopic).filter((t) => t.tests >= safeMinTests).map((t) => ({
       ...t,
       percentage: t.total > 0 ? Math.round(t.correct / t.total * 100) : 0
     })).sort((a, b) => a.percentage - b.percentage).slice(0, 10);
