@@ -24,6 +24,7 @@ import OAuthConsent from "./pages/OAuthConsent";
 import SiteFooter from "./components/SiteFooter";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
+import OAuthAuthorizationCatcher from "./components/OAuthAuthorizationCatcher";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <OAuthAuthorizationCatcher />
+
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
