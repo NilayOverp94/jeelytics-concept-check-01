@@ -12,6 +12,7 @@ import { z } from 'zod';
 import useSEO from '@/hooks/useSEO';
 
 import { useAuth } from '@/hooks/useAuth';
+import { getSafeRelativeNext, rememberOAuthNext } from '@/lib/oauthRedirect';
 
 const signupSchema = z.object({
   name: z.string()
@@ -50,10 +51,7 @@ export default function Signup() {
   });
 
   const nextParam = searchParams.get("next");
-  const safeNext =
-    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
-      ? nextParam
-      : "/home";
+  const safeNext = getSafeRelativeNext(nextParam);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -89,6 +87,7 @@ export default function Signup() {
     }
 
     try {
+      rememberOAuthNext(safeNext);
       const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -96,7 +95,7 @@ export default function Signup() {
           data: {
             name: formData.name,
           },
-          emailRedirectTo: `${window.location.origin}${safeNext}`,
+          emailRedirectTo: `${window.location.origin}/login`,
         }
       });
 

@@ -11,6 +11,7 @@ import useSEO from '@/hooks/useSEO';
 
 import logo from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
+import { consumeOAuthNext, getSafeRelativeNext, rememberOAuthNext } from '@/lib/oauthRedirect';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,15 +26,12 @@ export default function Login() {
   });
 
   const nextParam = searchParams.get("next");
-  const safeNext =
-    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
-      ? nextParam
-      : "/home";
+  const safeNext = getSafeRelativeNext(nextParam);
 
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      navigate(safeNext);
+      navigate(consumeOAuthNext(safeNext), { replace: true });
     }
   }, [user, authLoading, navigate, safeNext]);
 
@@ -86,10 +84,11 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
+      rememberOAuthNext(safeNext);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}${safeNext}`,
+          redirectTo: `${window.location.origin}/login`,
         },
       });
       if (error) {

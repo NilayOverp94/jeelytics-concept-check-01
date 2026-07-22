@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { rememberOAuthNext } from "@/lib/oauthRedirect";
 
 /**
  * When Supabase's OAuth 2.1 server sends an unauthenticated user to the
@@ -15,10 +16,9 @@ export default function OAuthAuthorizationCatcher() {
     const params = new URLSearchParams(location.search);
     const authorizationId = params.get("authorization_id");
     if (!authorizationId) return;
-    navigate(
-      `/.lovable/oauth/consent?authorization_id=${encodeURIComponent(authorizationId)}`,
-      { replace: true },
-    );
+    const target = `/.lovable/oauth/consent?authorization_id=${encodeURIComponent(authorizationId)}`;
+    rememberOAuthNext(target);
+    navigate(target, { replace: true });
   }, [location.pathname, location.search, navigate]);
 
   return null;
