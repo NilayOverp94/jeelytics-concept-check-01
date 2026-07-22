@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Shield, XCircle, CheckCircle } from "lucide-react";
+import { extractAuthorizationIdFromUrl, peekOAuthNext, rememberOAuthNext } from "@/lib/oauthRedirect";
 
 export default function OAuthConsent() {
   const [params] = useSearchParams();
-  const authorizationId = params.get("authorization_id") ?? "";
+  const authorizationId = params.get("authorization_id") ?? extractAuthorizationIdFromUrl();
   const [details, setDetails] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -15,7 +16,14 @@ export default function OAuthConsent() {
   useEffect(() => {
     let active = true;
     (async () => {
-      if (!authorizationId) return setError("Missing authorization request.");
+      if (!authorizationId) {
+        const pendingNext = peekOAuthNext();
+        if (pendingNext?.includes("authorization_id=")) {
+          window.location.replace(pendingNext);
+          return;
+        }
+        return setError("Missing authorization request. Please start the ChatGPT connection again from the connector window.");
+      }
       const {
         data: { session },
         error: sessionError,
@@ -25,6 +33,7 @@ export default function OAuthConsent() {
       }
       if (!session) {
         const next = window.location.pathname + window.location.search;
+        rememberOAuthNext(next);
         window.location.href = "/login?next=" + encodeURIComponent(next);
         return;
       }
