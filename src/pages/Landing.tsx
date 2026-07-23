@@ -83,6 +83,14 @@ export default function Landing() {
             >
               I Have an Account
             </Button>
+            <Button
+              size="lg"
+              variant="ghost"
+              className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto btn-mobile w-full sm:w-auto"
+              onClick={() => navigate('/founder')}
+            >
+              ✨ Founder Zone
+            </Button>
           </div>
         </div>
       </section>
