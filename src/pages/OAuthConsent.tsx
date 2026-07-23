@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Shield, XCircle, CheckCircle } from "lucide-react";
 import { extractAuthorizationIdFromUrl, peekOAuthNext, rememberOAuthNext } from "@/lib/oauthRedirect";
+import { approveAuthorization, denyAuthorization, getAuthorizationDetails } from "@/lib/supabaseOAuth";
 
 export default function OAuthConsent() {
   const [params] = useSearchParams();
@@ -37,7 +38,7 @@ export default function OAuthConsent() {
         window.location.href = "/login?next=" + encodeURIComponent(next);
         return;
       }
-      const { data, error: detailsError } = await (supabase.auth as any).oauth.getAuthorizationDetails(authorizationId);
+      const { data, error: detailsError } = await getAuthorizationDetails(authorizationId);
       if (!active) return;
       if (detailsError) return setError(detailsError.message);
       const immediate = data?.redirect_url ?? data?.redirect_to;
@@ -54,10 +55,9 @@ export default function OAuthConsent() {
 
   async function decide(approve: boolean) {
     setBusy(true);
-    const oauth = (supabase.auth as any).oauth;
     const { data, error: decisionError } = approve
-      ? await oauth.approveAuthorization(authorizationId)
-      : await oauth.denyAuthorization(authorizationId);
+      ? await approveAuthorization(authorizationId)
+      : await denyAuthorization(authorizationId);
     if (decisionError) {
       setBusy(false);
       return setError(decisionError.message);

@@ -268,12 +268,27 @@ function HomeContent() {
                 )}
               </div>
 
+          {/* Founder Zone CTA */}
+          <a href="/founder" className="block mb-6 group">
+            <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-purple-500/10 to-blue-500/10 p-4 md:p-5 backdrop-blur-xl hover:border-primary/60 transition-all flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-bold">NR</div>
+                <div>
+                  <div className="font-semibold text-sm md:text-base">Meet the Founder — Nilay Raj</div>
+                  <div className="text-xs text-muted-foreground">Founder Zone · Story · Projects · AI</div>
+                </div>
+              </div>
+              <span className="text-primary text-sm font-medium group-hover:translate-x-1 transition-transform">Explore →</span>
+            </div>
+          </a>
+
           {/* Test Configuration */}
           <Card className="card-jee animate-scale-in">
             <CardHeader>
               <CardTitle className="text-2xl text-center">Start Your Assessment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+
               {/* Subject Selection */}
               <div className="space-y-4">
                 <label className="text-sm font-medium">Select Subject</label>
