@@ -21,6 +21,7 @@ import About from "./pages/About";
 import Refund from "./pages/Refund";
 import StudyTools from "./pages/StudyTools";
 import OAuthConsent from "./pages/OAuthConsent";
+import FounderZone from "./pages/FounderZone";
 import SiteFooter from "./components/SiteFooter";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
