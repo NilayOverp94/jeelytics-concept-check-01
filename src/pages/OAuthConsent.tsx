@@ -38,7 +38,7 @@ export default function OAuthConsent() {
         window.location.href = "/login?next=" + encodeURIComponent(next);
         return;
       }
-      const { data, error: detailsError } = await (supabase.auth as any).oauth.getAuthorizationDetails(authorizationId);
+      const { data, error: detailsError } = await getAuthorizationDetails(authorizationId);
       if (!active) return;
       if (detailsError) return setError(detailsError.message);
       const immediate = data?.redirect_url ?? data?.redirect_to;
