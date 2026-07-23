@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Shield, XCircle, CheckCircle } from "lucide-react";
 import { extractAuthorizationIdFromUrl, peekOAuthNext, rememberOAuthNext } from "@/lib/oauthRedirect";
+import { approveAuthorization, denyAuthorization, getAuthorizationDetails } from "@/lib/supabaseOAuth";
 
 export default function OAuthConsent() {
   const [params] = useSearchParams();
