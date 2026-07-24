@@ -253,7 +253,7 @@ export default function FounderZone() {
             { year: "Next", title: "The future", desc: "Global AI products in education, cybersecurity and productivity." },
           ].map((m, i) => (
             <motion.div key={i} variants={fadeUp} className={`relative mb-8 md:w-1/2 ${i % 2 ? "md:ml-auto md:pl-12" : "md:pr-12"} pl-12 md:pl-12`}>
-              <div className="absolute left-2 md:left-auto md:right-full md:mr-[-9px] top-4 w-4 h-4 rounded-full bg-primary shadow-[0_0_20px_rgba(var(--primary),0.5)]" style={{ [i % 2 ? "left" : "right"]: i % 2 ? undefined : undefined } as any} />
+              <div className="absolute left-2 md:left-auto md:right-full md:mr-[-9px] top-4 w-4 h-4 rounded-full bg-primary shadow-glow" />
               <GlassCard className="p-6">
                 <Badge variant="outline" className="mb-2">{m.year}</Badge>
                 <div className="text-lg font-semibold">{m.title}</div>
