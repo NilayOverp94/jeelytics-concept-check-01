@@ -241,7 +241,7 @@ export default function FounderZone() {
       <Section id="story">
         <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-bold mb-12 text-center">Founder Story</motion.h2>
         <div className="relative">
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-purple-500/50 to-transparent" />
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-primary-glow/40 to-transparent" />
           {[
             { year: "Early", title: "First spark", desc: "Curiosity about how software actually works." },
             { year: "Learning", title: "Programming journey", desc: "JavaScript, TypeScript, React and modern web foundations." },
@@ -274,32 +274,32 @@ export default function FounderZone() {
               name: "JEElytics", tag: "AI EdTech Platform", url: LINKS.jeelytics,
               desc: "AI-powered platform for JEE, BITSAT, CUET, NDA aspirants — personalized tests, analytics, study groups, MCP server, OAuth 2.1, and voice AI assistant.",
               stack: ["React", "TypeScript", "Supabase", "Gemini", "MCP", "OAuth 2.1"],
-              gradient: "from-blue-500 to-cyan-500",
+              gradient: "from-primary to-primary-glow",
             },
             {
               name: "SafeLens AI", tag: "AI Cybersecurity", url: LINKS.safelens,
               desc: "Detects scams, phishing, and unsafe URLs. Screenshot analyzer, email safety, WhatsApp scam detection with AI explanations.",
               stack: ["React", "AI Vision", "LLMs", "Prompt Engineering"],
-              gradient: "from-red-500 to-orange-500",
+              gradient: "from-primary to-secondary",
             },
             {
               name: "Percentage Calculator Pro", tag: "Utility Web App", url: LINKS.percentagepro,
               desc: "Fast, responsive utility with percentage, GST, and profit-loss calculators. Clean educational UI.",
               stack: ["HTML", "CSS", "JS"],
-              gradient: "from-green-500 to-emerald-500",
+              gradient: "from-primary-glow to-secondary",
             },
             {
               name: "Personal Portfolio", tag: "Developer Hub", url: LINKS.portfolio,
               desc: "Modern developer portfolio showcasing projects, technical skills, achievements and blog.",
               stack: ["React", "TypeScript", "Netlify"],
-              gradient: "from-purple-500 to-pink-500",
+              gradient: "from-primary to-secondary-glow",
             },
           ].map((p, i) => (
             <motion.div key={i} variants={fadeUp}>
               <GlassCard className="p-6 h-full group hover:scale-[1.01] transition-all">
                 <div className={`h-40 rounded-xl mb-4 bg-gradient-to-br ${p.gradient} relative overflow-hidden flex items-center justify-center`}>
-                  <div className="text-3xl font-bold text-white/90">{p.name}</div>
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                  <div className="text-3xl font-bold text-primary-foreground/90 text-center px-4">{p.name}</div>
+                  <div className="absolute inset-0 bg-background/10 group-hover:bg-background/0 transition-colors" />
                 </div>
                 <Badge variant="secondary" className="mb-2">{p.tag}</Badge>
                 <div className="text-xl font-semibold mb-2">{p.name}</div>
@@ -436,7 +436,7 @@ export default function FounderZone() {
       <Section id="mission">
         <motion.div variants={fadeUp}>
           <GlassCard className="p-8 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary-glow/10 to-background" />
             <div className="relative">
               <Sparkles className="w-12 h-12 text-primary mx-auto mb-6" />
               <h2 className="text-3xl md:text-5xl font-bold mb-6">Building Technology That Matters</h2>
@@ -473,7 +473,7 @@ export default function FounderZone() {
       <Section id="contact">
         <motion.div variants={fadeUp}>
           <GlassCard className="p-8 md:p-14 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-500/20 to-blue-500/20" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary-glow/10 to-background" />
             <div className="relative">
               <h2 className="text-3xl md:text-5xl font-bold mb-4">Let's Build the Future Together</h2>
               <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
