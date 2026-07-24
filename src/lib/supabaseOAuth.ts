@@ -15,20 +15,29 @@ async function authedHeaders() {
 
 type OAuthResult<T> = { data: T | null; error: { message: string } | null };
 
-async function call<T>(path: string, method: "GET" | "POST"): Promise<OAuthResult<T>> {
+async function call<T>(path: string, method: "GET" | "POST", body?: unknown): Promise<OAuthResult<T>> {
   try {
     const res = await fetch(`${SUPABASE_URL}/auth/v1${path}`, {
       method,
       headers: await authedHeaders(),
+      ...(body ? { body: JSON.stringify(body) } : {}),
     });
     const text = await res.text();
-    const body = text ? JSON.parse(text) : null;
+    const parsed = text ? parseAuthResponse(text) : null;
     if (!res.ok) {
-      return { data: null, error: { message: body?.msg || body?.error_description || body?.error || res.statusText } };
+      return { data: null, error: { message: parsed?.msg || parsed?.message || parsed?.error_description || parsed?.error || res.statusText } };
     }
-    return { data: body as T, error: null };
+    return { data: parsed as T, error: null };
   } catch (e: any) {
     return { data: null, error: { message: e?.message ?? "Network error" } };
+  }
+}
+
+function parseAuthResponse(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text };
   }
 }
 
@@ -36,8 +45,8 @@ export function getAuthorizationDetails(id: string) {
   return call<any>(`/oauth/authorizations/${encodeURIComponent(id)}`, "GET");
 }
 export function approveAuthorization(id: string) {
-  return call<any>(`/oauth/authorizations/${encodeURIComponent(id)}/approve`, "POST");
+  return call<any>(`/oauth/authorizations/${encodeURIComponent(id)}/consent`, "POST", { action: "approve" });
 }
 export function denyAuthorization(id: string) {
-  return call<any>(`/oauth/authorizations/${encodeURIComponent(id)}/deny`, "POST");
+  return call<any>(`/oauth/authorizations/${encodeURIComponent(id)}/consent`, "POST", { action: "deny" });
 }
