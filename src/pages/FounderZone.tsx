@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import founderPhoto from "@/assets/nilay-raj.webp.asset.json";
 import {
   ArrowRight, Github, Linkedin, Mail, ExternalLink, Sparkles, Rocket,
   Brain, Shield, Code2, GraduationCap, Building2, Target, Trophy,
@@ -22,6 +23,9 @@ const LINKS = {
   hashnode: "https://hashnode.com/@NilayOverp94",
   email: "mailto:nilayraj713@gmail.com",
 };
+
+const SITE_URL = "https://jeelytics-concept-check-01.lovable.app";
+const founderImageAlt = "Nilay Raj, founder of JEElytics and AI engineer";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -45,7 +49,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 
 function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`relative rounded-2xl border border-white/10 bg-white/5 dark:bg-white/[0.03] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] ${className}`}>
+    <div className={`relative rounded-2xl border border-primary/15 bg-card/70 backdrop-blur-xl shadow-card ${className}`}>
       {children}
     </div>
   );
@@ -65,7 +69,7 @@ function Counter({ end, label, suffix = "" }: { end: number; label: string; suff
   }, [end]);
   return (
     <GlassCard className="p-6 text-center">
-      <div className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-primary to-purple-500 bg-clip-text text-transparent">
+      <div className="text-3xl md:text-4xl font-bold text-gradient-primary">
         {n}{suffix}
       </div>
       <div className="text-sm text-muted-foreground mt-2">{label}</div>
@@ -75,27 +79,30 @@ function Counter({ end, label, suffix = "" }: { end: number; label: string; suff
 
 export default function FounderZone() {
   useEffect(() => {
-    document.title = "Nilay Raj — Founder of JEElytics & SafeLens AI | AI Engineer";
+    document.title = "Nilay Raj | JEElytics Founder & AI Engineer";
     const meta = (name: string, content: string, isProp = false) => {
       const attr = isProp ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.content = content;
     };
-    const desc = "Nilay Raj — Founder of JEElytics and SafeLens AI, Head of Business Development at Apyx, AI Engineer & Full Stack Developer based in New Delhi, India. Student at Bosscoder School of Technology.";
+    const desc = "Nilay Raj is the founder of JEElytics, SafeLens AI builder, AI engineer, full-stack developer, and EdTech startup creator from New Delhi, India.";
+    const founderImageUrl = new URL(founderPhoto.url, window.location.origin).href;
     meta("description", desc);
-    meta("keywords", "Nilay Raj, JEElytics, SafeLens AI, Apyx, Bosscoder School of Technology, AI Engineer, Full Stack Developer, EdTech founder, New Delhi");
-    meta("og:title", "Nilay Raj — Founder Zone", true);
+    meta("keywords", "Nilay Raj, Nilay Raj JEElytics, JEElytics founder, SafeLens AI, NilayOverp94, Apyx, Bosscoder School of Technology, AI Engineer, Full Stack Developer, EdTech founder, New Delhi");
+    meta("author", "Nilay Raj");
+    meta("robots", "index, follow, max-image-preview:large");
+    meta("og:title", "Nilay Raj — JEElytics Founder", true);
     meta("og:description", desc, true);
     meta("og:type", "profile", true);
-    meta("og:url", "https://jeelytics-concept-check-01.lovable.app/founder", true);
+    meta("og:url", `${SITE_URL}/founder`, true);
     meta("twitter:card", "summary_large_image");
-    meta("twitter:title", "Nilay Raj — Founder of JEElytics & SafeLens AI");
+    meta("twitter:title", "Nilay Raj — Founder of JEElytics");
     meta("twitter:description", desc);
 
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://jeelytics-concept-check-01.lovable.app/founder";
+    canonical.href = `${SITE_URL}/founder`;
 
     const ldId = "founder-jsonld";
     let ld = document.getElementById(ldId) as HTMLScriptElement | null;
@@ -106,9 +113,12 @@ export default function FounderZone() {
         {
           "@type": "Person",
           name: "Nilay Raj",
-          url: "https://jeelytics-concept-check-01.lovable.app/founder",
-          image: "https://jeelytics-concept-check-01.lovable.app/founder-avatar.jpg",
+          alternateName: ["NilayOverp94", "Nilay Raj JEElytics"],
+          url: `${SITE_URL}/founder`,
+          image: founderImageUrl,
+          mainEntityOfPage: `${SITE_URL}/founder`,
           jobTitle: "Founder & AI Engineer",
+          description: desc,
           worksFor: [
             { "@type": "Organization", name: "JEElytics", url: LINKS.jeelytics },
             { "@type": "Organization", name: "SafeLens AI", url: LINKS.safelens },
@@ -120,22 +130,23 @@ export default function FounderZone() {
           knowsAbout: ["Artificial Intelligence", "Generative AI", "LLMs", "MCP", "Full Stack Development", "EdTech", "Cybersecurity", "SEO"],
           sameAs: [LINKS.github, LINKS.linkedin, LINKS.medium, LINKS.devto, LINKS.hashnode, LINKS.portfolio, LINKS.jeelytics, LINKS.safelens],
         },
-        { "@type": "WebSite", name: "JEElytics", url: LINKS.jeelytics },
+        { "@type": "WebSite", name: "JEElytics", url: LINKS.jeelytics, founder: { "@type": "Person", name: "Nilay Raj" } },
+        { "@type": "ProfilePage", name: "Nilay Raj Founder Zone", url: `${SITE_URL}/founder`, mainEntity: { "@type": "Person", name: "Nilay Raj", image: founderImageUrl } },
         { "@type": "BreadcrumbList", itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: "https://jeelytics-concept-check-01.lovable.app/" },
-          { "@type": "ListItem", position: 2, name: "Founder Zone", item: "https://jeelytics-concept-check-01.lovable.app/founder" },
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+          { "@type": "ListItem", position: 2, name: "Nilay Raj Founder Zone", item: `${SITE_URL}/founder` },
         ]},
       ],
     });
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Ambient gradient bg */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-primary/20 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full bg-blue-500/10 blur-[100px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-primary/15 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-primary-glow/10 blur-[120px]" />
       </div>
 
       {/* HERO */}
@@ -146,7 +157,7 @@ export default function FounderZone() {
               <Sparkles className="w-3 h-3 mr-1" /> Founder Zone
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-4">
-              Nilay <span className="bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent">Raj</span>
+              Nilay <span className="text-gradient-primary">Raj</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-2">
               Founder of JEElytics · AI Engineer · Full Stack Developer
@@ -167,14 +178,23 @@ export default function FounderZone() {
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
             <div className="relative aspect-square max-w-md mx-auto">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary via-purple-500 to-blue-500 blur-2xl opacity-30 animate-pulse" />
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary to-primary-glow blur-2xl opacity-30 animate-pulse" />
               <GlassCard className="relative h-full flex items-center justify-center overflow-hidden">
-                <div className="text-center p-8">
-                  <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-5xl font-bold text-white mb-4 shadow-2xl">
-                    NR
+                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primary/25 to-transparent" />
+                <div className="relative text-center p-8">
+                  <div className="relative w-44 h-44 sm:w-52 sm:h-52 mx-auto rounded-full p-1 bg-gradient-to-br from-primary to-primary-glow mb-5 shadow-glow">
+                    <img
+                      src={founderPhoto.url}
+                      alt={founderImageAlt}
+                      title="Nilay Raj - Founder of JEElytics"
+                      width="208"
+                      height="208"
+                      loading="eager"
+                      className="h-full w-full rounded-full object-cover object-[50%_18%] border-4 border-background"
+                    />
                   </div>
                   <div className="text-xl font-semibold">Nilay Raj</div>
-                  <div className="text-sm text-muted-foreground">Founder · Builder · Learner</div>
+                  <div className="text-sm text-muted-foreground">Founder of JEElytics · AI Builder · Developer</div>
                   <div className="flex justify-center gap-2 mt-4 flex-wrap">
                     <Badge>AI</Badge><Badge>EdTech</Badge><Badge>Startup</Badge><Badge>Security</Badge>
                   </div>
@@ -220,7 +240,7 @@ export default function FounderZone() {
       <Section id="story">
         <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-bold mb-12 text-center">Founder Story</motion.h2>
         <div className="relative">
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-purple-500/50 to-transparent" />
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-primary-glow/40 to-transparent" />
           {[
             { year: "Early", title: "First spark", desc: "Curiosity about how software actually works." },
             { year: "Learning", title: "Programming journey", desc: "JavaScript, TypeScript, React and modern web foundations." },
@@ -232,7 +252,7 @@ export default function FounderZone() {
             { year: "Next", title: "The future", desc: "Global AI products in education, cybersecurity and productivity." },
           ].map((m, i) => (
             <motion.div key={i} variants={fadeUp} className={`relative mb-8 md:w-1/2 ${i % 2 ? "md:ml-auto md:pl-12" : "md:pr-12"} pl-12 md:pl-12`}>
-              <div className="absolute left-2 md:left-auto md:right-full md:mr-[-9px] top-4 w-4 h-4 rounded-full bg-primary shadow-[0_0_20px_rgba(var(--primary),0.5)]" style={{ [i % 2 ? "left" : "right"]: i % 2 ? undefined : undefined } as any} />
+              <div className="absolute left-2 md:left-auto md:right-full md:mr-[-9px] top-4 w-4 h-4 rounded-full bg-primary shadow-glow" />
               <GlassCard className="p-6">
                 <Badge variant="outline" className="mb-2">{m.year}</Badge>
                 <div className="text-lg font-semibold">{m.title}</div>
@@ -253,32 +273,32 @@ export default function FounderZone() {
               name: "JEElytics", tag: "AI EdTech Platform", url: LINKS.jeelytics,
               desc: "AI-powered platform for JEE, BITSAT, CUET, NDA aspirants — personalized tests, analytics, study groups, MCP server, OAuth 2.1, and voice AI assistant.",
               stack: ["React", "TypeScript", "Supabase", "Gemini", "MCP", "OAuth 2.1"],
-              gradient: "from-blue-500 to-cyan-500",
+              gradient: "from-primary to-primary-glow",
             },
             {
               name: "SafeLens AI", tag: "AI Cybersecurity", url: LINKS.safelens,
               desc: "Detects scams, phishing, and unsafe URLs. Screenshot analyzer, email safety, WhatsApp scam detection with AI explanations.",
               stack: ["React", "AI Vision", "LLMs", "Prompt Engineering"],
-              gradient: "from-red-500 to-orange-500",
+              gradient: "from-primary to-secondary",
             },
             {
               name: "Percentage Calculator Pro", tag: "Utility Web App", url: LINKS.percentagepro,
               desc: "Fast, responsive utility with percentage, GST, and profit-loss calculators. Clean educational UI.",
               stack: ["HTML", "CSS", "JS"],
-              gradient: "from-green-500 to-emerald-500",
+              gradient: "from-primary-glow to-secondary",
             },
             {
               name: "Personal Portfolio", tag: "Developer Hub", url: LINKS.portfolio,
               desc: "Modern developer portfolio showcasing projects, technical skills, achievements and blog.",
               stack: ["React", "TypeScript", "Netlify"],
-              gradient: "from-purple-500 to-pink-500",
+              gradient: "from-primary to-secondary-glow",
             },
           ].map((p, i) => (
             <motion.div key={i} variants={fadeUp}>
               <GlassCard className="p-6 h-full group hover:scale-[1.01] transition-all">
                 <div className={`h-40 rounded-xl mb-4 bg-gradient-to-br ${p.gradient} relative overflow-hidden flex items-center justify-center`}>
-                  <div className="text-3xl font-bold text-white/90">{p.name}</div>
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                  <div className="text-3xl font-bold text-primary-foreground/90 text-center px-4">{p.name}</div>
+                  <div className="absolute inset-0 bg-background/10 group-hover:bg-background/0 transition-colors" />
                 </div>
                 <Badge variant="secondary" className="mb-2">{p.tag}</Badge>
                 <div className="text-xl font-semibold mb-2">{p.name}</div>
@@ -415,7 +435,7 @@ export default function FounderZone() {
       <Section id="mission">
         <motion.div variants={fadeUp}>
           <GlassCard className="p-8 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary-glow/10 to-background" />
             <div className="relative">
               <Sparkles className="w-12 h-12 text-primary mx-auto mb-6" />
               <h2 className="text-3xl md:text-5xl font-bold mb-6">Building Technology That Matters</h2>
@@ -452,7 +472,7 @@ export default function FounderZone() {
       <Section id="contact">
         <motion.div variants={fadeUp}>
           <GlassCard className="p-8 md:p-14 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-500/20 to-blue-500/20" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary-glow/10 to-background" />
             <div className="relative">
               <h2 className="text-3xl md:text-5xl font-bold mb-4">Let's Build the Future Together</h2>
               <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
