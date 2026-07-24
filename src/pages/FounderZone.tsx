@@ -190,7 +190,7 @@ export default function FounderZone() {
                       width="208"
                       height="208"
                       loading="eager"
-                      fetchPriority="high"
+                      fetchpriority="high"
                       className="h-full w-full rounded-full object-cover object-[50%_18%] border-4 border-background"
                     />
                   </div>
