@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import founderPhoto from "@/assets/nilay-raj.webp.asset.json";
 import {
   ArrowRight, Github, Linkedin, Mail, ExternalLink, Sparkles, Rocket,
   Brain, Shield, Code2, GraduationCap, Building2, Target, Trophy,
@@ -22,6 +23,9 @@ const LINKS = {
   hashnode: "https://hashnode.com/@NilayOverp94",
   email: "mailto:nilayraj713@gmail.com",
 };
+
+const SITE_URL = "https://jeelytics-concept-check-01.lovable.app";
+const founderImageAlt = "Nilay Raj, founder of JEElytics and AI engineer";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -45,7 +49,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 
 function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`relative rounded-2xl border border-white/10 bg-white/5 dark:bg-white/[0.03] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] ${className}`}>
+    <div className={`relative rounded-2xl border border-primary/15 bg-card/70 backdrop-blur-xl shadow-card ${className}`}>
       {children}
     </div>
   );
@@ -65,7 +69,7 @@ function Counter({ end, label, suffix = "" }: { end: number; label: string; suff
   }, [end]);
   return (
     <GlassCard className="p-6 text-center">
-      <div className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-primary to-purple-500 bg-clip-text text-transparent">
+      <div className="text-3xl md:text-4xl font-bold text-gradient-primary">
         {n}{suffix}
       </div>
       <div className="text-sm text-muted-foreground mt-2">{label}</div>
