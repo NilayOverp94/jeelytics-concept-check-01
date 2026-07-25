@@ -5,6 +5,9 @@
   "auth": {
     "type": "oauth",
     "issuer": "https://qoemuymleuoaymuenxjs.supabase.co/auth/v1",
+    "resource": "https://qoemuymleuoaymuenxjs.supabase.co/functions/v1/mcp",
+    "resource_name": "JEElytics MCP",
+    "resource_documentation": "https://jeelytics-concept-check-01.lovable.app/founder",
     "accepted_audiences": [
       "authenticated"
     ]
