@@ -3,7 +3,7 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // src/lib/mcp/index.ts
-import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.23.0";
+import { auth, defineMcp, setLogLevel } from "npm:@lovable.dev/mcp-js@0.23.0";
 
 // src/lib/mcp/tools/get-profile.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.23.0";
@@ -534,6 +534,8 @@ ${optionsText}`
 
 // src/lib/mcp/index.ts
 var projectRef = "qoemuymleuoaymuenxjs";
+var mcpResource = `https://${projectRef}.supabase.co/functions/v1/mcp`;
+setLogLevel("info");
 var mcp_default = defineMcp({
   name: "jeelytics-mcp",
   title: "JEElytics MCP",
@@ -541,7 +543,10 @@ var mcp_default = defineMcp({
   instructions: "JEElytics MCP server. Use these tools to help JEE aspirants practice tests, review weak chapters, and access previous-year papers through voice or chat assistants. To start a test, call start_test with subject, topic, and optional difficulty. Then use submit_answer with the session_id to answer each question.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
-    acceptedAudiences: "authenticated"
+    resource: mcpResource,
+    acceptedAudiences: "authenticated",
+    resourceName: "JEElytics MCP",
+    resourceDocumentation: "https://jeelytics-concept-check-01.lovable.app/founder"
   }),
   tools: [
     get_profile_default,
