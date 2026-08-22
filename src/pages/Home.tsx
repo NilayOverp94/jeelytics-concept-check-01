@@ -41,6 +41,7 @@ const SUBJECT_COLORS: Record<Subject, string> = {
 function HomeContent() {
   const { activeTab, setActiveTab } = useAICommand();
   const hasGroupUnread = useGroupUnread();
+  const { theme, toggleTheme } = useTheme();
   
   useSEO({
     title: "Dashboard | JEElytics - Your JEE Practice Hub",
