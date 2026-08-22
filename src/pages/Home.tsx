@@ -164,54 +164,104 @@ function HomeContent() {
     <div className="min-h-screen bg-background pt-safe overflow-x-hidden">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 pt-safe">
-        <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-            <Link to="/home" className="flex items-center gap-1.5 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer shrink-0">
+        <div className="w-full px-3 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Link to="/home" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer shrink-0">
               <img
                 src={logo}
                 alt="JEElytics logo"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded"
+                className="h-9 w-9 sm:h-8 sm:w-8 rounded"
                 loading="eager"
               />
-              <h1 className="text-sm sm:text-2xl font-bold text-gradient-primary whitespace-nowrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-gradient-primary whitespace-nowrap">
                 JEElytics
               </h1>
             </Link>
-            <div className="flex items-center gap-0.5 sm:gap-2 ml-auto">
+
+            {/* Mobile: compact — status badge + More menu */}
+            <div className="flex md:hidden items-center gap-2 ml-auto">
+              <UserStatusBadge />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full h-9 px-3 gap-1 border-primary/30 bg-primary/5 backdrop-blur-md"
+                    aria-label="More options"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="text-xs font-medium">More</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 p-1.5 rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-xl shadow-glow animate-scale-in"
+                >
+                  <DropdownMenuItem className="rounded-xl gap-3 py-2.5 cursor-pointer" onClick={() => navigate('/profile')}>
+                    <User className="h-4 w-4 text-primary" /> Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-xl gap-3 py-2.5 cursor-pointer" onClick={() => navigate('/groups')}>
+                    <Users className="h-4 w-4 text-primary" /> Study Groups
+                    {hasGroupUnread && <span className="ml-auto h-2 w-2 rounded-full bg-destructive" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="rounded-xl gap-2 py-1.5 cursor-pointer focus:bg-accent/10"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <InboxButton />
+                    <span>Inbox</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="rounded-xl gap-3 py-2.5 cursor-pointer"
+                    onSelect={(e) => { e.preventDefault(); toggleTheme(); }}
+                  >
+                    <Palette className="h-4 w-4 text-primary" /> {theme === 'light' ? 'Dark mode' : 'Light mode'}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="rounded-xl gap-3 py-2.5 cursor-pointer text-destructive focus:text-destructive" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4" /> Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Desktop / tablet: full icon row */}
+            <div className="hidden md:flex items-center gap-2 ml-auto">
               <UserStatusBadge />
               <div className="flex flex-col items-center" data-tour="profile">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9" onClick={() => navigate('/profile')} aria-label="Profile">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full h-9 w-9" onClick={() => navigate('/profile')} aria-label="Profile">
+                  <User className="h-5 w-5" />
                 </Button>
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Profile</span>
+                <span className="text-[10px] text-muted-foreground leading-none mt-0.5">Profile</span>
               </div>
               <div className="flex flex-col items-center" data-tour="groups">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 relative" onClick={() => navigate('/groups')} aria-label="Study Groups">
-                  <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 relative" onClick={() => navigate('/groups')} aria-label="Study Groups">
+                  <Users className="h-5 w-5" />
                   {hasGroupUnread && (
                     <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
                   )}
                 </Button>
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Groups</span>
+                <span className="text-[10px] text-muted-foreground leading-none mt-0.5">Groups</span>
               </div>
               <div className="flex flex-col items-center" data-tour="inbox">
                 <InboxButton />
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Inbox</span>
+                <span className="text-[10px] text-muted-foreground leading-none mt-0.5">Inbox</span>
               </div>
               <div className="flex flex-col items-center" data-tour="theme">
                 <ThemeToggle />
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Theme</span>
+                <span className="text-[10px] text-muted-foreground leading-none mt-0.5">Theme</span>
               </div>
               <div className="flex flex-col items-center">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-9 sm:w-9 text-destructive" onClick={handleLogout} aria-label="Logout">
-                  <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 text-destructive" onClick={handleLogout} aria-label="Logout">
+                  <LogOut className="h-5 w-5" />
                 </Button>
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">Logout</span>
+                <span className="text-[10px] text-muted-foreground leading-none mt-0.5">Logout</span>
               </div>
             </div>
           </div>
         </div>
       </header>
+
 
       {/* Main Content */}
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-safe">
