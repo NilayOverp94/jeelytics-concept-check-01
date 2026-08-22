@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText, Users, Bell as BellIcon, Palette, MessageCircle } from 'lucide-react';
+import { Brain, BookOpen, Calculator, Zap, LogOut, User, GraduationCap, ClipboardList, Play, FileText, Sparkles, ScrollText, Users, Bell as BellIcon, Palette, MessageCircle, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useTheme } from '@/hooks/useTheme';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
