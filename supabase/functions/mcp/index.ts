@@ -345,8 +345,14 @@ var start_test_default = defineTool5({
       };
     }
     const safeQuestionCount = Math.max(1, Math.min(10, Number(question_count) || 5));
-    const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId();
+    if (!userId) {
+      return {
+        content: [{ type: "text", text: "Your signed-in account could not be identified. Please reconnect JEElytics." }],
+        isError: true
+      };
+    }
+    const supabase = supabaseForUser(ctx);
     const { data: canTake, error: canError } = await supabase.rpc("can_take_test", {
       p_user_id: userId
     });
