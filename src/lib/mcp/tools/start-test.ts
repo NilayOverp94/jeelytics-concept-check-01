@@ -55,8 +55,14 @@ export default defineTool({
     }
     const safeQuestionCount = Math.max(1, Math.min(10, Number(question_count) || 5));
 
+    const userId = ctx.getUserId();
+    if (!userId) {
+      return {
+        content: [{ type: "text" as const, text: "Your signed-in account could not be identified. Please reconnect JEElytics." }],
+        isError: true,
+      };
+    }
     const supabase = supabaseForUser(ctx);
-    const userId = ctx.getUserId()!;
 
     // Check test limits
     const { data: canTake, error: canError } = await supabase.rpc("can_take_test", {

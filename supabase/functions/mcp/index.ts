@@ -10,14 +10,56 @@ import { defineTool } from "npm:@lovable.dev/mcp-js@0.23.0";
 
 // src/lib/mcp/supabase.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.50.4";
+function runtimeEnv(name) {
+  const runtime = globalThis;
+  return runtime.Deno?.env?.get?.(name) ?? runtime.process?.env?.[name];
+}
+function configuredEnv(names) {
+  for (const name of names) {
+    const value = runtimeEnv(name)?.trim();
+    if (value) return value;
+  }
+  return void 0;
+}
+function supabaseProjectUrl() {
+  const url = configuredEnv(["SUPABASE_URL", "VITE_SUPABASE_URL"]);
+  if (!url) throw new Error("SUPABASE_URL (or VITE_SUPABASE_URL) is required");
+  return url;
+}
+function supabasePublishableKey() {
+  const direct = configuredEnv([
+    "SUPABASE_PUBLISHABLE_KEY",
+    "VITE_SUPABASE_PUBLISHABLE_KEY"
+  ]);
+  if (direct) return direct;
+  const keyset = runtimeEnv("SUPABASE_PUBLISHABLE_KEYS");
+  if (keyset) {
+    try {
+      const parsed = JSON.parse(keyset);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const keys = parsed;
+        const key = [keys.default, ...Object.values(keys)].find(
+          (value) => typeof value === "string" && value.trim().startsWith("sb_publishable_")
+        );
+        if (key) return key.trim();
+      }
+    } catch {
+    }
+  }
+  const legacy = configuredEnv(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]);
+  if (legacy) return legacy;
+  throw new Error(
+    "SUPABASE_PUBLISHABLE_KEY, SUPABASE_PUBLISHABLE_KEYS, or SUPABASE_ANON_KEY is required"
+  );
+}
 function supabaseForUser(ctx) {
   const token = ctx.getToken();
   if (!token) {
     throw new Error("Not authenticated");
   }
   return createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_PUBLISHABLE_KEY,
+    supabaseProjectUrl(),
+    supabasePublishableKey(),
     {
       global: { headers: { Authorization: `Bearer ${token}` } },
       auth: { persistSession: false, autoRefreshToken: false }
@@ -303,8 +345,14 @@ var start_test_default = defineTool5({
       };
     }
     const safeQuestionCount = Math.max(1, Math.min(10, Number(question_count) || 5));
-    const supabase = supabaseForUser(ctx);
     const userId = ctx.getUserId();
+    if (!userId) {
+      return {
+        content: [{ type: "text", text: "Your signed-in account could not be identified. Please reconnect JEElytics." }],
+        isError: true
+      };
+    }
+    const supabase = supabaseForUser(ctx);
     const { data: canTake, error: canError } = await supabase.rpc("can_take_test", {
       p_user_id: userId
     });
